@@ -1,0 +1,7 @@
+runlmc.kern.matern32 module
+===========================
+
+.. automodule:: runlmc.kern.matern32
+    :members:
+    :undoc-members:
+    :show-inheritance:

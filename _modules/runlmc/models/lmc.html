@@ -48,6 +48,7 @@
 <span class="c1"># Licensed under the BSD 3-clause license (see LICENSE)</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">math</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
@@ -207,7 +208,7 @@
 
         <span class="n">_LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;LMC </span><span class="si">%s</span><span class="s1"> fully initialized&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-    <span class="n">TOL</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">4</span>
+    <span class="n">TOL</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">10</span> <span class="c1"># Target tolerance. Only errors &gt; sqrt(TOL) reported.</span>
 
     <span class="k">class</span> <span class="nc">_SKI</span><span class="p">(</span><span class="n">PSDMatrix</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K_sum</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">noise</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
@@ -292,13 +293,28 @@
 <div class="viewcode-block" id="LMC.parameters_changed"><a class="viewcode-back" href="../../../runlmc.models.lmc.html#runlmc.models.lmc.LMC.parameters_changed">[docs]</a>    <span class="k">def</span> <span class="nf">parameters_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># derivatives w.r.t. ordinary covariance hyperparameters</span>
         <span class="c1"># d lam(K) = diag(V&#39;*dK*V), for psd matrix K = V*diag(lam)*V&#39;.</span>
-        <span class="k">if</span> <span class="n">_LOG</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
-            <span class="n">_LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;params changed for LMC</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">ski_kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_ski</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">native_var</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">native_var</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">_LOG</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:7.6e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span>
+            <span class="k">def</span> <span class="nf">np_print</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array2string</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">formatter</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;float&#39;</span><span class="p">:</span><span class="n">fmt</span><span class="p">})</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Parameters changed&#39;</span><span class="p">)</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;log likelihood   </span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_likelihood</span><span class="p">())</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;normal quadratic </span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal_quadratic</span><span class="p">())</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;log det K        </span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_det_K</span><span class="p">())</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;noise </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">np_print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="p">))</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;coreg vecs&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="p">):</span>
+                <span class="n">_LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;  a</span><span class="si">%d</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">np_print</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;coreg diags&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="p">):</span>
+                <span class="n">_LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;  kappa</span><span class="si">%d</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">np_print</span><span class="p">(</span><span class="n">a</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="LMC.K_SKI"><a class="viewcode-back" href="../../../runlmc.models.lmc.html#runlmc.models.lmc.LMC.K_SKI">[docs]</a>    <span class="k">def</span> <span class="nf">K_SKI</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -317,8 +333,8 @@
 <span class="sd">                  upper bound for</span>
 <span class="sd">                  :math:`\\log\\det K_{\text{exact}}`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">min_noise</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">TOL</span><span class="p">)</span>
-        <span class="n">eigs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ski_kernel</span><span class="o">.</span><span class="n">K_sum</span><span class="o">.</span><span class="n">approx_eigs</span><span class="p">(</span><span class="n">min_noise</span><span class="p">)</span>
+        <span class="c1"># return np.linalg.slogdet(self.K_SKI())[1]</span>
+        <span class="n">eigs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ski_kernel</span><span class="o">.</span><span class="n">K_sum</span><span class="o">.</span><span class="n">approx_eigs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="c1"># noise needs to be adjusted dimensionally. Idea: use top eigs?</span>
         <span class="n">eigs</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
         <span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ys</span><span class="p">)))</span>
@@ -328,15 +344,23 @@
         <span class="c1"># The numerical treatment of integral equation</span>
         <span class="c1"># This converges to the upper bound in the number of examples.</span>
         <span class="n">top_eigs</span> <span class="o">=</span> <span class="n">eigs</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">noise</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_grid</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">top_eigs</span> <span class="o">+</span> <span class="n">noise</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">TOL</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">top_eigs</span> <span class="o">+</span> <span class="n">noise</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">_invmul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="c1"># K = self.K_SKI()</span>
+        <span class="c1"># return la.solve(K, y, sym_pos=True, overwrite_a=True)</span>
+
         <span class="n">op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ski_kernel</span><span class="o">.</span><span class="n">as_linear_operator</span><span class="p">()</span>
         <span class="n">Kinv_y</span><span class="p">,</span> <span class="n">succ</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">minres</span><span class="p">(</span>
-            <span class="n">op</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TOL</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">succ</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">_LOG</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;MINRES (m = </span><span class="si">%d</span><span class="s1">) for LMC </span><span class="si">%s</span><span class="s1"> did not converge.&#39;</span>
-                          <span class="s1">&#39;Error </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">succ</span><span class="p">)</span>
+            <span class="n">op</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TOL</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">op</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">Kinv_y</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">error</span> <span class="o">&gt;</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TOL</span><span class="p">)</span> <span class="ow">or</span> <span class="n">succ</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;MINRES (m = </span><span class="si">%d</span><span class="s1">) did not converge.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                          <span class="s1">&#39;LMC </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span>
+                          <span class="s1">&#39;iterations = m*m = </span><span class="si">%d</span><span class="se">\n</span><span class="s1">&#39;</span>
+                          <span class="s1">&#39;error code </span><span class="si">%d</span><span class="se">\n</span><span class="s1">Reconstruction Error </span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">,</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">succ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">Kinv_y</span>
 
     <span class="k">def</span> <span class="nf">_precompute_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

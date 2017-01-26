@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.kern.matern32 module &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.kern package" href="runlmc.kern.html" />
+    <link rel="next" title="runlmc.kern.rbf module" href="runlmc.kern.rbf.html" />
+    <link rel="prev" title="runlmc.kern.identity module" href="runlmc.kern.identity.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runlmc.kern.matern32">
+<span id="runlmc-kern-matern32-module"></span><h1>runlmc.kern.matern32 module<a class="headerlink" href="#module-runlmc.kern.matern32" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="runlmc.kern.matern32.Matern32">
+<em class="property">class </em><code class="descclassname">runlmc.kern.matern32.</code><code class="descname">Matern32</code><span class="sig-paren">(</span><em>inv_lengthscale=1</em>, <em>name='matern32'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/kern/matern32.html#Matern32"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.kern.matern32.Matern32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern" title="runlmc.kern.stationary_kern.StationaryKern"><code class="xref py py-class docutils literal"><span class="pre">runlmc.kern.stationary_kern.StationaryKern</span></code></a></p>
+<p>This class defines the Matérn-3/2 kernel <span class="math">\(k\)</span>.</p>
+<div class="math">
+\[k(r) = (1+r\gamma\sqrt{3})\exp \left(-\gamma r\sqrt{3}\right)\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>inv_lengthscale</strong> &#8211; <span class="math">\(\gamma\)</span>, above.</li>
+<li><strong>name</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="runlmc.kern.matern32.Matern32.from_dist">
+<code class="descname">from_dist</code><span class="sig-paren">(</span><em>dists</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/kern/matern32.html#Matern32.from_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.kern.matern32.Matern32.from_dist" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dists</strong> &#8211; <cite>N</cite>-size numpy array of positive (Euclidean) distances.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">kernel value at each of the given distances</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.kern.matern32.Matern32.kernel_gradient">
+<code class="descname">kernel_gradient</code><span class="sig-paren">(</span><em>dists</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/kern/matern32.html#Matern32.kernel_gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.kern.matern32.Matern32.kernel_gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Let this kernel be parameterized by some parameters
+<span class="math">\(\boldsymbol\theta\in\mathbb{R}^p\)</span>. For every
+<span class="math">\(\theta_j\in\boldsymbol\theta\)</span>, at any given distance
+<span class="math">\(d\)</span>, we can compute the derivative
+<span class="math">\(\partial_{\theta_j}k(d)\)</span>. For the evaluation of this
+partial derivative at multiple places, <span class="math">\(\textbf{d}\)</span>,
+we call the vector of partial derivatives
+<span class="math">\(\partial_{\theta_j}k(\textbf{d})\)</span>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dists</strong> &#8211; a one-dimensional array of distances corresponding
+to <span class="math">\(\textbf{d}\)</span>, above.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An iterable whose <span class="math">\(j\)</span>-th entry is
+<span class="math">\(\partial_{\theta_j}k(\textbf{d})\)</span>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.kern.matern32.Matern32.to_gpy">
+<code class="descname">to_gpy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/kern/matern32.html#Matern32.to_gpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.kern.matern32.Matern32.to_gpy" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">GPy version of this kernel.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.kern.matern32.Matern32.update_gradient">
+<code class="descname">update_gradient</code><span class="sig-paren">(</span><em>grad</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/kern/matern32.html#Matern32.update_gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.kern.matern32.Matern32.update_gradient" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>grad</strong> &#8211; a one-dimensional array, representing the gradient vector
+<span class="math">\(\nabla_{\boldsymbol\theta}L\)</span> for the
+likelihood with respect to this kernel&#8217;s parameters,
+in the same order of parameters as the row order returned
+by <a class="reference internal" href="#runlmc.kern.matern32.Matern32.kernel_gradient" title="runlmc.kern.matern32.Matern32.kernel_gradient"><code class="xref py py-func docutils literal"><span class="pre">kernel_gradient()</span></code></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="runlmc.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="runlmc.kern.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="runlmc.kern.identity.html">runlmc.kern.identity module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.kern.matern32 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.kern.rbf.html">runlmc.kern.rbf module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.kern.stationary_kern.html">runlmc.kern.stationary_kern module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.kern.std_periodic.html">runlmc.kern.std_periodic module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runlmc.kern.html#module-runlmc.kern">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="runlmc.html">Documentation overview</a><ul>
+  <li><a href="runlmc.kern.html">runlmc.kern package</a><ul>
+      <li>Previous: <a href="runlmc.kern.identity.html" title="previous chapter">runlmc.kern.identity module</a></li>
+      <li>Next: <a href="runlmc.kern.rbf.html" title="next chapter">runlmc.kern.rbf module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runlmc.kern.matern32.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/runlmc.kern.matern32.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

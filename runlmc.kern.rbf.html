@@ -29,7 +29,7 @@
     <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
     <link rel="up" title="runlmc.kern package" href="runlmc.kern.html" />
     <link rel="next" title="runlmc.kern.stationary_kern module" href="runlmc.kern.stationary_kern.html" />
-    <link rel="prev" title="runlmc.kern.identity module" href="runlmc.kern.identity.html" />
+    <link rel="prev" title="runlmc.kern.matern32 module" href="runlmc.kern.matern32.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -47,20 +47,18 @@
             
   <div class="section" id="module-runlmc.kern.rbf">
 <span id="runlmc-kern-rbf-module"></span><h1>runlmc.kern.rbf module<a class="headerlink" href="#module-runlmc.kern.rbf" title="Permalink to this headline">¶</a></h1>
-<p>The RBF kernel.</p>
 <dl class="class">
 <dt id="runlmc.kern.rbf.RBF">
-<em class="property">class </em><code class="descclassname">runlmc.kern.rbf.</code><code class="descname">RBF</code><span class="sig-paren">(</span><em>variance=1</em>, <em>inv_lengthscale=1</em>, <em>name='rbf'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/kern/rbf.html#RBF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.kern.rbf.RBF" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">runlmc.kern.rbf.</code><code class="descname">RBF</code><span class="sig-paren">(</span><em>inv_lengthscale=1</em>, <em>name='rbf'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/kern/rbf.html#RBF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.kern.rbf.RBF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern" title="runlmc.kern.stationary_kern.StationaryKern"><code class="xref py py-class docutils literal"><span class="pre">runlmc.kern.stationary_kern.StationaryKern</span></code></a></p>
-<p>This class defines RBF kernel <span class="math">\(k\)</span>.</p>
+<p>This class defines the RBF kernel <span class="math">\(k\)</span>.</p>
 <div class="math">
-\[k(r) = \sigma^2 \exp \frac{-\gamma r^2}{2}\]</div>
+\[k(r) = \exp \frac{-\gamma r^2}{2}\]</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>variance</strong> &#8211; <span class="math">\(\sigma^2\)</span>, above.</li>
 <li><strong>inv_lengthscale</strong> &#8211; <span class="math">\(\gamma\)</span>, above.</li>
 <li><strong>name</strong> &#8211; </li>
 </ul>
@@ -153,8 +151,10 @@ by <a class="reference internal" href="#runlmc.kern.rbf.RBF.kernel_gradient" tit
 <li class="toctree-l1 current"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="runlmc.kern.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="runlmc.kern.identity.html">runlmc.kern.identity module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.kern.matern32.html">runlmc.kern.matern32 module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.kern.rbf module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.kern.stationary_kern.html">runlmc.kern.stationary_kern module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.kern.std_periodic.html">runlmc.kern.std_periodic module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="runlmc.kern.html#module-runlmc.kern">Module contents</a></li>
@@ -171,7 +171,7 @@ by <a class="reference internal" href="#runlmc.kern.rbf.RBF.kernel_gradient" tit
 <ul>
   <li><a href="runlmc.html">Documentation overview</a><ul>
   <li><a href="runlmc.kern.html">runlmc.kern package</a><ul>
-      <li>Previous: <a href="runlmc.kern.identity.html" title="previous chapter">runlmc.kern.identity module</a></li>
+      <li>Previous: <a href="runlmc.kern.matern32.html" title="previous chapter">runlmc.kern.matern32 module</a></li>
       <li>Next: <a href="runlmc.kern.stationary_kern.html" title="next chapter">runlmc.kern.stationary_kern module</a></li>
   </ul></li>
   </ul></li>

@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.kern.matern32 &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="../../../runlmc.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for runlmc.kern.matern32</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2016, Vladimir Feinberg</span>
+<span class="c1"># Licensed under the BSD 3-clause license (see LICENSE)</span>
+
+<span class="c1"># This file was modified from the GPy project. Its file header is replicated</span>
+<span class="c1"># below. Its LICENSE.txt is replicated in the LICENSE file for this directory.</span>
+
+<span class="c1"># Copyright (c) 2012, GPy authors (see AUTHORS.txt).</span>
+<span class="c1"># Licensed under the BSD 3-clause license (see LICENSE.txt)</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">paramz.transformations</span> <span class="k">import</span> <span class="n">Logexp</span>
+
+<span class="kn">from</span> <span class="nn">.stationary_kern</span> <span class="k">import</span> <span class="n">StationaryKern</span>
+<span class="kn">from</span> <span class="nn">..parameterization.param</span> <span class="k">import</span> <span class="n">Param</span>
+<span class="kn">from</span> <span class="nn">..util.docs</span> <span class="k">import</span> <span class="n">inherit_doc</span>
+
+<span class="nd">@inherit_doc</span>
+<div class="viewcode-block" id="Matern32"><a class="viewcode-back" href="../../../runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32">[docs]</a><span class="k">class</span> <span class="nc">Matern32</span><span class="p">(</span><span class="n">StationaryKern</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class defines the Matérn-3/2 kernel :math:`k`.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">       k(r) = (1+r\\gamma\\sqrt{3})\exp \\left(-\\gamma r\\sqrt{3}\\right)</span>
+
+<span class="sd">    :param inv_lengthscale: :math:`\\gamma`, above.</span>
+<span class="sd">    :param name:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inv_lengthscale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;matern32&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inv_lengthscale</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span>
+            <span class="s1">&#39;inv_lengthscale&#39;</span><span class="p">,</span> <span class="n">inv_lengthscale</span><span class="p">,</span> <span class="n">Logexp</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inv_lengthscale</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Matern32.from_dist"><a class="viewcode-back" href="../../../runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32.from_dist">[docs]</a>    <span class="k">def</span> <span class="nf">from_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dists</span><span class="p">):</span>
+        <span class="n">scaled_dist</span> <span class="o">=</span> <span class="n">dists</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">inv_lengthscale</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">scaled_dist</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">scaled_dist</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Matern32.to_gpy"><a class="viewcode-back" href="../../../runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32.to_gpy">[docs]</a>    <span class="k">def</span> <span class="nf">to_gpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">GPy</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inv_lengthscale</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">gpy</span> <span class="o">=</span> <span class="n">GPy</span><span class="o">.</span><span class="n">kern</span><span class="o">.</span><span class="n">Matern32</span><span class="p">(</span>
+            <span class="n">input_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">lengthscale</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">gpy</span><span class="o">.</span><span class="n">variance</span><span class="o">.</span><span class="n">constrain_fixed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gpy</span></div>
+
+<div class="viewcode-block" id="Matern32.kernel_gradient"><a class="viewcode-back" href="../../../runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32.kernel_gradient">[docs]</a>    <span class="k">def</span> <span class="nf">kernel_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dists</span><span class="p">):</span>
+        <span class="n">scaled_dist</span> <span class="o">=</span> <span class="n">dists</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">inv_lengthscale</span>
+        <span class="n">d_scaled_dist</span> <span class="o">=</span> <span class="n">dists</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">scaled_dist</span><span class="p">)</span>
+        <span class="n">dexp</span> <span class="o">=</span> <span class="n">exp</span> <span class="o">*</span> <span class="o">-</span><span class="n">d_scaled_dist</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">scaled_dist</span><span class="p">)</span> <span class="o">*</span> <span class="n">dexp</span> <span class="o">+</span> <span class="n">d_scaled_dist</span> <span class="o">*</span> <span class="n">exp</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Matern32.update_gradient"><a class="viewcode-back" href="../../../runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32.update_gradient">[docs]</a>    <span class="k">def</span> <span class="nf">update_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inv_lengthscale</span><span class="o">.</span><span class="n">gradient</span> <span class="o">=</span> <span class="n">grad</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../runlmc.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../runlmc.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

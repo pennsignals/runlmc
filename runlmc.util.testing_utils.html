@@ -49,6 +49,22 @@
 <p>The following methods are useful for generating various matrices for testing.</p>
 <p>&#8220;PSDT&#8221; stands for positive semi-definite Toeplitz (and, implicitly, symmetric).</p>
 <dl class="class">
+<dt id="runlmc.util.testing_utils.BasicModel">
+<em class="property">class </em><code class="descclassname">runlmc.util.testing_utils.</code><code class="descname">BasicModel</code><span class="sig-paren">(</span><em>dists</em>, <em>Y</em>, <em>kern</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#BasicModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.BasicModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="runlmc.parameterization.model.html#runlmc.parameterization.model.Model" title="runlmc.parameterization.model.Model"><code class="xref py py-class docutils literal"><span class="pre">runlmc.parameterization.model.Model</span></code></a></p>
+<dl class="method">
+<dt id="runlmc.util.testing_utils.BasicModel.log_likelihood">
+<code class="descname">log_likelihood</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#BasicModel.log_likelihood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.BasicModel.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="runlmc.util.testing_utils.BasicModel.parameters_changed">
+<code class="descname">parameters_changed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#BasicModel.parameters_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.BasicModel.parameters_changed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="runlmc.util.testing_utils.RandomTest">
 <em class="property">class </em><code class="descclassname">runlmc.util.testing_utils.</code><code class="descname">RandomTest</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#RandomTest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.RandomTest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></code></p>
@@ -67,7 +83,7 @@ Prints the seed to stdout before running each test case.</p>
 
 <dl class="class">
 <dt id="runlmc.util.testing_utils.SingleGradOptimizer">
-<em class="property">class </em><code class="descclassname">runlmc.util.testing_utils.</code><code class="descname">SingleGradOptimizer</code><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#SingleGradOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.SingleGradOptimizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">runlmc.util.testing_utils.</code><code class="descname">SingleGradOptimizer</code><span class="sig-paren">(</span><em>lipschitz=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#SingleGradOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.SingleGradOptimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="http://pythonhosted.org/paramz/paramz.optimization.html#paramz.optimization.optimization.Optimizer" title="(in paramz v0.7.3)"><code class="xref py py-class docutils literal"><span class="pre">paramz.optimization.optimization.Optimizer</span></code></a></p>
 <dl class="method">
 <dt id="runlmc.util.testing_utils.SingleGradOptimizer.opt">

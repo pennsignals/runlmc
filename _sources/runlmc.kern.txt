@@ -7,11 +7,15 @@ Submodules
 .. toctree::
 
    runlmc.kern.identity
+   runlmc.kern.matern32
    runlmc.kern.rbf
    runlmc.kern.stationary_kern
+   runlmc.kern.std_periodic
    runlmc.kern.test_identity
+   runlmc.kern.test_matern32
    runlmc.kern.test_rbf
    runlmc.kern.test_stationary_kern
+   runlmc.kern.test_std_periodic
 
 Module contents
 ---------------
