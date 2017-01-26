@@ -51,19 +51,13 @@
 
 <span class="kn">from</span> <span class="nn">.psd_matrix</span> <span class="k">import</span> <span class="n">PSDMatrix</span>
 <span class="kn">from</span> <span class="nn">..util.docs</span> <span class="k">import</span> <span class="n">inherit_doc</span>
-<span class="kn">from</span> <span class="nn">..util.numpy_convenience</span> <span class="k">import</span> <span class="n">EPS</span>
 
 <span class="nd">@inherit_doc</span>
 <div class="viewcode-block" id="SumMatrix"><a class="viewcode-back" href="../../../runlmc.linalg.sum_matrix.html#runlmc.linalg.sum_matrix.SumMatrix">[docs]</a><span class="k">class</span> <span class="nc">SumMatrix</span><span class="p">(</span><span class="n">PSDMatrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sum matrix represents a sum of other possibly sparse</span>
-<span class="sd">    :class:`runlmc.linalg.PSDDecomposableMatrix` instances :math:`A_i`; i.e.,</span>
-<span class="sd">    it takes on the following meaning:</span>
-
-<span class="sd">    .. math::</span>
-
-<span class="sd">        \DeclareMathOperator{\diag}{diag}</span>
-<span class="sd">        \sum_iA_i+\diag\\boldsymbol\\epsilon</span>
+<span class="sd">    :class:`runlmc.linalg.PSDDecomposableMatrix` instances :math:`A_i`,</span>
+<span class="sd">    taking on the meaning :math:`\\sum_iA_i`.</span>
 
 <span class="sd">    It is special in that it does not admit an easy way to</span>
 <span class="sd">    eigendecompose itself given the eigendecompostion of its elements.</span>
@@ -71,74 +65,148 @@
 <span class="sd">    However, it has some other convenient properties.</span>
 
 <span class="sd">    :param Ks: decomposable matrices to sum</span>
-<span class="sd">    :param noise: :math:`\\boldsymbol\epsilon`</span>
-<span class="sd">    :raises ValueError: if any elements of `noise &lt; 0`</span>
-<span class="sd">    :raises ValueError: if `len(noise)` isn&#39;t equal to matrix size</span>
+<span class="sd">    :raises ValueError: If `Ks` is empty</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ks</span><span class="p">,</span> <span class="n">noise</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">Ks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span> <span class="k">for</span> <span class="n">K</span> <span class="ow">in</span> <span class="n">Ks</span><span class="p">]</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">shapes</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;At most one distinct shape expected in sum, &#39;</span>
-                                 <span class="s1">&#39;found shapes:</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shapes</span><span class="p">))</span>
-            <span class="n">n</span> <span class="o">=</span> <span class="n">shapes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ks</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">Ks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Need at least one matrix to sum&#39;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;noise length </span><span class="si">{}</span><span class="s1"> != size </span><span class="si">{}</span><span class="s1">&#39;</span>
-                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">noise</span><span class="p">),</span> <span class="n">n</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">noise</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;noise must be nonnegative&#39;</span><span class="p">)</span>
+        <span class="n">shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span> <span class="k">for</span> <span class="n">K</span> <span class="ow">in</span> <span class="n">Ks</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">shapes</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;At most one distinct shape expected in sum, &#39;</span>
+                             <span class="s1">&#39;found shapes:</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shapes</span><span class="p">))</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">shapes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Ks</span> <span class="o">=</span> <span class="n">Ks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">noise</span> <span class="o">=</span> <span class="n">noise</span>
 
 <div class="viewcode-block" id="SumMatrix.matvec"><a class="viewcode-back" href="../../../runlmc.linalg.sum_matrix.html#runlmc.linalg.sum_matrix.SumMatrix.matvec">[docs]</a>    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">K</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ks</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise</span> <span class="o">*</span> <span class="n">x</span></div>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">K</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ks</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SumMatrix.as_numpy"><a class="viewcode-back" href="../../../runlmc.linalg.sum_matrix.html#runlmc.linalg.sum_matrix.SumMatrix.as_numpy">[docs]</a>    <span class="k">def</span> <span class="nf">as_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">as_numpy</span><span class="p">()</span> <span class="k">for</span> <span class="n">K</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ks</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="s1">&#39;SumMatrix([..., Ki, ...]) + noise</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
-            <span class="s1">&#39;noise</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
-            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
+            <span class="s1">&#39;SumMatrix([..., Ki, ...])</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
             <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="p">[</span><span class="s1">&#39;K</span><span class="si">{}</span><span class="se">\n</span><span class="si">{!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">K</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ks</span><span class="p">)]))</span>
 
-<div class="viewcode-block" id="SumMatrix.logdet"><a class="viewcode-back" href="../../../runlmc.linalg.sum_matrix.html#runlmc.linalg.sum_matrix.SumMatrix.logdet">[docs]</a>    <span class="k">def</span> <span class="nf">logdet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">APPROX_EIG_METHODS</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;greedy_fiedler&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;simultaneous_diag&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;greedy_weyl&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="SumMatrix.approx_eigs"><a class="viewcode-back" href="../../../runlmc.linalg.sum_matrix.html#runlmc.linalg.sum_matrix.SumMatrix.approx_eigs">[docs]</a>    <span class="k">def</span> <span class="nf">approx_eigs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_eig</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;greedy_fiedler&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Using the eigendecomposition of each :math:`A_i`, this method computes</span>
-<span class="sd">        an **upper bound** of the log-determinant:</span>
+<span class="sd">        a set of psuedo-eigenvalues of :math:`K`. If multiplied (or,</span>
+<span class="sd">        to avoid overflow, log-summed), the result is an approximation</span>
+<span class="sd">        to the log-determinant:</span>
 
 <span class="sd">        .. math::</span>
 
-<span class="sd">            \log\det\\left|K\\right|</span>
+<span class="sd">            \log\\left|K\\right|</span>
 
-<span class="sd">        This is done by approximately solving an optimization problem.</span>
-<span class="sd">        For details, and an elementary proof of the solution, see [TODO PAPER].</span>
+<span class="sd">        None of these methods have any particular guarantees. The</span>
+<span class="sd">        approximations are done by either minimizing an upper bound</span>
+<span class="sd">        or maximizing a lower bound.</span>
+
+<span class="sd">        The current empirically best strategy, `&#39;greedy_fiedler&#39;`, is</span>
+<span class="sd">        a greedy calculation of a combinatorical upper bound (and therfore</span>
+<span class="sd">        it can be both smaller or greater than the actual determinant).</span>
+
+<span class="sd">        :param min_eig: smallest eigenvalue to consider</span>
+<span class="sd">        :param method: which approximation to use; options are</span>
+<span class="sd">                       `SumMatrix.APPROX_EIG_METHODS`</span>
+<span class="sd">        :returns: a vector of the approximate eigenvalues of :math:`K`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># separate into a minimum constant diagonal perturbation</span>
-        <span class="c1"># plus a sum of matrices</span>
+        <span class="k">assert</span> <span class="n">method</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">APPROX_EIG_METHODS</span>
+
+        <span class="c1"># TODO style: should convert this into a dictionary switch</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;greedy_fiedler&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_greedy_fiedler</span><span class="p">(</span><span class="n">min_eig</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;simultaneous_diag&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simultaneous_diag</span><span class="p">(</span><span class="n">min_eig</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;greedy_weyl&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_greedy_weyl</span><span class="p">(</span><span class="n">min_eig</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> not a valid method&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_greedy_fiedler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_eig</span><span class="p">):</span>
         <span class="n">Q</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ks</span><span class="p">)</span>
         <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">min_err</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">EPS</span><span class="p">)</span>
-        <span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="p">)</span>
-        <span class="n">noise</span><span class="p">[</span><span class="n">noise</span> <span class="o">&lt;</span> <span class="n">min_err</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_err</span>
-        <span class="n">eigs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Q</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span> <span class="o">+</span> <span class="n">min_err</span>
-        <span class="n">eigs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">noise</span>
+        <span class="n">eigs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Q</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span> <span class="o">+</span> <span class="n">min_eig</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">K</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ks</span><span class="p">):</span>
-            <span class="n">eigs_K</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">min_err</span><span class="p">)</span>
+            <span class="n">eigs_K</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">min_eig</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">eigs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">eigs_K</span><span class="p">)]</span> <span class="o">=</span> <span class="n">eigs_K</span>
 
         <span class="n">eigsT</span> <span class="o">=</span> <span class="n">eigs</span><span class="o">.</span><span class="n">T</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Q</span><span class="p">):</span>
             <span class="n">eigsT</span> <span class="o">=</span> <span class="n">eigsT</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">eigsT</span><span class="p">[:,</span> <span class="p">:</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))]</span>
             <span class="n">eigsT</span><span class="p">[:,</span> <span class="n">i</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
-        <span class="n">eigs</span> <span class="o">=</span> <span class="n">eigsT</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">eigs</span> <span class="o">=</span> <span class="n">eigsT</span><span class="o">.</span><span class="n">T</span>
 
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">eigs</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div></div>
+        <span class="k">return</span> <span class="n">eigs</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_simultaneous_diag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_eig</span><span class="p">):</span>
+        <span class="c1"># LOWER BOUND</span>
+        <span class="c1"># useful for kernels which have same eigenvectors</span>
+        <span class="c1"># Potential idea:</span>
+        <span class="c1"># Partition kernels into subsets which have the same</span>
+        <span class="c1"># eigendecomposition (perhaps if the class that generates them</span>
+        <span class="c1"># is the same). Within a partition, we add eigenvalues</span>
+        <span class="c1"># with &#39;simulatneous_diag&#39;. Between partitions, we use</span>
+        <span class="c1"># &#39;greedy_fiedler&#39;.</span>
+        <span class="n">eigs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">K</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ks</span><span class="p">:</span>
+            <span class="n">eigs_K</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">min_eig</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">eigs</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">eigs_K</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">eigs_K</span>
+
+        <span class="n">eigs</span><span class="p">[</span><span class="n">eigs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_eig</span>
+        <span class="k">return</span> <span class="n">eigs</span>
+
+    <span class="k">def</span> <span class="nf">_greedy_weyl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_eig</span><span class="p">):</span>
+        <span class="c1"># can either greedily max a lower bound</span>
+        <span class="c1"># or greedily minimize an upper bound</span>
+
+        <span class="n">option</span> <span class="o">=</span> <span class="s1">&#39;minimize_ub&#39;</span> <span class="c1"># or &#39;maximize_lb&#39;</span>
+        <span class="n">chooser</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span> <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;minimize_ub&#39;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span>
+        <span class="n">reverse</span> <span class="o">=</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;minimize_ub&#39;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">n</span><span class="p">)),</span> <span class="mi">5</span><span class="p">)</span> <span class="c1"># s=n/2 is exact weyl</span>
+        <span class="n">eigs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">eigs_K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">eigs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">K</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ks</span><span class="p">:</span>
+            <span class="n">prev_eigs</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">eigs</span><span class="p">))</span>
+            <span class="n">eigs_small</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">min_eig</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">eigs_K</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">min_eig</span>
+            <span class="n">eigs_K</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">eigs_small</span><span class="p">)]</span> <span class="o">=</span> <span class="n">eigs_small</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                <span class="n">i</span><span class="p">,</span> <span class="n">eigs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_greedy_weyl_incremental</span><span class="p">(</span>
+                    <span class="n">i</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">prev_eigs</span><span class="p">,</span> <span class="n">eigs_K</span><span class="p">,</span> <span class="n">chooser</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="n">eigs</span><span class="p">[</span><span class="n">eigs</span> <span class="o">&lt;</span> <span class="n">min_eig</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_eig</span>
+        <span class="k">return</span> <span class="n">eigs</span>
+
+    <span class="k">def</span> <span class="nf">_greedy_weyl_incremental</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">chooser</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="n">lowest_i</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">highest_i</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="p">(</span><span class="n">s</span> <span class="o">-</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">lowest_i</span><span class="p">)),</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+        <span class="c1"># Weyl says that</span>
+        <span class="c1"># the k-th largest eigenvalue is less than the sum</span>
+        <span class="c1"># of the i-th largest of the first matrix and</span>
+        <span class="c1"># the (k - i)-th largest of the second.</span>
+        <span class="c1">#</span>
+        <span class="c1"># In the case of minimizing the upper bound, we want to choose</span>
+        <span class="c1"># the smallest upper bound, so chooser is np.argmin. Vice-versa</span>
+        <span class="c1"># for min.</span>
+        <span class="n">i_candidates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lowest_i</span><span class="p">,</span> <span class="n">highest_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">j_candidates</span> <span class="o">=</span> <span class="n">k</span> <span class="o">-</span> <span class="n">i_candidates</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">i_candidates</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="n">j_candidates</span><span class="p">]</span>
+        <span class="n">best</span> <span class="o">=</span> <span class="n">chooser</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">i_candidates</span><span class="p">[</span><span class="n">best</span><span class="p">],</span> <span class="n">vals</span><span class="p">[</span><span class="n">best</span><span class="p">]</span></div>
 </pre></div>
 
           </div>

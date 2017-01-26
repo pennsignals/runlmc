@@ -52,6 +52,10 @@
 
 <span class="sd">Note this class does not accomplish as much as the corresponding</span>
 <span class="sd">one does in `GPy`. See the class documentation for details.</span>
+
+<span class="sd">Note that the corresponding :mod:`GPy` versions of these kernels</span>
+<span class="sd">have a scaling parameter that&#39;s avoided inthe LMC case because it</span>
+<span class="sd">would be redundant with the coregionalization constants.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">..parameterization.parameterized</span> <span class="k">import</span> <span class="n">Parameterized</span>
@@ -66,6 +70,14 @@
 <span class="sd">    its gradients can be changed according to whatever</span>
 <span class="sd">    data it&#39;s being tuned to.</span>
 
+<span class="sd">    A stationary kernel is a function :math:`k(r)` defined on</span>
+<span class="sd">    :math:`\\mathbb{R}_+` such that a matrix :math:`K` of entries</span>
+<span class="sd">    :math:`k(\\|\\textbf{x}_i-\\textbf{x}_j\\|)` is positive semi-definite.</span>
+<span class="sd">    Moreover, if :math:`\\{\\textbf{x}_i\\}_i` lie on a grid then</span>
+<span class="sd">    :math:`K` will be block-Toeplitz of Toeplitz blocks. If</span>
+<span class="sd">    further :math:`\\textbf{x}_i\in\mathbb{R}` then :math:`K` will be</span>
+<span class="sd">    Toeplitz.</span>
+
 <span class="sd">    :param name:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -73,7 +85,7 @@
 
 <div class="viewcode-block" id="StationaryKern.from_dist"><a class="viewcode-back" href="../../../runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern.from_dist">[docs]</a>    <span class="k">def</span> <span class="nf">from_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dists</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param dists: `N`-size numpy array of positive distances.</span>
+<span class="sd">        :param dists: `N`-size numpy array of positive (Euclidean) distances.</span>
 <span class="sd">        :return: kernel value at each of the given distances</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
@@ -81,6 +93,34 @@
 <div class="viewcode-block" id="StationaryKern.to_gpy"><a class="viewcode-back" href="../../../runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern.to_gpy">[docs]</a>    <span class="k">def</span> <span class="nf">to_gpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :return: GPy version of this kernel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="StationaryKern.kernel_gradient"><a class="viewcode-back" href="../../../runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern.kernel_gradient">[docs]</a>    <span class="k">def</span> <span class="nf">kernel_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dists</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Let this kernel be parameterized by some parameters</span>
+<span class="sd">        :math:`\\boldsymbol\\theta\\in\\mathbb{R}^p`. For every</span>
+<span class="sd">        :math:`\\theta_j\in\\boldsymbol\\theta`, at any given distance</span>
+<span class="sd">        :math:`d`, we can compute the derivative</span>
+<span class="sd">        :math:`\\partial_{\\theta_j}k(d)`. For the evaluation of this</span>
+<span class="sd">        partial derivative at multiple places, :math:`\\textbf{d}`,</span>
+<span class="sd">        we call the vector of partial derivatives</span>
+<span class="sd">        :math:`\\partial_{\\theta_j}k(\\textbf{d})`.</span>
+
+<span class="sd">        :param dists: a one-dimensional array of distances corresponding</span>
+<span class="sd">                      to :math:`\\textbf{d}`, above.</span>
+<span class="sd">        :returns: An iterable whose :math:`j`-th entry is</span>
+<span class="sd">                  :math:`\\partial_{\\theta_j}k(\\textbf{d})`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="StationaryKern.update_gradient"><a class="viewcode-back" href="../../../runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern.update_gradient">[docs]</a>    <span class="k">def</span> <span class="nf">update_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param grad: a one-dimensional array, representing the gradient vector</span>
+<span class="sd">                     :math:`\\nabla_{\\boldsymbol\\theta}L` for the</span>
+<span class="sd">                     likelihood with respect to this kernel&#39;s parameters,</span>
+<span class="sd">                     in the same order of parameters as the row order returned</span>
+<span class="sd">                     by :func:`kernel_gradient`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 </pre></div>

@@ -47,15 +47,20 @@
 <span></span><span class="c1"># Copyright (c) 2016, Vladimir Feinberg</span>
 <span class="c1"># Licensed under the BSD 3-clause license (see LICENSE)</span>
 
+<span class="kn">import</span> <span class="nn">logging</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
 <span class="kn">import</span> <span class="nn">scipy.sparse.linalg</span>
 
-<span class="kn">from</span> <span class="nn">.psd_matrix</span> <span class="k">import</span> <span class="n">PSDMatrix</span>
+<span class="kn">from</span> <span class="nn">.psd_matrix</span> <span class="k">import</span> <span class="n">PSDDecomposableMatrix</span>
 <span class="kn">from</span> <span class="nn">..util.docs</span> <span class="k">import</span> <span class="n">inherit_doc</span>
+<span class="kn">from</span> <span class="nn">..util.numpy_convenience</span> <span class="k">import</span> <span class="n">search_descending</span><span class="p">,</span> <span class="n">EPS</span><span class="p">,</span> <span class="n">smallest_eig</span>
+
+<span class="n">_LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 <span class="nd">@inherit_doc</span>
-<div class="viewcode-block" id="Toeplitz"><a class="viewcode-back" href="../../../runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz">[docs]</a><span class="k">class</span> <span class="nc">Toeplitz</span><span class="p">(</span><span class="n">PSDMatrix</span><span class="p">):</span>
+<div class="viewcode-block" id="Toeplitz"><a class="viewcode-back" href="../../../runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz">[docs]</a><span class="k">class</span> <span class="nc">Toeplitz</span><span class="p">(</span><span class="n">PSDDecomposableMatrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a class with a parsimonious representation of a PSD</span>
 <span class="sd">    Toeplitz matrix; that is, a matrix :math:`T` with entries :math:`T_{ij}`</span>
@@ -67,18 +72,19 @@
 
 <span class="sd">    In addition, :math:`T` must be PSD.</span>
 
-<span class="sd">    Notation used in documentation for this class, in addition to its</span>
-<span class="sd">    implementation, is based on Böttcher, Grudsky, and Maksimenko (2010).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Creates a :class:`Toeplitz` matrix.</span>
+<span class="sd">    The :func:`eig` implementation assumes an ordering and positivity</span>
+<span class="sd">    :math:`0\le t_{1i}\le t_{1j}` for :math:`i\ge j`.</span>
 
-<span class="sd">        :param top: 1-dimensional :mod:`numpy` array, used as the underlying</span>
-<span class="sd">                    storage, which represents the first row :math:`t_{1j}`.</span>
-<span class="sd">                    Should be castable to a float64.</span>
-<span class="sd">        :raises ValueError: if `top` isn&#39;t of the right shape, is empty.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">    :param top: 1-dimensional :mod:`numpy` array, used as the underlying</span>
+<span class="sd">                storage, which represents the first row :math:`t_{1j}`.</span>
+<span class="sd">                Should be castable to a float64.</span>
+<span class="sd">    :raises ValueError: if `top` isn&#39;t of the right shape or is empty.</span>
+<span class="sd">    :raises RuntimError: if induced Toeplitz matrix</span>
+<span class="sd">                         is not PSD (if logger with this module&#39;s fully</span>
+<span class="sd">                         qualified name is set to debug mode)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">top</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">top</span><span class="p">),):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;top shape </span><span class="si">{}</span><span class="s1"> is not 1D&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">top</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">top</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -88,7 +94,14 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">top</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">casting</span><span class="o">=</span><span class="s1">&#39;safe&#39;</span><span class="p">)</span>
         <span class="n">circ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cyclic_extend</span><span class="p">(</span><span class="n">top</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">circ_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">circ</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_circ_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">circ</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">_LOG</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
+            <span class="n">sm</span> <span class="o">=</span> <span class="n">smallest_eig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span>
+            <span class="n">cutoff</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">top</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">EPS</span>
+            <span class="k">if</span> <span class="n">sm</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">cutoff</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Eigenvalue </span><span class="si">{}</span><span class="s1"> below tolerance </span><span class="si">{}</span><span class="se">\n</span><span class="si">{!s}</span><span class="s1">&#39;</span>
+                                   <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="o">-</span><span class="n">cutoff</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_cyclic_extend</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
@@ -98,18 +111,116 @@
         <span class="n">extended</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">extended</span>
 
-<div class="viewcode-block" id="Toeplitz.matvec"><a class="viewcode-back" href="../../../runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz.matvec">[docs]</a>    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circ_fft</span><span class="p">)</span>
-        <span class="n">x_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circ_fft</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circ_fft</span> <span class="o">*</span> <span class="n">x_fft</span><span class="p">)[:</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span><span class="o">.</span><span class="n">real</span></div>
+<div class="viewcode-block" id="Toeplitz.as_numpy"><a class="viewcode-back" href="../../../runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz.as_numpy">[docs]</a>    <span class="k">def</span> <span class="nf">as_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">toeplitz</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Toeplitz.eig"><a class="viewcode-back" href="../../../runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz.eig">[docs]</a>    <span class="k">def</span> <span class="nf">eig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">):</span>
-        <span class="c1"># Temporary solution using dense routines.</span>
-        <span class="c1"># The grudsky implementation from before will be installed shortly</span>
-        <span class="n">sol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvalsh</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">toeplitz</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">))</span><span class="o">.</span><span class="n">real</span>
-        <span class="n">sol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">sol</span><span class="p">)</span>
-        <span class="n">cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">sol</span><span class="p">[</span><span class="n">cut</span><span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div></div>
+<div class="viewcode-block" id="Toeplitz.matvec"><a class="viewcode-back" href="../../../runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz.matvec">[docs]</a>    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="c1"># This MVM takes advantage of a well-known circulant embedding</span>
+        <span class="c1"># of this Toeplitz matrix, enabling O(n lg n) multiplication</span>
+        <span class="c1"># By embedding the Toeplitz matrix into the upper-left quadrant</span>
+        <span class="c1"># of a cyclically-extended circulant, the product of a zero-extended</span>
+        <span class="c1"># vector with the circulant matrix (a circular convolution, and</span>
+        <span class="c1"># therefore Fourier product) gives the Toeplitz-vector product</span>
+        <span class="c1"># in the first half of the result.</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_circ_fft</span><span class="p">)</span>
+        <span class="n">x_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_circ_fft</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_circ_fft</span> <span class="o">*</span> <span class="n">x_fft</span><span class="p">)[:</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span><span class="o">.</span><span class="n">real</span></div>
+
+    <span class="k">def</span> <span class="nf">_dense_eig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">):</span>
+        <span class="c1"># Default exact solution</span>
+        <span class="c1"># Ng and Trench 1997 O(n^2) per-eigenvalue approach for this exists</span>
+        <span class="c1"># enabling O(n^3 / p), with p the parallelism</span>
+        <span class="c1"># Böttcher, Grudsky, and Maksimenko 2010 approach is also accurate</span>
+        <span class="c1"># and is O(r^3n) per eigenvalue, where r is depedent on how</span>
+        <span class="c1"># diagonally dominant the matrix is. This can analogously be parallel.</span>
+        <span class="n">sol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvalsh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_numpy</span><span class="p">())</span><span class="o">.</span><span class="n">real</span>
+        <span class="n">sol</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">sol</span><span class="p">[:</span><span class="n">search_descending</span><span class="p">(</span><span class="n">cutoff</span><span class="p">,</span> <span class="n">sol</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
+
+<div class="viewcode-block" id="Toeplitz.upper_eig_bound"><a class="viewcode-back" href="../../../runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz.upper_eig_bound">[docs]</a>    <span class="k">def</span> <span class="nf">upper_eig_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># By Gershgorin, we need to find the largest absolute row.</span>
+        <span class="c1"># This can be computed in linear time with an easy dynamic program,</span>
+        <span class="c1"># since it&#39;s just the largest cyclic permutation of top.</span>
+        <span class="c1">#</span>
+        <span class="c1"># The vectorized numpy expression below is equivalent to the following</span>
+        <span class="c1"># C-like syntax:</span>
+        <span class="c1"># totals = np.zeros(len(self.top))</span>
+        <span class="c1"># totals[0] = np.abs(self.top).sum()</span>
+        <span class="c1"># for i in range(1, len(totals)):</span>
+        <span class="c1">#     totals[i] = totals[i-1] - self.top[-i] + self.top[i]</span>
+        <span class="n">abstop</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span>
+        <span class="n">totals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">abstop</span><span class="p">)</span>
+        <span class="n">totals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">abstop</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">totals</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-=</span> <span class="n">abstop</span><span class="p">[:</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">totals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">totals</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">totals</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">EPS</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">topstr</span> <span class="o">=</span> <span class="s1">&#39;size </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">topstr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;Toeplitz &#39;</span> <span class="o">+</span> <span class="n">topstr</span>
+
+<div class="viewcode-block" id="Toeplitz.eig"><a class="viewcode-back" href="../../../runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz.eig">[docs]</a>    <span class="k">def</span> <span class="nf">eig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">exact</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">exact</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dense_eig</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+
+        <span class="c1"># Should have some kind of condition number check here...</span>
+
+        <span class="c1"># This approach is based on Böttcher, Grudsky, and Maksimenko 2010.</span>
+        <span class="c1">#</span>
+        <span class="c1"># The authors provide an iteration routine that runs in time</span>
+        <span class="c1"># O(n w^3), where w is the &quot;effective width&quot; of the Toeplitz matrix,</span>
+        <span class="c1"># the number of entries whose magnitude is no less than cutoff times</span>
+        <span class="c1"># the largest element (which is along the main diagonal).</span>
+        <span class="c1">#</span>
+        <span class="c1"># The first iteration in this routine, however, has a nicer form</span>
+        <span class="c1"># that can be computed in O(n lg n) time, independent of w.</span>
+        <span class="c1">#</span>
+        <span class="c1"># To briefly summarize what&#39;s going on: a symmetric Toeplitz matrix</span>
+        <span class="c1"># of size n induces a Laurent polynomial a.</span>
+        <span class="c1">#</span>
+        <span class="c1"># If we take c_j to be the elements of a symmetric Toeplitz</span>
+        <span class="c1"># matrix&#39;s first column, and set c_{-j}=c_j, then for the</span>
+        <span class="c1"># vector c and Laurent basis from -n to n and t of entries t^j,</span>
+        <span class="c1"># with again j spanning from -n to n: a = c . t.</span>
+        <span class="c1"># This is real-valued on the unit complex circle, T.</span>
+        <span class="c1">#</span>
+        <span class="c1"># We pull back a&#39;s domain from T to the interval</span>
+        <span class="c1"># [0, pi] with g(x) = a(exp(ix))</span>
+        <span class="c1">#</span>
+        <span class="c1"># Theorem 1.2 of the Grudsky 2010 paper states that the solution</span>
+        <span class="c1"># (n + 1) phi(lambda) + theta(lambda) = pi * j</span>
+        <span class="c1"># determines the j-th largest eigenvalue of our Toeplitz matrix</span>
+        <span class="c1"># up to a factor exponentially small in n, for certain functions</span>
+        <span class="c1"># phi and theta.</span>
+        <span class="c1">#</span>
+        <span class="c1"># It is shown phi^-1 = psi = g. This returns psi applied to each</span>
+        <span class="c1"># value in lambdas. Since it is real-valued, we only concern</span>
+        <span class="c1"># ourselves with the real terms.</span>
+        <span class="c1">#</span>
+        <span class="c1"># The iteration from section 4 defines a new iterate lambda&#39; from</span>
+        <span class="c1"># a starting guess lambda by solving the formula from Theorem 1.2:</span>
+        <span class="c1">#</span>
+        <span class="c1"># lambda&#39; = phi^-1((pi * j - theta(lambda)) / (n + 1))</span>
+        <span class="c1">#</span>
+        <span class="c1"># If the initial guess for each eigenvalue is 0, the above,</span>
+        <span class="c1"># vectorized over j, is equivalent to the Fourier transform of</span>
+        <span class="c1"># of c.</span>
+
+        <span class="c1"># TODO(MSGP) approximation; use whittle (?)</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">2</span>
+
+        <span class="c1"># For tridiagonal matrices, Grudsky mentions this is exact.</span>
+        <span class="n">lam</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">N</span><span class="p">)[</span><span class="mi">1</span><span class="p">:][:</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">real</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">lam</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">lam</span><span class="p">[:</span><span class="n">search_descending</span><span class="p">(</span><span class="n">cutoff</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span></div></div>
 </pre></div>
 
           </div>

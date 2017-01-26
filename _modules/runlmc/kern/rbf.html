@@ -53,12 +53,7 @@
 <span class="c1"># Copyright (c) 2012, GPy authors (see AUTHORS.txt).</span>
 <span class="c1"># Licensed under the BSD 3-clause license (see LICENSE.txt)</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The RBF kernel.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
 <span class="kn">from</span> <span class="nn">paramz.transformations</span> <span class="k">import</span> <span class="n">Logexp</span>
 
 <span class="kn">from</span> <span class="nn">.stationary_kern</span> <span class="k">import</span> <span class="n">StationaryKern</span>
@@ -68,30 +63,39 @@
 <span class="nd">@inherit_doc</span>
 <div class="viewcode-block" id="RBF"><a class="viewcode-back" href="../../../runlmc.kern.rbf.html#runlmc.kern.rbf.RBF">[docs]</a><span class="k">class</span> <span class="nc">RBF</span><span class="p">(</span><span class="n">StationaryKern</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This class defines RBF kernel :math:`k`.</span>
+<span class="sd">    This class defines the RBF kernel :math:`k`.</span>
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">       k(r) = \sigma^2 \exp \\frac{-r^2}{2}</span>
+<span class="sd">       k(r) = \exp \\frac{-\gamma r^2}{2}</span>
 
-<span class="sd">    :param variance: :math:`sigma^2`, above.</span>
+<span class="sd">    :param inv_lengthscale: :math:`\gamma`, above.</span>
 <span class="sd">    :param name:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;rbf&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inv_lengthscale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;rbf&#39;</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">variance</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="s1">&#39;variance&#39;</span><span class="p">,</span> <span class="n">variance</span><span class="p">,</span> <span class="n">Logexp</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variance</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inv_lengthscale</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span>
+            <span class="s1">&#39;inv_lengthscale&#39;</span><span class="p">,</span> <span class="n">inv_lengthscale</span><span class="p">,</span> <span class="n">Logexp</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inv_lengthscale</span><span class="p">)</span>
 
 <div class="viewcode-block" id="RBF.from_dist"><a class="viewcode-back" href="../../../runlmc.kern.rbf.html#runlmc.kern.rbf.RBF.from_dist">[docs]</a>    <span class="k">def</span> <span class="nf">from_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dists</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">variance</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">dists</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">inv_lengthscale</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RBF.to_gpy"><a class="viewcode-back" href="../../../runlmc.kern.rbf.html#runlmc.kern.rbf.RBF.to_gpy">[docs]</a>    <span class="k">def</span> <span class="nf">to_gpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">GPy</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variance</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">GPy</span><span class="o">.</span><span class="n">kern</span><span class="o">.</span><span class="n">RBF</span><span class="p">(</span><span class="n">input_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="n">v</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+        <span class="n">l</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inv_lengthscale</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="o">-</span><span class="mf">0.5</span>
+        <span class="n">gpy</span> <span class="o">=</span> <span class="n">GPy</span><span class="o">.</span><span class="n">kern</span><span class="o">.</span><span class="n">RBF</span><span class="p">(</span>
+            <span class="n">input_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">lengthscale</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">gpy</span><span class="o">.</span><span class="n">variance</span><span class="o">.</span><span class="n">constrain_fixed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gpy</span></div>
 
-<div class="viewcode-block" id="RBF.visit_gradients"><a class="viewcode-back" href="../../../runlmc.kern.rbf.html#runlmc.kern.rbf.RBF.visit_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">visit_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visit</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
-        <span class="k">pass</span></div></div>
+<div class="viewcode-block" id="RBF.kernel_gradient"><a class="viewcode-back" href="../../../runlmc.kern.rbf.html#runlmc.kern.rbf.RBF.kernel_gradient">[docs]</a>    <span class="k">def</span> <span class="nf">kernel_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dists</span><span class="p">):</span>
+        <span class="n">sqdists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">sqdists</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">inv_lengthscale</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">exp</span> <span class="o">*</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">sqdists</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="RBF.update_gradient"><a class="viewcode-back" href="../../../runlmc.kern.rbf.html#runlmc.kern.rbf.RBF.update_gradient">[docs]</a>    <span class="k">def</span> <span class="nf">update_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inv_lengthscale</span><span class="o">.</span><span class="n">gradient</span> <span class="o">=</span> <span class="n">grad</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div></div>
 </pre></div>
 
           </div>

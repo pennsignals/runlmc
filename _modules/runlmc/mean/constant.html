@@ -56,19 +56,43 @@
 <span class="nd">@inherit_doc</span>
 <div class="viewcode-block" id="Constant"><a class="viewcode-back" href="../../../runlmc.mean.constant.html#runlmc.mean.constant.Constant">[docs]</a><span class="k">class</span> <span class="nc">Constant</span><span class="p">(</span><span class="n">MeanFunction</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The constant mapping.</span>
+<span class="sd">    The constant mapping (constant for each output).</span>
+
+<span class="sd">    This mean function is not useful with normalization activated.</span>
+
+<span class="sd">    It may be useful if you would like to have no normalization</span>
+<span class="sd">    *and* want to impose priors on the mean adjustment.</span>
+
+<span class="sd">    :param input_dim:</span>
+<span class="sd">    :param output_dim:</span>
+<span class="sd">    :param c0: optional vector of length output_dim for the initial offsets</span>
+<span class="sd">               that the constant takes on.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dim</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">,</span> <span class="n">c0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dim</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">,</span> <span class="n">c0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">c0</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">c0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">output_dim</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">c0</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="n">output_dim</span><span class="p">,):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Initial constant mean vector shape </span><span class="si">{}</span><span class="s1"> disagrees &#39;</span>
+                             <span class="s1">&#39;with output dim </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c0</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">))</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="s1">&#39;offset&#39;</span><span class="p">,</span> <span class="n">c0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Constant.f"><a class="viewcode-back" href="../../../runlmc.mean.constant.html#runlmc.mean.constant.Constant.f">[docs]</a>    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_inputs</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">))</span> <span class="o">*</span> <span class="n">c</span> <span class="k">for</span> <span class="n">X</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)]</span></div>
 
-<div class="viewcode-block" id="Constant.visit_gradients"><a class="viewcode-back" href="../../../runlmc.mean.constant.html#runlmc.mean.constant.Constant.visit_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">visit_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visit</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
-        <span class="k">pass</span> <span class="c1"># TODO</span></div></div>
+<div class="viewcode-block" id="Constant.mean_gradient"><a class="viewcode-back" href="../../../runlmc.mean.constant.html#runlmc.mean.constant.Constant.mean_gradient">[docs]</a>    <span class="k">def</span> <span class="nf">mean_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">))</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
+                 <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">X</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Xs</span><span class="p">)]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">))]</span></div>
+
+<div class="viewcode-block" id="Constant.update_gradient"><a class="viewcode-back" href="../../../runlmc.mean.constant.html#runlmc.mean.constant.Constant.update_gradient">[docs]</a>    <span class="k">def</span> <span class="nf">update_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gradient</span> <span class="o">=</span> <span class="n">grad</span></div></div>
 </pre></div>
 
           </div>

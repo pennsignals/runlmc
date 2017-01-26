@@ -67,10 +67,12 @@
 <span class="sd">    2 and is defined as:</span>
 
 <span class="sd">    .. math::</span>
-<span class="sd">        u(x) = \begin{cases}</span>
-<span class="sd">        \frac{3}{2}\abs{x}^3-\frac{5}{2}\abs{x}^2+1 &amp; 0\le \abs{x}\le 1</span>
-<span class="sd">        \frac{3}{2}\abs{x}^3+\frac{5}{2}-4\abs{x}+2 &amp; 1 &lt; \abs{x} \le 2</span>
-<span class="sd">        \end{cases}</span>
+<span class="sd">        \\newcommand{abs}[1]{\\left\\vert{#1}\\right\\vert}</span>
+<span class="sd">        u(x) = \\begin{cases}</span>
+<span class="sd">        \\frac{3}{2}\\abs{x}^3-\\frac{5}{2}\\abs{x}^2+1 &amp; 0\\le \\abs{x}\\le 1</span>
+<span class="sd">        \\\\</span>
+<span class="sd">        \\frac{3}{2}\\abs{x}^3+\\frac{5}{2}-4\\abs{x}+2 &amp; 1 &lt; \\abs{x} \\le 2</span>
+<span class="sd">        \\end{cases}</span>
 
 <span class="sd">    :param x: input array</span>
 <span class="sd">    :type x: :class:`numpy.ndarray`</span>
@@ -87,7 +89,26 @@
     <span class="k">return</span> <span class="n">y</span></div>
 
 <div class="viewcode-block" id="interp_cubic"><a class="viewcode-back" href="../../../runlmc.util.interpolation.html#runlmc.util.interpolation.interp_cubic">[docs]</a><span class="k">def</span> <span class="nf">interp_cubic</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
-    <span class="n">delta</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a one dimensional grid `grid` of size `m` (that&#39;s sorted) and</span>
+<span class="sd">    `n` sample points `samples` contained in `grid[1:-1]`, compute the</span>
+<span class="sd">    interpolation coefficients for a cubic interpolation on the grid.</span>
+
+<span class="sd">    An interpolation coefficient matrix `M` is then an `n` by `m` matrix</span>
+<span class="sd">    that has 4 entries per row.</span>
+
+<span class="sd">    For a (vectorized) twice-differentiable function `f`, `M.dot(f(grid))`</span>
+<span class="sd">    approaches `f(sample)` at a rate of :math:`O(m^{-3})`.</span>
+
+<span class="sd">    :returns: the interpolation coefficient matrix</span>
+<span class="sd">    :raises ValueError: if any of the following hold true:</span>
+
+<span class="sd">        #. `grid` or `samples` are not 1-dimensional</span>
+<span class="sd">        #. `grid` size less than 4</span>
+<span class="sd">        #. `grid` is not equispaced</span>
+<span class="sd">        #. `samples` is not strictly contained in `grid[1:-1]`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">grid_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
     <span class="n">n_samples</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">size</span>
 
@@ -100,9 +121,9 @@
     <span class="k">if</span> <span class="n">grid_size</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;grid size </span><span class="si">{}</span><span class="s1"> must be &gt;=4&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">grid_size</span><span class="p">))</span>
 
-    <span class="k">if</span> <span class="n">samples</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">samples</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;Second grid point </span><span class="si">{}</span><span class="s1"> must be &lt;= the min sample </span><span class="si">{}</span><span class="s1">&#39;</span>
+            <span class="s1">&#39;Second grid point </span><span class="si">{}</span><span class="s1"> must be &lt; the min sample </span><span class="si">{}</span><span class="s1">&#39;</span>
             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">samples</span><span class="o">.</span><span class="n">min</span><span class="p">()))</span>
 
     <span class="k">if</span> <span class="n">samples</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">grid</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]:</span>
@@ -110,6 +131,7 @@
             <span class="s1">&#39;Penultimate grid point </span><span class="si">{}</span><span class="s1"> must be &gt; the max sample </span><span class="si">{}</span><span class="s1">&#39;</span>
             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">samples</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
 
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">factors</span> <span class="o">=</span> <span class="p">(</span><span class="n">samples</span> <span class="o">-</span> <span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">delta</span>
     <span class="c1"># closest refers to the closest grid point that is smaller</span>
     <span class="n">idx_of_closest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">factors</span><span class="p">)</span>

@@ -57,14 +57,13 @@
 <div class="viewcode-block" id="NumpyMatrix"><a class="viewcode-back" href="../../../runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix">[docs]</a><span class="k">class</span> <span class="nc">NumpyMatrix</span><span class="p">(</span><span class="n">PSDDecomposableMatrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adapter to :class:`PSDDecomposableMatrix` with :mod:`numpy` arrays.</span>
+
+<span class="sd">    Creates a :class:`NumpyMatrix` matrix. Its positivity is assumed.</span>
+
+<span class="sd">    :param nparr: 2-dimensional :mod:`numpy` array</span>
+<span class="sd">    :raises ValueError: if `nparr` isn&#39;t 2D or square or symmetric</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nparr</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Creates a :class:`NumpyMatrix` matrix. Its positivity is assumed.</span>
-
-<span class="sd">        :param nparr: 2-dimensional :mod:`numpy` array</span>
-<span class="sd">        :raises ValueError: if `nparr` isn&#39;t 2D or square or symmetric</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">nparr</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">nparr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">nparr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Input numpy array of shape </span><span class="si">{}</span><span class="s1"> not square matrix&#39;</span>
                              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nparr</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
@@ -77,10 +76,13 @@
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nparr</span><span class="p">))</span>
 
+<div class="viewcode-block" id="NumpyMatrix.as_numpy"><a class="viewcode-back" href="../../../runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.as_numpy">[docs]</a>    <span class="k">def</span> <span class="nf">as_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span></div>
+
 <div class="viewcode-block" id="NumpyMatrix.matvec"><a class="viewcode-back" href="../../../runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.matvec">[docs]</a>    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="NumpyMatrix.eig"><a class="viewcode-back" href="../../../runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.eig">[docs]</a>    <span class="k">def</span> <span class="nf">eig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">):</span>
+<div class="viewcode-block" id="NumpyMatrix.eig"><a class="viewcode-back" href="../../../runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.eig">[docs]</a>    <span class="k">def</span> <span class="nf">eig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">exact</span><span class="p">):</span>
         <span class="n">sol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvalsh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
         <span class="n">sol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">sol</span><span class="p">)</span>
         <span class="n">cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">)</span>

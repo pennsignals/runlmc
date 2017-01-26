@@ -138,55 +138,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">Param</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="s1">&#39;Only runlmc.parametrization.Param types should be linked&#39;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Parameterized.visit_gradients"><a class="viewcode-back" href="../../../runlmc.parameterization.parameterized.html#runlmc.parameterization.parameterized.Parameterized.visit_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">visit_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visit</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Update the gradients for the parameters contained here given an</span>
-<span class="sd">        arbitrary transformation procedure `visit` at the given locations</span>
-<span class="sd">        `inputs` simultaneously.</span>
-
-<span class="sd">        Given a likelihood :math:`L` that we are trying to globally optimize,</span>
-<span class="sd">        but this class is not directly aware of, this method lets us</span>
-<span class="sd">        delegate the derivative computation in a generic manner.</span>
-
-<span class="sd">        This :class:`Parameterized` object contributes to :math:`L`</span>
-<span class="sd">        in a way that&#39;s defined by its parameters. Let this contribution</span>
-<span class="sd">        be :math:`C`, a function of parameters :math:`\{\\theta_j\}`.</span>
-
-<span class="sd">        There may be other parameters for other :class:`Parameterized` objects</span>
-<span class="sd">        contributing to :math:`L`, but they don&#39;t affect</span>
-<span class="sd">        :math:`\partial_{\\theta_j}L`.</span>
-
-<span class="sd">        The goal of this method is to compute for each :math:`\\theta_j`:</span>
-
-<span class="sd">        .. math::</span>
-
-<span class="sd">            \partial_{\\theta_j}L(X)=\partial_{C_X}L</span>
-<span class="sd">                \cdot\partial_{\\theta_j}C_X</span>
-
-<span class="sd">        Above, :math:`X` may be a vector of (possibly multi-dimensional)</span>
-<span class="sd">        inputs, and :math:`C` may be vector-valued function of</span>
-<span class="sd">        :math:`\\theta_j`</span>
-<span class="sd">        for other parameters :math:`\\theta_{-j}` fixed and for a single input</span>
-<span class="sd">        (element in :math:`X`). Then the derivatives above can be matrices,</span>
-<span class="sd">        in which case the dot product is generalized.</span>
-
-<span class="sd">        To support algorithms that avoid computing the large, dense matrix</span>
-<span class="sd">        :math:`\partial_{C_X}L`, we allow for a `visit` function :math:`v`</span>
-<span class="sd">        that should satisfy:</span>
-
-<span class="sd">        .. math::</span>
-
-<span class="sd">            v(\partial_{\\theta_j}C_X)=\partial_{\\theta_j}L(X)</span>
-
-<span class="sd">        Note :math:`\partial_{\\theta_j}C_X` is just as large as</span>
-<span class="sd">        :math:`\partial_{C_X}L` but the former is sparse.</span>
-
-<span class="sd">        :param visit: a function which transforms the local derivative</span>
-<span class="sd">                      of this class</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>

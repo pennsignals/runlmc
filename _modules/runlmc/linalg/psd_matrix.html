@@ -71,13 +71,12 @@
 <span class="sd">    multiplication.</span>
 
 <span class="sd">    * Positivity: `K.matvec(x).dot(x) &gt;= 0`</span>
+
+<span class="sd">    :param n: number of rows in this square matrix</span>
+<span class="sd">    :raises ValueError: if `n &lt; 1`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param n: number of rows in this square matrix</span>
-<span class="sd">        :raises ValueError: if `n &lt; 1`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Size of the matrix </span><span class="si">{}</span><span class="s1"> &lt; 1&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
@@ -98,6 +97,12 @@
             <span class="n">matvec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">matvec</span><span class="p">,</span>
             <span class="n">rmatvec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">matvec</span><span class="p">,</span>
             <span class="n">matmat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">matmat</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PSDMatrix.as_numpy"><a class="viewcode-back" href="../../../runlmc.linalg.psd_matrix.html#runlmc.linalg.psd_matrix.PSDMatrix.as_numpy">[docs]</a>    <span class="k">def</span> <span class="nf">as_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :returns: numpy matrix equivalent, as a 2D :class:`numpy.ndarray`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="PSDMatrix.matvec"><a class="viewcode-back" href="../../../runlmc.linalg.psd_matrix.html#runlmc.linalg.psd_matrix.PSDMatrix.matvec">[docs]</a>    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -127,17 +132,22 @@
 <span class="sd">    eigendecomposition and bounding. This adheres to the following</span>
 <span class="sd">    mathematical property manifested by the API :func:`eig`.</span>
 
-<span class="sd">    * Positive eigenvalues: `len(K.eig(cutoff=0)) == K.shape[0]`</span>
+<span class="sd">    * Positive eigenvalues: `len(K.eig(cutoff=0, exact=True)) == K.shape[0]`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
 
-<div class="viewcode-block" id="PSDDecomposableMatrix.eig"><a class="viewcode-back" href="../../../runlmc.linalg.psd_matrix.html#runlmc.linalg.psd_matrix.PSDDecomposableMatrix.eig">[docs]</a>    <span class="k">def</span> <span class="nf">eig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">):</span>
+<div class="viewcode-block" id="PSDDecomposableMatrix.eig"><a class="viewcode-back" href="../../../runlmc.linalg.psd_matrix.html#runlmc.linalg.psd_matrix.PSDDecomposableMatrix.eig">[docs]</a>    <span class="k">def</span> <span class="nf">eig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">exact</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Finds the eigenvalues of this matrix of magnitude above the cutoff.</span>
 
+<span class="sd">        The approximate eigenvalues are only good for computing</span>
+<span class="sd">        log-determinants, though there&#39;s no good guarantee there.</span>
+<span class="sd">        The approximation generally holds well for well-conditioned matrices.</span>
+
 <span class="sd">        :param cutoff: eigenvalue cutoff</span>
+<span class="sd">        :param exact: whether to use exact computation, or approximate.</span>
 <span class="sd">        :returns: a numpy array of eigenvalues in decreasing order, repeated by</span>
 <span class="sd">                  multiplicity.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
