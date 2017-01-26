@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.util.interpolation module &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.util package" href="runlmc.util.html" />
+    <link rel="next" title="runlmc.util.numpy_convenience module" href="runlmc.util.numpy_convenience.html" />
+    <link rel="prev" title="runlmc.util.docs module" href="runlmc.util.docs.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runlmc.util.interpolation">
+<span id="runlmc-util-interpolation-module"></span><h1>runlmc.util.interpolation module<a class="headerlink" href="#module-runlmc.util.interpolation" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="runlmc.util.interpolation.cubic_kernel">
+<code class="descclassname">runlmc.util.interpolation.</code><code class="descname">cubic_kernel</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/interpolation.html#cubic_kernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.interpolation.cubic_kernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>The cubic convolution kernel can be used to compute interpolation
+coefficients. Its definition is taken from:</p>
+<p>Cubic Convolution Interpolation for Digital Image Processing by
+Robert G. Keys. It is supported on values of absolute magnitude less than
+2 and is defined as:</p>
+<div class="math">
+\[\begin{split}\newcommand{abs}[1]{\left\vert{#1}\right\vert}
+u(x) = \begin{cases}
+\frac{3}{2}\abs{x}^3-\frac{5}{2}\abs{x}^2+1 &amp; 0\le \abs{x}\le 1
+\\
+\frac{3}{2}\abs{x}^3+\frac{5}{2}-4\abs{x}+2 &amp; 1 &lt; \abs{x} \le 2
+\end{cases}\end{split}\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></a>) &#8211; input array</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><span class="math">\(u\)</span> vectorized over <cite>x</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="runlmc.util.interpolation.interp_cubic">
+<code class="descclassname">runlmc.util.interpolation.</code><code class="descname">interp_cubic</code><span class="sig-paren">(</span><em>grid</em>, <em>samples</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/interpolation.html#interp_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.interpolation.interp_cubic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a one dimensional grid <cite>grid</cite> of size <cite>m</cite> (that&#8217;s sorted) and
+<cite>n</cite> sample points <cite>samples</cite> contained in <cite>grid[1:-1]</cite>, compute the
+interpolation coefficients for a cubic interpolation on the grid.</p>
+<p>An interpolation coefficient matrix <cite>M</cite> is then an <cite>n</cite> by <cite>m</cite> matrix
+that has 4 entries per row.</p>
+<p>For a (vectorized) twice-differentiable function <cite>f</cite>, <cite>M.dot(f(grid))</cite>
+approaches <cite>f(sample)</cite> at a rate of <span class="math">\(O(m^{-3})\)</span>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the interpolation coefficient matrix</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>ValueError</strong> &#8211; <p>if any of the following hold true:</p>
+<ol class="arabic simple">
+<li><cite>grid</cite> or <cite>samples</cite> are not 1-dimensional</li>
+<li><cite>grid</cite> size less than 4</li>
+<li><cite>grid</cite> is not equispaced</li>
+<li><cite>samples</cite> is not strictly contained in <cite>grid[1:-1]</cite></li>
+</ol>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="runlmc.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="runlmc.util.html">runlmc.util package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="runlmc.util.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="runlmc.util.docs.html">runlmc.util.docs module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.util.interpolation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.util.numpy_convenience.html">runlmc.util.numpy_convenience module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.util.testing_utils.html">runlmc.util.testing_utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runlmc.util.html#module-runlmc.util">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="runlmc.html">Documentation overview</a><ul>
+  <li><a href="runlmc.util.html">runlmc.util package</a><ul>
+      <li>Previous: <a href="runlmc.util.docs.html" title="previous chapter">runlmc.util.docs module</a></li>
+      <li>Next: <a href="runlmc.util.numpy_convenience.html" title="next chapter">runlmc.util.numpy_convenience module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runlmc.util.interpolation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/runlmc.util.interpolation.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

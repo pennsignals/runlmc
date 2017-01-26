@@ -1,0 +1,286 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.models.lmc module &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.models package" href="runlmc.models.html" />
+    <link rel="next" title="runlmc.models.multigp module" href="runlmc.models.multigp.html" />
+    <link rel="prev" title="runlmc.models.exact module" href="runlmc.models.exact.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runlmc.models.lmc">
+<span id="runlmc-models-lmc-module"></span><h1>runlmc.models.lmc module<a class="headerlink" href="#module-runlmc.models.lmc" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="runlmc.models.lmc.LMC">
+<em class="property">class </em><code class="descclassname">runlmc.models.lmc.</code><code class="descname">LMC</code><span class="sig-paren">(</span><em>Xs</em>, <em>Ys</em>, <em>normalize=True</em>, <em>kernels=None</em>, <em>lo=None</em>, <em>hi=None</em>, <em>m=None</em>, <em>name='lmc'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP" title="runlmc.models.multigp.MultiGP"><code class="xref py py-class docutils literal"><span class="pre">runlmc.models.multigp.MultiGP</span></code></a></p>
+<p>The main class of this package, <cite>LMC</cite> implements linearithmic
+Gaussian Process learning in the multi-output case. [TODO(PAPER)].</p>
+<p>Upon construction, this class assumes ownership of its parameters and
+does not account for changes in their values.</p>
+<p>The exact kernel that this approximates is the following:</p>
+<div class="math">
+\[K_{\text{exact}}=\sum_{q=1}^Q\left(A_qA_q^\top+
+     \boldsymbol\kappa_q I\right)
+     \circ [k_q(X_i, X_j)]_{ij\in[D]^2} +
+     \boldsymbol\epsilon I\]</div>
+<p><span class="math">\([\cdot]_{ij}\)</span> represents a block matrix, with rows and columns
+possibly of different widths. <span class="math">\(\circ\)</span> is the Hadamard product.
+<span class="math">\(\boldsymbol\epsilon I\)</span> is a Gaussian noise
+addition, iid within each output. The input arrays for our observations
+of each of the different outputs are denoted <span class="math">\(X_i\)</span> and may be
+variable-length. Each <span class="math">\(k_q(X_i,X_j)\)</span> is built from a stationary
+Mercer kernel <span class="math">\(k_q\)</span>, where the <span class="math">\(ab\)</span>-th entry of the
+rectangular matrix is
+<span class="math">\(k_q(\textbf{x}_a^{(i)}, \textbf{x}_b^{(j)})\)</span> with
+<span class="math">\(\textbf{x}_a^{(i)}\)</span> as the
+<span class="math">\(a\)</span>-th input of the input set <span class="math">\(X_i\)</span> (and correspondingly for
+<span class="math">\(j\)</span>).</p>
+<p>The <span class="math">\(\left(A_qA_q^\top+ \boldsymbol\kappa_q I\right)\)</span> terms
+create a kernel which captures some linear correlation between outputs.</p>
+<p>This class uses the SKI approximation, which shares a single grid
+<span class="math">\(U\)</span> as the input array for all the outputs. Then,
+<span class="math">\(K_{\text{exact}}\)</span> is interpolated from the approximation kernel
+<span class="math">\(K_{\text{SKI}}\)</span>, as directed in
+<em>Thoughts on Massively Scalable Gaussian Processes</em> by Wilson, Dann,
+and Nickisch. This is done with sparse interpolation matrices <span class="math">\(W\)</span>.</p>
+<div class="math">
+\[K_{\text{exact}}\approx K_{\text{SKI}} = W K W^\top +
+    \boldsymbol\epsilon I\]</div>
+<p>Above, <span class="math">\(K\)</span> is a structured kernel over a grid <span class="math">\(U\)</span>, derived
+from <span class="math">\(A_q, k_q\)</span> as before. The grid structure enables us to
+express <span class="math">\(K\)</span> more succintly, relying on the Kronecker product
+<span class="math">\(\otimes\)</span>.</p>
+<div class="math">
+\[K=\sum_{q=1}^QA_qA_q^\top \otimes k_q(U, U)\]</div>
+<p>Each <span class="math">\(A_q\)</span> (only a column vector for now) is a parameter of
+this model, with name <cite>a&lt;q&gt;</cite>, where <cite>&lt;q&gt;</cite> is replaced with a specific
+number.</p>
+<p>TODO(new parameters)
+ranks - currently everything will be rank-1
+mean-function - zero-mean for now</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>Xs</strong> &#8211; input observations, should be a list of numpy arrays,
+where the numpy arrays are one dimensional.</li>
+<li><strong>Ys</strong> &#8211; output observations, this must be a list of one-dimensional
+numpy arrays, matching up with the number of rows in <cite>Xs</cite>.</li>
+<li><strong>normalize</strong> &#8211; optional normalization for outputs <cite>Ys</cite>.
+Prediction will be un-normalized.</li>
+<li><strong>kernels</strong> &#8211; a list of (stationary) kernels which constitute the
+terms of the LMC sums prior to coregionalization. The
+<span class="math">\(q\)</span>-th index here corresponds to <span class="math">\(k_q\)</span> above.
+This list&#8217;s length is <span class="math">\(Q\)</span></li>
+<li><strong>lo</strong> &#8211; lexicographically smallest point in inducing point grid used
+(by default, a bit less than the minimum of input)</li>
+<li><strong>hi</strong> &#8211; lexicographically largest point in inducing point grid used
+(by default, a bit more than the maximum of input)</li>
+<li><strong>m</strong> &#8211; number of inducing points to use (by default, the total number
+of input points)</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><code class="xref py py-class docutils literal"><span class="pre">ValueError</span></code> if <cite>Xs</cite> and <cite>Ys</cite> lengths do not match.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><code class="xref py py-class docutils literal"><span class="pre">ValueError</span></code> if normalization if any <cite>Ys</cite> have no variance
+or values in <cite>Xs</cite> have multiple identical
+values.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal"><span class="pre">ValueError</span></code> if no kernels</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="runlmc.models.lmc.LMC.K_SKI">
+<code class="descname">K_SKI</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC.K_SKI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC.K_SKI" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This generates the entire kernel, a quadratic operation
+in memory and time.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><span class="math">\(K_{\text{SKI}}\)</span>, the approximation of the exact
+kernel.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="runlmc.models.lmc.LMC.TOL">
+<code class="descname">TOL</code><em class="property"> = 0.0001</em><a class="headerlink" href="#runlmc.models.lmc.LMC.TOL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="runlmc.models.lmc.LMC.log_det_K">
+<code class="descname">log_det_K</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC.log_det_K"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC.log_det_K" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">an upper bound of the approximate log determinant,
+uses <span class="math">\(K_\text{SKI}\)</span> to find an approximate
+upper bound for
+<span class="math">\(\log\det K_{   ext{exact}}\)</span></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.models.lmc.LMC.log_likelihood">
+<code class="descname">log_likelihood</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC.log_likelihood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>The log marginal likelihood of the model, <span class="math">\(p(\mathbf{y})\)</span>,
+this is the objective function of the model being optimised</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.models.lmc.LMC.normal_quadratic">
+<code class="descname">normal_quadratic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC.normal_quadratic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC.normal_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the flattened (Stacked)outputs are written as <span class="math">\(\textbf{y}\)</span>,
+this returns <span class="math">\(\textbf{y}^\top K_{\text{SKI}}^{-1}\textbf{y}\)</span>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the normal quadratic term for the current outputs <cite>Ys</cite>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.models.lmc.LMC.parameters_changed">
+<code class="descname">parameters_changed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC.parameters_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC.parameters_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called automatically when linked parameters change,
+which the may during the optimization process.</p>
+<p>Classes should update their posterior information, log likelihood,
+and gradients when this happens, such that <cite>self._raw_predict</cite>,
+<cite>self.log_likelihood</cite>, and <cite>self.gradient</cite>
+are consistent with the new parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="runlmc.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="runlmc.models.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="runlmc.models.exact.html">runlmc.models.exact module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.models.lmc module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.models.multigp.html">runlmc.models.multigp module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runlmc.models.html#module-runlmc.models">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="runlmc.html">Documentation overview</a><ul>
+  <li><a href="runlmc.models.html">runlmc.models package</a><ul>
+      <li>Previous: <a href="runlmc.models.exact.html" title="previous chapter">runlmc.models.exact module</a></li>
+      <li>Next: <a href="runlmc.models.multigp.html" title="next chapter">runlmc.models.multigp module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runlmc.models.lmc.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/runlmc.models.lmc.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

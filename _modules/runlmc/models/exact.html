@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.models.exact &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="../../../runlmc.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for runlmc.models.exact</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2016, Vladimir Feinberg</span>
+<span class="c1"># Licensed under the BSD 3-clause license (see LICENSE)</span>
+
+<span class="c1"># This file was modified from the GPy project. Its file header is replicated</span>
+<span class="c1"># below. Its LICENSE.txt is replicated in the LICENSE file for this directory.</span>
+
+<span class="c1"># Copyright (c) 2012 - 2014 the GPy Austhors (see AUTHORS.txt)</span>
+<span class="c1"># Licensed under the BSD 3-clause license (see LICENSE.txt)</span>
+
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">count</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.multigp</span> <span class="k">import</span> <span class="n">MultiGP</span>
+<span class="kn">from</span> <span class="nn">..util.docs</span> <span class="k">import</span> <span class="n">inherit_doc</span>
+<span class="kn">from</span> <span class="nn">..util.numpy_convenience</span> <span class="k">import</span> <span class="n">tesselate</span>
+
+<span class="nd">@inherit_doc</span>
+<div class="viewcode-block" id="ExactLMC"><a class="viewcode-back" href="../../../runlmc.models.exact.html#runlmc.models.exact.ExactLMC">[docs]</a><span class="k">class</span> <span class="nc">ExactLMC</span><span class="p">(</span><span class="n">MultiGP</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The exact Gaussian Process model for multioutput regression</span>
+<span class="sd">    under a Linear Model of Coregionalization.</span>
+
+<span class="sd">    This performs the inversion-based cubic-time algorithm.</span>
+
+<span class="sd">    .. Note: Because this implementation uses GPy, mean functions and</span>
+<span class="sd">             normalization are unsupported.</span>
+
+<span class="sd">    Uses the Gaussian likelihood. See :class:`runlmc.models.lmc.LMC` for the</span>
+<span class="sd">    explicit LMC formula.</span>
+
+<span class="sd">    :param Xs: input observations, should be a list of numpy arrays,</span>
+<span class="sd">               where the numpy arrays are one dimensional.</span>
+<span class="sd">    :param Ys: output observations, this must be a list of one-dimensional</span>
+<span class="sd">               numpy arrays, matching up with the number of rows in `Xs`.</span>
+<span class="sd">    :param kernels: a list of (stationary) kernels which constitute the</span>
+<span class="sd">                    terms of the LMC sums prior to coregionalization.</span>
+<span class="sd">    :param ranks: list of ranks for coregionalization factors</span>
+<span class="sd">    :type ranks: list of integer</span>
+<span class="sd">    :param name: model name</span>
+<span class="sd">    :type name: string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">kernels</span><span class="p">,</span> <span class="n">ranks</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ExactLMC&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpy_model</span> <span class="o">=</span> <span class="n">ExactLMC</span><span class="o">.</span><span class="n">_construct_gpy</span><span class="p">(</span>
+            <span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">kernels</span><span class="p">,</span> <span class="n">ranks</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_raw_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="ExactLMC.parameters_changed"><a class="viewcode-back" href="../../../runlmc.models.exact.html#runlmc.models.exact.ExactLMC.parameters_changed">[docs]</a>    <span class="k">def</span> <span class="nf">parameters_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+    <span class="k">def</span> <span class="nf">_parameters_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Temporarily exposing this while we have a dummy</span>
+        <span class="c1"># exact LMC implementation - won&#39;t be necessary when the real</span>
+        <span class="c1"># parameters_changed is no longer a no-op.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpy_model</span><span class="o">.</span><span class="n">parameters_changed</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ExactLMC.log_likelihood"><a class="viewcode-back" href="../../../runlmc.models.exact.html#runlmc.models.exact.ExactLMC.log_likelihood">[docs]</a>    <span class="k">def</span> <span class="nf">log_likelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpy_model</span><span class="o">.</span><span class="n">log_likelihood</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ExactLMC.optimize"><a class="viewcode-back" href="../../../runlmc.models.exact.html#runlmc.models.exact.ExactLMC.optimize">[docs]</a>    <span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpy_model</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ExactLMC.predict"><a class="viewcode-back" href="../../../runlmc.models.exact.html#runlmc.models.exact.ExactLMC.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span>
+        <span class="n">lenls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">Xs</span><span class="p">))</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">)),</span> <span class="n">lenls</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">mu</span><span class="p">,</span> <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpy_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">meta</span><span class="p">]),</span>
+            <span class="n">Y_metadata</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;output_index&#39;</span><span class="p">:</span> <span class="n">meta</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">tesselate</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">lenls</span><span class="p">),</span> <span class="n">tesselate</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">lenls</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ExactLMC.predict_quantiles"><a class="viewcode-back" href="../../../runlmc.models.exact.html#runlmc.models.exact.ExactLMC.predict_quantiles">[docs]</a>    <span class="k">def</span> <span class="nf">predict_quantiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">quantiles</span><span class="o">=</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">97.5</span><span class="p">)):</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">Xs</span><span class="p">)))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">Qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gpy_model</span><span class="o">.</span><span class="n">predict_quantiles</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">meta</span><span class="p">]),</span>
+            <span class="n">quantiles</span><span class="o">=</span><span class="n">quantiles</span><span class="p">,</span>
+            <span class="n">Y_metadata</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;output_index&#39;</span><span class="p">:</span> <span class="n">meta</span><span class="p">}))</span>
+        <span class="k">assert</span> <span class="n">Qs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">Qs</span> <span class="o">=</span> <span class="n">Qs</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">quantiles</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Qs is a (quantiles) x (num examples) array</span>
+        <span class="c1"># We want (num examples) x (qunatiles)</span>
+        <span class="k">return</span> <span class="n">tesselate</span><span class="p">(</span><span class="n">Qs</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">Xs</span><span class="p">))</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_construct_gpy</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">kernels</span><span class="p">,</span> <span class="n">ranks</span><span class="p">):</span>
+        <span class="n">kernels</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">to_gpy</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kernels</span><span class="p">]</span>
+        <span class="n">input_dim</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">num_outputs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Ys</span><span class="p">)</span>
+        <span class="n">Xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>
+        <span class="n">Ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">Y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">Y</span> <span class="ow">in</span> <span class="n">Ys</span><span class="p">]</span>
+
+        <span class="kn">from</span> <span class="nn">GPy.util.multioutput</span> <span class="k">import</span> <span class="n">ICM</span>
+        <span class="kn">from</span> <span class="nn">GPy.models</span> <span class="k">import</span> <span class="n">GPCoregionalizedRegression</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">ICM</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="n">num_outputs</span><span class="p">,</span> <span class="n">kernels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ranks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ICM0&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">kernels</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">ranks</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">count</span><span class="p">(</span><span class="mi">1</span><span class="p">)):</span>
+            <span class="n">K</span> <span class="o">+=</span> <span class="n">ICM</span><span class="p">(</span>
+                <span class="n">input_dim</span><span class="p">,</span> <span class="n">num_outputs</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ICM</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
+        <span class="n">K</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;LCM&#39;</span>
+        <span class="k">return</span> <span class="n">GPCoregionalizedRegression</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="n">K</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../runlmc.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../runlmc.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

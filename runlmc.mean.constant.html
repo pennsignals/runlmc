@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.mean.constant module &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.mean package" href="runlmc.mean.html" />
+    <link rel="next" title="runlmc.mean.mean_function module" href="runlmc.mean.mean_function.html" />
+    <link rel="prev" title="runlmc.mean package" href="runlmc.mean.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runlmc.mean.constant">
+<span id="runlmc-mean-constant-module"></span><h1>runlmc.mean.constant module<a class="headerlink" href="#module-runlmc.mean.constant" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="runlmc.mean.constant.Constant">
+<em class="property">class </em><code class="descclassname">runlmc.mean.constant.</code><code class="descname">Constant</code><span class="sig-paren">(</span><em>input_dim</em>, <em>output_dim</em>, <em>c0=None</em>, <em>name='constant'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/mean/constant.html#Constant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.mean.constant.Constant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="runlmc.mean.mean_function.html#runlmc.mean.mean_function.MeanFunction" title="runlmc.mean.mean_function.MeanFunction"><code class="xref py py-class docutils literal"><span class="pre">runlmc.mean.mean_function.MeanFunction</span></code></a></p>
+<p>The constant mapping (constant for each output).</p>
+<p>This mean function is not useful with normalization activated.</p>
+<p>It may be useful if you would like to have no normalization
+<em>and</em> want to impose priors on the mean adjustment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_dim</strong> &#8211; </li>
+<li><strong>output_dim</strong> &#8211; </li>
+<li><strong>c0</strong> &#8211; optional vector of length output_dim for the initial offsets
+that the constant takes on.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="runlmc.mean.constant.Constant.f">
+<code class="descname">f</code><span class="sig-paren">(</span><em>Xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/mean/constant.html#Constant.f"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.mean.constant.Constant.f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluation of the mean function <span class="math">\(f\)</span>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.mean.constant.Constant.mean_gradient">
+<code class="descname">mean_gradient</code><span class="sig-paren">(</span><em>Xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/mean/constant.html#Constant.mean_gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.mean.constant.Constant.mean_gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Let this mean be parameterized by some parameters
+<span class="math">\(\boldsymbol\theta\in\mathbb{R}^p\)</span>. For every
+<span class="math">\(\theta_j\in\boldsymbol\theta\)</span>, at each input point
+<span class="math">\(\textbf{x}^{(i)}\)</span> (for a certain output index <span class="math">\(i\)</span>),
+we can compute the derivative
+<span class="math">\(\partial_{\theta_j}f(\textbf{x}^{(i)})\)</span>.
+For the evaluation of this
+partial derivative at multiple places, <span class="math">\(\textbf{X}\)</span>,
+we call the list of vectors of partial derivatives
+<span class="math">\(\partial_{\theta_j}f(\textbf{X})\)</span>
+(a list with one vector per output index).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>Xs</strong> &#8211; inputs to evaluate at</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of parameter gradients; the <span class="math">\(j\)</span>-th entry of this
+list is <span class="math">\(\partial_{\theta_j}f(\textbf{X})\)</span>. Each
+<span class="math">\(\partial_{\theta_j}f(\textbf{X})\)</span> in turn is
+another list with one entry per output <span class="math">\(i\)</span>; the
+<span class="math">\(i\)</span>-th entry is a one-dimensional numpy array
+with <span class="math">\(k\)</span>-th entry the derivative of the <span class="math">\(j\)</span>-th
+mean parameter at the <span class="math">\(k\)</span>-th input for the <span class="math">\(i\)</span>-th
+output, <span class="math">\(\partial_{\theta_j}f(\textbf{x}^{(i)}_k)\)</span>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.mean.constant.Constant.update_gradient">
+<code class="descname">update_gradient</code><span class="sig-paren">(</span><em>grad</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/mean/constant.html#Constant.update_gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.mean.constant.Constant.update_gradient" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>grad</strong> &#8211; a one-dimensional array, representing the gradient vector
+<span class="math">\(\nabla_{\boldsymbol\theta}L\)</span> for the
+likelihood with respect to this mean&#8217;s parameters,
+in the same order of parameters as the row order returned
+by <a class="reference internal" href="#runlmc.mean.constant.Constant.mean_gradient" title="runlmc.mean.constant.Constant.mean_gradient"><code class="xref py py-func docutils literal"><span class="pre">mean_gradient()</span></code></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="runlmc.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="runlmc.mean.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.mean.constant module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.mean.mean_function.html">runlmc.mean.mean_function module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.mean.zero.html">runlmc.mean.zero module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runlmc.mean.html#module-runlmc.mean">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="runlmc.html">Documentation overview</a><ul>
+  <li><a href="runlmc.mean.html">runlmc.mean package</a><ul>
+      <li>Previous: <a href="runlmc.mean.html" title="previous chapter">runlmc.mean package</a></li>
+      <li>Next: <a href="runlmc.mean.mean_function.html" title="next chapter">runlmc.mean.mean_function module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runlmc.mean.constant.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/runlmc.mean.constant.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

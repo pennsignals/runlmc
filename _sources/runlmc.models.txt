@@ -1,0 +1,22 @@
+runlmc.models package
+=====================
+
+Submodules
+----------
+
+.. toctree::
+
+   runlmc.models.exact
+   runlmc.models.lmc
+   runlmc.models.multigp
+   runlmc.models.test_exact
+   runlmc.models.test_lmc
+   runlmc.models.test_multigp
+
+Module contents
+---------------
+
+.. automodule:: runlmc.models
+    :members:
+    :undoc-members:
+    :show-inheritance:

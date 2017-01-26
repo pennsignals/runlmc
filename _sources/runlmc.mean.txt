@@ -1,0 +1,22 @@
+runlmc.mean package
+===================
+
+Submodules
+----------
+
+.. toctree::
+
+   runlmc.mean.constant
+   runlmc.mean.mean_function
+   runlmc.mean.test_constant
+   runlmc.mean.test_mean_function
+   runlmc.mean.test_zero
+   runlmc.mean.zero
+
+Module contents
+---------------
+
+.. automodule:: runlmc.mean
+    :members:
+    :undoc-members:
+    :show-inheritance:

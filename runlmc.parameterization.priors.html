@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.parameterization.priors module &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.parameterization package" href="runlmc.parameterization.html" />
+    <link rel="next" title="runlmc.util package" href="runlmc.util.html" />
+    <link rel="prev" title="runlmc.parameterization.priorizable module" href="runlmc.parameterization.priorizable.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runlmc.parameterization.priors">
+<span id="runlmc-parameterization-priors-module"></span><h1>runlmc.parameterization.priors module<a class="headerlink" href="#module-runlmc.parameterization.priors" title="Permalink to this headline">¶</a></h1>
+<p>This modules contains <a class="reference internal" href="#runlmc.parameterization.priors.Prior" title="runlmc.parameterization.priors.Prior"><code class="xref py py-class docutils literal"><span class="pre">Prior</span></code></a>, the base type for all priors available.</p>
+<dl class="class">
+<dt id="runlmc.parameterization.priors.Prior">
+<em class="property">class </em><code class="descclassname">runlmc.parameterization.priors.</code><code class="descname">Prior</code><a class="reference internal" href="_modules/runlmc/parameterization/priors.html#Prior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.parameterization.priors.Prior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p><a class="reference internal" href="#runlmc.parameterization.priors.Prior" title="runlmc.parameterization.priors.Prior"><code class="xref py py-class docutils literal"><span class="pre">Prior</span></code></a> allows for incorporating a Bayesian prior in the
+first-order gradient-based optimization performed on the GP models.</p>
+<p>Priors are placed over scalar values.</p>
+<p>Prior objects are immutable.</p>
+<p>Methods are intended to be vectorized over parameters with the same
+priors. In other words, mapping <a class="reference internal" href="#runlmc.parameterization.priors.Prior.lnpdf" title="runlmc.parameterization.priors.Prior.lnpdf"><code class="xref py py-func docutils literal"><span class="pre">lnpdf()</span></code></a> and
+<a class="reference internal" href="#runlmc.parameterization.priors.Prior.lnpdf_grad" title="runlmc.parameterization.priors.Prior.lnpdf_grad"><code class="xref py py-func docutils literal"><span class="pre">lnpdf_grad()</span></code></a>
+over each point individually should produce the same result as
+passing in a list of those points.</p>
+<dl class="attribute">
+<dt id="runlmc.parameterization.priors.Prior.domain">
+<code class="descname">domain</code><em class="property"> = None</em><a class="headerlink" href="#runlmc.parameterization.priors.Prior.domain" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Attribute domain:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">Domain on which the prior is defined</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.parameterization.priors.Prior.lnpdf">
+<code class="descname">lnpdf</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/parameterization/priors.html#Prior.lnpdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.parameterization.priors.Prior.lnpdf" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> &#8211; query float or numpy array (for multiple parameters
+with this same prior)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the log density of the prior at (each) <cite>x</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.parameterization.priors.Prior.lnpdf_grad">
+<code class="descname">lnpdf_grad</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/parameterization/priors.html#Prior.lnpdf_grad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.parameterization.priors.Prior.lnpdf_grad" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> &#8211; query float or numpy array (for multiple parameters
+with this same prior)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the gradient of the log density of the prior at (each) <cite>x</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="runlmc.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="runlmc.parameterization.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.model.html">runlmc.parameterization.model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.param.html">runlmc.parameterization.param module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.parameterized.html">runlmc.parameterization.parameterized module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.priorizable.html">runlmc.parameterization.priorizable module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.parameterization.priors module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runlmc.parameterization.html#module-runlmc.parameterization">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="runlmc.html">Documentation overview</a><ul>
+  <li><a href="runlmc.parameterization.html">runlmc.parameterization package</a><ul>
+      <li>Previous: <a href="runlmc.parameterization.priorizable.html" title="previous chapter">runlmc.parameterization.priorizable module</a></li>
+      <li>Next: <a href="runlmc.util.html" title="next chapter">runlmc.util package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runlmc.parameterization.priors.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/runlmc.parameterization.priors.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,22 @@
+runlmc.kern package
+===================
+
+Submodules
+----------
+
+.. toctree::
+
+   runlmc.kern.identity
+   runlmc.kern.rbf
+   runlmc.kern.stationary_kern
+   runlmc.kern.test_identity
+   runlmc.kern.test_rbf
+   runlmc.kern.test_stationary_kern
+
+Module contents
+---------------
+
+.. automodule:: runlmc.kern
+    :members:
+    :undoc-members:
+    :show-inheritance:

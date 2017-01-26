@@ -1,0 +1,7 @@
+runlmc.mean.constant module
+===========================
+
+.. automodule:: runlmc.mean.constant
+    :members:
+    :undoc-members:
+    :show-inheritance:

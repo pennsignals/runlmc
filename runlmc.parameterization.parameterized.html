@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.parameterization.parameterized module &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.parameterization package" href="runlmc.parameterization.html" />
+    <link rel="next" title="runlmc.parameterization.priorizable module" href="runlmc.parameterization.priorizable.html" />
+    <link rel="prev" title="runlmc.parameterization.param module" href="runlmc.parameterization.param.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runlmc.parameterization.parameterized">
+<span id="runlmc-parameterization-parameterized-module"></span><h1>runlmc.parameterization.parameterized module<a class="headerlink" href="#module-runlmc.parameterization.parameterized" title="Permalink to this headline">¶</a></h1>
+<p>This module contains the <a class="reference internal" href="#runlmc.parameterization.parameterized.Parameterized" title="runlmc.parameterization.parameterized.Parameterized"><code class="xref py py-class docutils literal"><span class="pre">Parameterized</span></code></a> class.</p>
+<p>It only exists for convenience, documentation, and to
+indicate which methods of the corresponding <a class="reference external" href="http://pythonhosted.org/paramz/paramz.html#module-paramz" title="(in paramz v0.7.3)"><code class="xref py py-mod docutils literal"><span class="pre">paramz</span></code></a>
+class should be used.</p>
+<dl class="class">
+<dt id="runlmc.parameterization.parameterized.Parameterized">
+<em class="property">class </em><code class="descclassname">runlmc.parameterization.parameterized.</code><code class="descname">Parameterized</code><span class="sig-paren">(</span><em>name=None</em>, <em>parameters=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/parameterization/parameterized.html#Parameterized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.parameterization.parameterized.Parameterized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://pythonhosted.org/paramz/paramz.html#paramz.parameterized.Parameterized" title="(in paramz v0.7.3)"><code class="xref py py-class docutils literal"><span class="pre">paramz.parameterized.Parameterized</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">runlmc.parameterization.priorizable._PriorizableNode</span></code></p>
+<p>A <a class="reference internal" href="#runlmc.parameterization.parameterized.Parameterized" title="runlmc.parameterization.parameterized.Parameterized"><code class="xref py py-class docutils literal"><span class="pre">Parameterized</span></code></a> class is responsible for keeping track of
+which parameters it is dependent on.</p>
+<p>It does NOT manage updates
+for those parameters if they change during some optimization
+process. The <code class="xref py py-class docutils literal"><span class="pre">runlmc.parametrization.Model</span></code> should take care of
+that.</p>
+<p>Say <cite>m</cite> is a handle to a parameterized class.</p>
+<p>Printing parameters:</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><cite>print(m)</cite>:           prints a nice summary over all parameters</p>
+</li>
+<li><p class="first"><cite>print(name)</cite>:      prints details for param with name &#8216;name&#8217;</p>
+</li>
+<li><dl class="first docutils">
+<dt><cite>print m[regexp]</cite>:   prints details for all the parameters</dt>
+<dd><p class="first last">which match (!) regexp</p>
+</dd>
+</dl>
+</li>
+<li><p class="first"><cite>print `m[&#8216;&#8217;]</cite>:       prints details for all parameters</p>
+</li>
+</ul>
+</div></blockquote>
+<p>Printed fields:</p>
+<blockquote>
+<div><p><strong>name</strong>:         The name of the param, can be renamed!</p>
+<p><strong>value</strong>:        Shape or value, if one-valued</p>
+<dl class="docutils">
+<dt><strong>constraints</strong>:  constraint of the param, curly &#8220;{c}&#8221; brackets</dt>
+<dd>indicate
+some parameters are constrained by c. See detailed
+print to get exact constraints.</dd>
+</dl>
+</div></blockquote>
+<p>Getting and setting parameters:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">m</span><span class="o">.</span><span class="n">subparameterized1</span><span class="o">.</span><span class="n">subparameterized2</span><span class="o">.</span><span class="n">param</span><span class="p">[:]</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>Handling of constraining, fixing and tieing parameters:</p>
+<blockquote>
+<div><p>You can constrain parameters by calling the constrain on the param
+itself, e.g:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">constrain_positive</span><span class="p">()</span>
+<span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tie_to</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Fixing parameters will fix them to the value they are right now. If you
+change
+the parameters value, the param will be fixed to the new value!</p>
+<p>If you want to operate on all parameters use <cite>m[&#8216;&#8217;]</cite> to wildcard select
+all parameters
+and concatenate them. Printing <cite>m[&#8216;&#8217;]</cite> will result in printing of all
+parameters in detail.</p>
+</div></blockquote>
+<dl class="method">
+<dt id="runlmc.parameterization.parameterized.Parameterized.link_parameter">
+<code class="descname">link_parameter</code><span class="sig-paren">(</span><em>param</em>, <em>index=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/parameterization/parameterized.html#Parameterized.link_parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.parameterization.parameterized.Parameterized.link_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internal API for indicating that a class depends on a certain
+parameter, and therefore should include it in gradient computations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>param</strong> &#8211; the parameter to add.</li>
+<li><strong>[index]</strong> &#8211; index of where to put parameters</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>TypeError</strong> &#8211; if <cite>param</cite> is not the <cite>runlmc</cite> (priorizable)
+parameter.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="runlmc.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="runlmc.parameterization.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.model.html">runlmc.parameterization.model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.param.html">runlmc.parameterization.param module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.parameterization.parameterized module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.priorizable.html">runlmc.parameterization.priorizable module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.priors.html">runlmc.parameterization.priors module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runlmc.parameterization.html#module-runlmc.parameterization">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="runlmc.html">Documentation overview</a><ul>
+  <li><a href="runlmc.parameterization.html">runlmc.parameterization package</a><ul>
+      <li>Previous: <a href="runlmc.parameterization.param.html" title="previous chapter">runlmc.parameterization.param module</a></li>
+      <li>Next: <a href="runlmc.parameterization.priorizable.html" title="next chapter">runlmc.parameterization.priorizable module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runlmc.parameterization.parameterized.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/runlmc.parameterization.parameterized.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

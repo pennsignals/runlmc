@@ -1,0 +1,282 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.linalg.psd_matrix module &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.linalg package" href="runlmc.linalg.html" />
+    <link rel="next" title="runlmc.linalg.sum_matrix module" href="runlmc.linalg.sum_matrix.html" />
+    <link rel="prev" title="runlmc.linalg.numpy_matrix module" href="runlmc.linalg.numpy_matrix.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runlmc.linalg.psd_matrix">
+<span id="runlmc-linalg-psd-matrix-module"></span><h1>runlmc.linalg.psd_matrix module<a class="headerlink" href="#module-runlmc.linalg.psd_matrix" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="runlmc.linalg.psd_matrix.PSDDecomposableMatrix">
+<em class="property">class </em><code class="descclassname">runlmc.linalg.psd_matrix.</code><code class="descname">PSDDecomposableMatrix</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/psd_matrix.html#PSDDecomposableMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.psd_matrix.PSDDecomposableMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#runlmc.linalg.psd_matrix.PSDMatrix" title="runlmc.linalg.psd_matrix.PSDMatrix"><code class="xref py py-class docutils literal"><span class="pre">runlmc.linalg.psd_matrix.PSDMatrix</span></code></a></p>
+<p>An extention to a regular <a class="reference internal" href="#runlmc.linalg.psd_matrix.PSDMatrix" title="runlmc.linalg.psd_matrix.PSDMatrix"><code class="xref py py-class docutils literal"><span class="pre">PSDMatrix</span></code></a> which allows for efficient
+eigendecomposition and bounding. This adheres to the following
+mathematical property manifested by the API <a class="reference internal" href="#runlmc.linalg.psd_matrix.PSDDecomposableMatrix.eig" title="runlmc.linalg.psd_matrix.PSDDecomposableMatrix.eig"><code class="xref py py-func docutils literal"><span class="pre">eig()</span></code></a>.</p>
+<ul class="simple">
+<li>Positive eigenvalues: <cite>len(K.eig(cutoff=0, exact=True)) == K.shape[0]</cite></li>
+</ul>
+<dl class="method">
+<dt id="runlmc.linalg.psd_matrix.PSDDecomposableMatrix.eig">
+<code class="descname">eig</code><span class="sig-paren">(</span><em>cutoff</em>, <em>exact</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/psd_matrix.html#PSDDecomposableMatrix.eig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.psd_matrix.PSDDecomposableMatrix.eig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the eigenvalues of this matrix of magnitude above the cutoff.</p>
+<p>The approximate eigenvalues are only good for computing
+log-determinants, though there&#8217;s no good guarantee there.
+The approximation generally holds well for well-conditioned matrices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cutoff</strong> &#8211; eigenvalue cutoff</li>
+<li><strong>exact</strong> &#8211; whether to use exact computation, or approximate.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a numpy array of eigenvalues in decreasing order, repeated by
+multiplicity.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.linalg.psd_matrix.PSDDecomposableMatrix.upper_eig_bound">
+<code class="descname">upper_eig_bound</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/psd_matrix.html#PSDDecomposableMatrix.upper_eig_bound"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.psd_matrix.PSDDecomposableMatrix.upper_eig_bound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an upper bound <span class="math">\(B\)</span> for the largest eigenvalue of this
+PSD matrix.</p>
+<p>Impementations can rely on the fairly tight and efficient-to-compute
+Gershgorin circle theorem, which implies that the largest eigenvalue
+is bounded by the largest absolute row sum in PSD matices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><span class="math">\(B\)</span></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="runlmc.linalg.psd_matrix.PSDMatrix">
+<em class="property">class </em><code class="descclassname">runlmc.linalg.psd_matrix.</code><code class="descname">PSDMatrix</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/psd_matrix.html#PSDMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.psd_matrix.PSDMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>An abstract class defining the interface for the necessary
+sparse matrix operations.</p>
+<p>We consider a very restricted class of matrices only, namely
+positive semi-definite, symmetric, real matrices. In other words,
+the matrix <span class="math">\(K\)</span> represented by instances of this class is expected to
+adhere to the following semantic laws:</p>
+<ol class="arabic simple">
+<li><span class="math">\(\forall\textbf{x}\)</span>,
+<span class="math">\(\textbf{x}^\top K\textbf{x} \ge 0\)</span></li>
+<li><span class="math">\(K^\top = K\)</span></li>
+</ol>
+<p>These laws manifest themselves the following property, with
+the actual API, which exposes <a class="reference internal" href="#runlmc.linalg.psd_matrix.PSDMatrix.matvec" title="runlmc.linalg.psd_matrix.PSDMatrix.matvec"><code class="xref py py-func docutils literal"><span class="pre">matvec()</span></code></a> for matrix-vector
+multiplication.</p>
+<ul class="simple">
+<li>Positivity: <cite>K.matvec(x).dot(x) &gt;= 0</cite></li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> &#8211; number of rows in this square matrix</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>ValueError</strong> &#8211; if <cite>n &lt; 1</cite></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="runlmc.linalg.psd_matrix.PSDMatrix.as_linear_operator">
+<code class="descname">as_linear_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/psd_matrix.html#PSDMatrix.as_linear_operator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.psd_matrix.PSDMatrix.as_linear_operator" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="xref py py-func docutils literal"><span class="pre">scipy.sparse.linalg.aslinearoperator()</span></code>
+converter does not do the same work this does - it doesn&#8217;t
+correctly interpret what a PSD operator has to offer.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">this matrix as a
+<code class="xref py py-class docutils literal"><span class="pre">scipy.sparse.linalg.LinearOperator</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.linalg.psd_matrix.PSDMatrix.as_numpy">
+<code class="descname">as_numpy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/psd_matrix.html#PSDMatrix.as_numpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.psd_matrix.PSDMatrix.as_numpy" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">numpy matrix equivalent, as a 2D <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.linalg.psd_matrix.PSDMatrix.matmat">
+<code class="descname">matmat</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/psd_matrix.html#PSDMatrix.matmat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.psd_matrix.PSDMatrix.matmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Multiply a matrix <span class="math">\(X\)</span> by this matrix,
+<span class="math">\(K\)</span>, yielding <span class="math">\(KX\)</span>. This just repeatedly calls
+<a class="reference internal" href="#runlmc.linalg.psd_matrix.PSDMatrix.matvec" title="runlmc.linalg.psd_matrix.PSDMatrix.matvec"><code class="xref py py-func docutils literal"><span class="pre">matvec()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; a (possibly rectangular) matrix.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the matrix-matrix product</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.linalg.psd_matrix.PSDMatrix.matvec">
+<code class="descname">matvec</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/psd_matrix.html#PSDMatrix.matvec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.psd_matrix.PSDMatrix.matvec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Multiply a vector <span class="math">\(\textbf{x}\)</span> by this matrix,
+<span class="math">\(K\)</span>, yielding <span class="math">\(K\textbf{x}\)</span>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> &#8211; a one-dimensional numpy array of the same size as this matrix</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the matrix-vector product</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="runlmc.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="runlmc.linalg.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.kronecker.html">runlmc.linalg.kronecker module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.numpy_matrix.html">runlmc.linalg.numpy_matrix module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.linalg.psd_matrix module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.sum_matrix.html">runlmc.linalg.sum_matrix module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.toeplitz.html">runlmc.linalg.toeplitz module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runlmc.linalg.html#module-runlmc.linalg">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="runlmc.html">Documentation overview</a><ul>
+  <li><a href="runlmc.linalg.html">runlmc.linalg package</a><ul>
+      <li>Previous: <a href="runlmc.linalg.numpy_matrix.html" title="previous chapter">runlmc.linalg.numpy_matrix module</a></li>
+      <li>Next: <a href="runlmc.linalg.sum_matrix.html" title="next chapter">runlmc.linalg.sum_matrix module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runlmc.linalg.psd_matrix.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/runlmc.linalg.psd_matrix.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

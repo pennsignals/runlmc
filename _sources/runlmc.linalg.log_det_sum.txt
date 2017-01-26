@@ -1,0 +1,7 @@
+runlmc.linalg.log_det_sum module
+================================
+
+.. automodule:: runlmc.linalg.log_det_sum
+    :members:
+    :undoc-members:
+    :show-inheritance:

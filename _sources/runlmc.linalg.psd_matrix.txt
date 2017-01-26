@@ -1,0 +1,7 @@
+runlmc.linalg.psd_matrix module
+===============================
+
+.. automodule:: runlmc.linalg.psd_matrix
+    :members:
+    :undoc-members:
+    :show-inheritance:

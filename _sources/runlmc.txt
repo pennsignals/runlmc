@@ -1,0 +1,22 @@
+runlmc package
+==============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    runlmc.kern
+    runlmc.linalg
+    runlmc.mean
+    runlmc.models
+    runlmc.parameterization
+    runlmc.util
+
+Module contents
+---------------
+
+.. automodule:: runlmc
+    :members:
+    :undoc-members:
+    :show-inheritance:

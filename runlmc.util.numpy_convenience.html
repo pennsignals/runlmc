@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.util.numpy_convenience module &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.util package" href="runlmc.util.html" />
+    <link rel="next" title="runlmc.util.testing_utils module" href="runlmc.util.testing_utils.html" />
+    <link rel="prev" title="runlmc.util.interpolation module" href="runlmc.util.interpolation.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runlmc.util.numpy_convenience">
+<span id="runlmc-util-numpy-convenience-module"></span><h1>runlmc.util.numpy_convenience module<a class="headerlink" href="#module-runlmc.util.numpy_convenience" title="Permalink to this headline">¶</a></h1>
+<p>Convenience functions for working with numpy arrays.</p>
+<dl class="function">
+<dt id="runlmc.util.numpy_convenience.map_entries">
+<code class="descclassname">runlmc.util.numpy_convenience.</code><code class="descname">map_entries</code><span class="sig-paren">(</span><em>f</em>, <em>nparr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/numpy_convenience.html#map_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.numpy_convenience.map_entries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map a function over a numpy array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>f</strong> &#8211; single-parameter function over the same types</li>
+<li><strong>nparr</strong> (<em>np.ndarray</em>) &#8211; arbitrary numpy array</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A numpy array with <cite>f</cite> evaluated on each
+element of the same shape.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="runlmc.util.numpy_convenience.search_descending">
+<code class="descclassname">runlmc.util.numpy_convenience.</code><code class="descname">search_descending</code><span class="sig-paren">(</span><em>x</em>, <em>xs</em>, <em>inclusive</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/numpy_convenience.html#search_descending"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.numpy_convenience.search_descending" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> &#8211; threshold</li>
+<li><strong>xs</strong> &#8211; descending-ordered array to search</li>
+<li><strong>inclusive</strong> &#8211; whether to include values of <cite>x</cite> in <cite>xs</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the largest index index <cite>i</cite> such that <cite>xs[:i] &gt;= x</cite>
+if <cite>inclusive</cite> else <cite>xs[:i] &gt; x</cite>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> &#8211; if array is not weakly decreasing</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="runlmc.util.numpy_convenience.smallest_eig">
+<code class="descclassname">runlmc.util.numpy_convenience.</code><code class="descname">smallest_eig</code><span class="sig-paren">(</span><em>top</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/numpy_convenience.html#smallest_eig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.numpy_convenience.smallest_eig" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>top</strong> &#8211; top row of Toeplitz matrix to get eigenvalues for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the smallest eigenvalue</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="runlmc.util.numpy_convenience.tesselate">
+<code class="descclassname">runlmc.util.numpy_convenience.</code><code class="descname">tesselate</code><span class="sig-paren">(</span><em>nparr</em>, <em>lenit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/numpy_convenience.html#tesselate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.numpy_convenience.tesselate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a ragged array by splitting <cite>nparr</cite> into contiguous
+segments of size determined by the length list <cite>lenit</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nparr</strong> &#8211; array to split along axis 0.</li>
+<li><strong>lenit</strong> &#8211; iterator of lengths to split into.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of size equal to <cite>lenit</cite>&#8216;s iteration with <cite>nparr</cite>&#8216;s
+segments split into corresponding size chunks.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> &#8211; if the sum of lengths doesn&#8217;t correspond to the array
+size.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="runlmc.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="runlmc.util.html">runlmc.util package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="runlmc.util.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="runlmc.util.docs.html">runlmc.util.docs module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.util.interpolation.html">runlmc.util.interpolation module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.util.numpy_convenience module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.util.testing_utils.html">runlmc.util.testing_utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runlmc.util.html#module-runlmc.util">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="runlmc.html">Documentation overview</a><ul>
+  <li><a href="runlmc.util.html">runlmc.util package</a><ul>
+      <li>Previous: <a href="runlmc.util.interpolation.html" title="previous chapter">runlmc.util.interpolation module</a></li>
+      <li>Next: <a href="runlmc.util.testing_utils.html" title="next chapter">runlmc.util.testing_utils module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runlmc.util.numpy_convenience.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/runlmc.util.numpy_convenience.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

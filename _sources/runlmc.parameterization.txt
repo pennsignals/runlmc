@@ -1,0 +1,21 @@
+runlmc.parameterization package
+===============================
+
+Submodules
+----------
+
+.. toctree::
+
+   runlmc.parameterization.model
+   runlmc.parameterization.param
+   runlmc.parameterization.parameterized
+   runlmc.parameterization.priorizable
+   runlmc.parameterization.priors
+
+Module contents
+---------------
+
+.. automodule:: runlmc.parameterization
+    :members:
+    :undoc-members:
+    :show-inheritance:

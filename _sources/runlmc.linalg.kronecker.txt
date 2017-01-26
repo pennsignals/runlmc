@@ -1,0 +1,7 @@
+runlmc.linalg.kronecker module
+==============================
+
+.. automodule:: runlmc.linalg.kronecker
+    :members:
+    :undoc-members:
+    :show-inheritance:

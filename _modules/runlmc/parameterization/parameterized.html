@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.parameterization.parameterized &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="../../../runlmc.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for runlmc.parameterization.parameterized</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2016, Vladimir Feinberg</span>
+<span class="c1"># Licensed under the BSD 3-clause license (see LICENSE)</span>
+
+<span class="c1"># This file was modified from the GPy project. Its file header is replicated</span>
+<span class="c1"># below. Its LICENSE.txt is replicated in the LICENSE file for this directory.</span>
+
+<span class="c1"># Copyright (c) 2014, Max Zwiessele, James Hensman</span>
+<span class="c1"># Licensed under the BSD 3-clause license (see LICENSE.txt)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains the :class:`Parameterized` class.</span>
+
+<span class="sd">It only exists for convenience, documentation, and to</span>
+<span class="sd">indicate which methods of the corresponding :mod:`paramz`</span>
+<span class="sd">class should be used.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">paramz</span>
+
+<span class="kn">from</span> <span class="nn">.param</span> <span class="k">import</span> <span class="n">Param</span>
+<span class="kn">from</span> <span class="nn">.priorizable</span> <span class="k">import</span> <span class="n">_PriorizableNode</span>
+
+<div class="viewcode-block" id="Parameterized"><a class="viewcode-back" href="../../../runlmc.parameterization.parameterized.html#runlmc.parameterization.parameterized.Parameterized">[docs]</a><span class="k">class</span> <span class="nc">Parameterized</span><span class="p">(</span><span class="n">paramz</span><span class="o">.</span><span class="n">Parameterized</span><span class="p">,</span> <span class="n">_PriorizableNode</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A :class:`Parameterized` class is responsible for keeping track of</span>
+<span class="sd">    which parameters it is dependent on.</span>
+
+<span class="sd">    It does NOT manage updates</span>
+<span class="sd">    for those parameters if they change during some optimization</span>
+<span class="sd">    process. The :class:`runlmc.parametrization.Model` should take care of</span>
+<span class="sd">    that.</span>
+
+<span class="sd">    Say `m` is a handle to a parameterized class.</span>
+
+<span class="sd">    Printing parameters:</span>
+
+<span class="sd">        - `print(m)`:           prints a nice summary over all parameters</span>
+
+<span class="sd">        - `print(name)`:      prints details for param with name &#39;name&#39;</span>
+
+<span class="sd">        - `print m[regexp]`:   prints details for all the parameters</span>
+<span class="sd">                               which match (!) regexp</span>
+
+<span class="sd">        - `print `m[&#39;&#39;]`:       prints details for all parameters</span>
+
+<span class="sd">    Printed fields:</span>
+
+<span class="sd">        **name**:         The name of the param, can be renamed!</span>
+
+<span class="sd">        **value**:        Shape or value, if one-valued</span>
+
+<span class="sd">        **constraints**:  constraint of the param, curly &quot;{c}&quot; brackets</span>
+<span class="sd">                          indicate</span>
+<span class="sd">                          some parameters are constrained by c. See detailed</span>
+<span class="sd">                          print to get exact constraints.</span>
+
+<span class="sd">    Getting and setting parameters::</span>
+
+<span class="sd">        m.subparameterized1.subparameterized2.param[:] = 1</span>
+
+<span class="sd">    Handling of constraining, fixing and tieing parameters:</span>
+
+<span class="sd">        You can constrain parameters by calling the constrain on the param</span>
+<span class="sd">        itself, e.g::</span>
+
+<span class="sd">            m.name[:,1].constrain_positive()</span>
+<span class="sd">            m.name[0].tie_to(m.name[1])</span>
+
+<span class="sd">        Fixing parameters will fix them to the value they are right now. If you</span>
+<span class="sd">        change</span>
+<span class="sd">        the parameters value, the param will be fixed to the new value!</span>
+
+<span class="sd">        If you want to operate on all parameters use `m[&#39;&#39;]` to wildcard select</span>
+<span class="sd">        all parameters</span>
+<span class="sd">        and concatenate them. Printing `m[&#39;&#39;]` will result in printing of all</span>
+<span class="sd">        parameters in detail.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Parameterized.link_parameter"><a class="viewcode-back" href="../../../runlmc.parameterization.parameterized.html#runlmc.parameterization.parameterized.Parameterized.link_parameter">[docs]</a>    <span class="k">def</span> <span class="nf">link_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal API for indicating that a class depends on a certain</span>
+<span class="sd">        parameter, and therefore should include it in gradient computations.</span>
+
+<span class="sd">        .. Note: Developer API. Users should not need to call this.</span>
+
+<span class="sd">        :param param:  the parameter to add.</span>
+<span class="sd">        :type parameters: `runlmc.parametrization.Param`</span>
+<span class="sd">        :param [index]: index of where to put parameters</span>
+<span class="sd">        :raise TypeError: if `param` is not the `runlmc` (priorizable)</span>
+<span class="sd">                          parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">Param</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s1">&#39;Only runlmc.parametrization.Param types should be linked&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Parameterized.visit_gradients"><a class="viewcode-back" href="../../../runlmc.parameterization.parameterized.html#runlmc.parameterization.parameterized.Parameterized.visit_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">visit_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visit</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the gradients for the parameters contained here given an</span>
+<span class="sd">        arbitrary transformation procedure `visit` at the given locations</span>
+<span class="sd">        `inputs` simultaneously.</span>
+
+<span class="sd">        Given a likelihood :math:`L` that we are trying to globally optimize,</span>
+<span class="sd">        but this class is not directly aware of, this method lets us</span>
+<span class="sd">        delegate the derivative computation in a generic manner.</span>
+
+<span class="sd">        This :class:`Parameterized` object contributes to :math:`L`</span>
+<span class="sd">        in a way that&#39;s defined by its parameters. Let this contribution</span>
+<span class="sd">        be :math:`C`, a function of parameters :math:`\{\\theta_j\}`.</span>
+
+<span class="sd">        There may be other parameters for other :class:`Parameterized` objects</span>
+<span class="sd">        contributing to :math:`L`, but they don&#39;t affect</span>
+<span class="sd">        :math:`\partial_{\\theta_j}L`.</span>
+
+<span class="sd">        The goal of this method is to compute for each :math:`\\theta_j`:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \partial_{\\theta_j}L(X)=\partial_{C_X}L</span>
+<span class="sd">                \cdot\partial_{\\theta_j}C_X</span>
+
+<span class="sd">        Above, :math:`X` may be a vector of (possibly multi-dimensional)</span>
+<span class="sd">        inputs, and :math:`C` may be vector-valued function of</span>
+<span class="sd">        :math:`\\theta_j`</span>
+<span class="sd">        for other parameters :math:`\\theta_{-j}` fixed and for a single input</span>
+<span class="sd">        (element in :math:`X`). Then the derivatives above can be matrices,</span>
+<span class="sd">        in which case the dot product is generalized.</span>
+
+<span class="sd">        To support algorithms that avoid computing the large, dense matrix</span>
+<span class="sd">        :math:`\partial_{C_X}L`, we allow for a `visit` function :math:`v`</span>
+<span class="sd">        that should satisfy:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            v(\partial_{\\theta_j}C_X)=\partial_{\\theta_j}L(X)</span>
+
+<span class="sd">        Note :math:`\partial_{\\theta_j}C_X` is just as large as</span>
+<span class="sd">        :math:`\partial_{C_X}L` but the former is sparse.</span>
+
+<span class="sd">        :param visit: a function which transforms the local derivative</span>
+<span class="sd">                      of this class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../runlmc.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../runlmc.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,27 @@
+runlmc.linalg package
+=====================
+
+Submodules
+----------
+
+.. toctree::
+
+   runlmc.linalg.kronecker
+   runlmc.linalg.numpy_matrix
+   runlmc.linalg.psd_matrix
+   runlmc.linalg.sum_matrix
+   runlmc.linalg.test_kronecker
+   runlmc.linalg.test_matrix_base
+   runlmc.linalg.test_numpy_matrix
+   runlmc.linalg.test_psd_matrix
+   runlmc.linalg.test_sum_matrix
+   runlmc.linalg.test_toeplitz
+   runlmc.linalg.toeplitz
+
+Module contents
+---------------
+
+.. automodule:: runlmc.linalg
+    :members:
+    :undoc-members:
+    :show-inheritance:

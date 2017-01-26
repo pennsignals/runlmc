@@ -1,0 +1,7 @@
+runlmc.linalg.toeplitz module
+=============================
+
+.. automodule:: runlmc.linalg.toeplitz
+    :members:
+    :undoc-members:
+    :show-inheritance:

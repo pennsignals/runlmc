@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.linalg.psd_matrix &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="../../../runlmc.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for runlmc.linalg.psd_matrix</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2016, Vladimir Feinberg</span>
+<span class="c1"># Licensed under the BSD 3-clause license (see LICENSE)</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse.linalg</span>
+
+<span class="kn">from</span> <span class="nn">..util.docs</span> <span class="k">import</span> <span class="n">inherit_doc</span>
+
+<div class="viewcode-block" id="PSDMatrix"><a class="viewcode-back" href="../../../runlmc.linalg.psd_matrix.html#runlmc.linalg.psd_matrix.PSDMatrix">[docs]</a><span class="k">class</span> <span class="nc">PSDMatrix</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An abstract class defining the interface for the necessary</span>
+<span class="sd">    sparse matrix operations.</span>
+
+<span class="sd">    We consider a very restricted class of matrices only, namely</span>
+<span class="sd">    positive semi-definite, symmetric, real matrices. In other words,</span>
+<span class="sd">    the matrix :math:`K` represented by instances of this class is expected to</span>
+<span class="sd">    adhere to the following semantic laws:</span>
+
+<span class="sd">    #. :math:`\\forall\\textbf{x}`,</span>
+<span class="sd">       :math:`\\textbf{x}^\\top K\\textbf{x} \ge 0`</span>
+<span class="sd">    #. :math:`K^\\top = K`</span>
+
+<span class="sd">    These laws manifest themselves the following property, with</span>
+<span class="sd">    the actual API, which exposes :func:`matvec` for matrix-vector</span>
+<span class="sd">    multiplication.</span>
+
+<span class="sd">    * Positivity: `K.matvec(x).dot(x) &gt;= 0`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param n: number of rows in this square matrix</span>
+<span class="sd">        :raises ValueError: if `n &lt; 1`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Size of the matrix </span><span class="si">{}</span><span class="s1"> &lt; 1&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PSDMatrix.as_linear_operator"><a class="viewcode-back" href="../../../runlmc.linalg.psd_matrix.html#runlmc.linalg.psd_matrix.PSDMatrix.as_linear_operator">[docs]</a>    <span class="k">def</span> <span class="nf">as_linear_operator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. Note:: The :func:`scipy.sparse.linalg.aslinearoperator`</span>
+<span class="sd">                  converter does not do the same work this does - it doesn&#39;t</span>
+<span class="sd">                  correctly interpret what a PSD operator has to offer.</span>
+
+<span class="sd">        :returns: this matrix as a</span>
+<span class="sd">                  :class:`scipy.sparse.linalg.LinearOperator`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+            <span class="n">matvec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">matvec</span><span class="p">,</span>
+            <span class="n">rmatvec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">matvec</span><span class="p">,</span>
+            <span class="n">matmat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">matmat</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PSDMatrix.matvec"><a class="viewcode-back" href="../../../runlmc.linalg.psd_matrix.html#runlmc.linalg.psd_matrix.PSDMatrix.matvec">[docs]</a>    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Multiply a vector :math:`\\textbf{x}` by this matrix,</span>
+<span class="sd">        :math:`K`, yielding :math:`K\\textbf{x}`.</span>
+
+<span class="sd">        :param x: a one-dimensional numpy array of the same size as this matrix</span>
+<span class="sd">        :returns: the matrix-vector product</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="PSDMatrix.matmat"><a class="viewcode-back" href="../../../runlmc.linalg.psd_matrix.html#runlmc.linalg.psd_matrix.PSDMatrix.matmat">[docs]</a>    <span class="k">def</span> <span class="nf">matmat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Multiply a matrix :math:`X` by this matrix,</span>
+<span class="sd">        :math:`K`, yielding :math:`KX`. This just repeatedly calls</span>
+<span class="sd">        :func:`matvec`.</span>
+
+<span class="sd">        :param X: a (possibly rectangular) matrix.</span>
+<span class="sd">        :returns: the matrix-matrix product</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span><span class="p">])</span></div></div>
+
+<span class="nd">@inherit_doc</span>
+<div class="viewcode-block" id="PSDDecomposableMatrix"><a class="viewcode-back" href="../../../runlmc.linalg.psd_matrix.html#runlmc.linalg.psd_matrix.PSDDecomposableMatrix">[docs]</a><span class="k">class</span> <span class="nc">PSDDecomposableMatrix</span><span class="p">(</span><span class="n">PSDMatrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An extention to a regular :class:`PSDMatrix` which allows for efficient</span>
+<span class="sd">    eigendecomposition and bounding. This adheres to the following</span>
+<span class="sd">    mathematical property manifested by the API :func:`eig`.</span>
+
+<span class="sd">    * Positive eigenvalues: `len(K.eig(cutoff=0)) == K.shape[0]`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PSDDecomposableMatrix.eig"><a class="viewcode-back" href="../../../runlmc.linalg.psd_matrix.html#runlmc.linalg.psd_matrix.PSDDecomposableMatrix.eig">[docs]</a>    <span class="k">def</span> <span class="nf">eig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds the eigenvalues of this matrix of magnitude above the cutoff.</span>
+
+<span class="sd">        :param cutoff: eigenvalue cutoff</span>
+<span class="sd">        :returns: a numpy array of eigenvalues in decreasing order, repeated by</span>
+<span class="sd">                  multiplicity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="PSDDecomposableMatrix.upper_eig_bound"><a class="viewcode-back" href="../../../runlmc.linalg.psd_matrix.html#runlmc.linalg.psd_matrix.PSDDecomposableMatrix.upper_eig_bound">[docs]</a>    <span class="k">def</span> <span class="nf">upper_eig_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an upper bound :math:`B` for the largest eigenvalue of this</span>
+<span class="sd">        PSD matrix.</span>
+
+<span class="sd">        Impementations can rely on the fairly tight and efficient-to-compute</span>
+<span class="sd">        Gershgorin circle theorem, which implies that the largest eigenvalue</span>
+<span class="sd">        is bounded by the largest absolute row sum in PSD matices.</span>
+
+<span class="sd">        :return: :math:`B`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../runlmc.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../runlmc.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

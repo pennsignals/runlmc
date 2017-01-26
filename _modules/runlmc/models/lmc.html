@@ -1,0 +1,451 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.models.lmc &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="../../../runlmc.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for runlmc.models.lmc</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2016, Vladimir Feinberg</span>
+<span class="c1"># Licensed under the BSD 3-clause license (see LICENSE)</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse.linalg</span>
+<span class="kn">from</span> <span class="nn">paramz.transformations</span> <span class="k">import</span> <span class="n">Logexp</span>
+
+<span class="kn">from</span> <span class="nn">.multigp</span> <span class="k">import</span> <span class="n">MultiGP</span>
+<span class="kn">from</span> <span class="nn">..linalg.toeplitz</span> <span class="k">import</span> <span class="n">Toeplitz</span>
+<span class="kn">from</span> <span class="nn">..linalg.kronecker</span> <span class="k">import</span> <span class="n">Kronecker</span>
+<span class="kn">from</span> <span class="nn">..linalg.psd_matrix</span> <span class="k">import</span> <span class="n">PSDMatrix</span>
+<span class="kn">from</span> <span class="nn">..linalg.sum_matrix</span> <span class="k">import</span> <span class="n">SumMatrix</span>
+<span class="kn">from</span> <span class="nn">..parameterization.param</span> <span class="k">import</span> <span class="n">Param</span>
+<span class="kn">from</span> <span class="nn">..util.docs</span> <span class="k">import</span> <span class="n">inherit_doc</span>
+<span class="kn">from</span> <span class="nn">..util.interpolation</span> <span class="k">import</span> <span class="n">interp_cubic</span>
+
+<span class="n">_LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="nd">@inherit_doc</span>
+<div class="viewcode-block" id="LMC"><a class="viewcode-back" href="../../../runlmc.models.lmc.html#runlmc.models.lmc.LMC">[docs]</a><span class="k">class</span> <span class="nc">LMC</span><span class="p">(</span><span class="n">MultiGP</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The main class of this package, `LMC` implements linearithmic</span>
+<span class="sd">    Gaussian Process learning in the multi-output case. [TODO(PAPER)].</span>
+
+<span class="sd">    .. Note: Currently, only one-dimensional input is supported.</span>
+
+<span class="sd">    Upon construction, this class assumes ownership of its parameters and</span>
+<span class="sd">    does not account for changes in their values.</span>
+
+<span class="sd">    The exact kernel that this approximates is the following:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        K_{\\text{exact}}=\sum_{q=1}^Q\\left(A_qA_q^\\top+</span>
+<span class="sd">             \\boldsymbol\\kappa_q I\\right)</span>
+<span class="sd">             \circ [k_q(X_i, X_j)]_{ij\in[D]^2} +</span>
+<span class="sd">             \\boldsymbol\epsilon I</span>
+
+<span class="sd">    :math:`[\cdot]_{ij}` represents a block matrix, with rows and columns</span>
+<span class="sd">    possibly of different widths. :math:`\circ` is the Hadamard product.</span>
+<span class="sd">    :math:`\\boldsymbol\\epsilon I` is a Gaussian noise</span>
+<span class="sd">    addition, iid within each output. The input arrays for our observations</span>
+<span class="sd">    of each of the different outputs are denoted :math:`X_i` and may be</span>
+<span class="sd">    variable-length. Each :math:`k_q(X_i,X_j)` is built from a stationary</span>
+<span class="sd">    Mercer kernel :math:`k_q`, where the :math:`ab`-th entry of the</span>
+<span class="sd">    rectangular matrix is</span>
+<span class="sd">    :math:`k_q(\\textbf{x}_a^{(i)}, \\textbf{x}_b^{(j)})` with</span>
+<span class="sd">    :math:`\\textbf{x}_a^{(i)}` as the</span>
+<span class="sd">    :math:`a`-th input of the input set :math:`X_i` (and correspondingly for</span>
+<span class="sd">    :math:`j`).</span>
+
+<span class="sd">    The :math:`\\left(A_qA_q^\\top+ \\boldsymbol\\kappa_q I\\right)` terms</span>
+<span class="sd">    create a kernel which captures some linear correlation between outputs.</span>
+
+<span class="sd">    This class uses the SKI approximation, which shares a single grid</span>
+<span class="sd">    :math:`U` as the input array for all the outputs. Then,</span>
+<span class="sd">    :math:`K_{\\text{exact}}` is interpolated from the approximation kernel</span>
+<span class="sd">    :math:`K_{\\text{SKI}}`, as directed in</span>
+<span class="sd">    *Thoughts on Massively Scalable Gaussian Processes* by Wilson, Dann,</span>
+<span class="sd">    and Nickisch. This is done with sparse interpolation matrices :math:`W`.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        K_{\\text{exact}}\\approx K_{\\text{SKI}} = W K W^\\top +</span>
+<span class="sd">            \\boldsymbol\\epsilon I</span>
+
+<span class="sd">    Above, :math:`K` is a structured kernel over a grid :math:`U`, derived</span>
+<span class="sd">    from :math:`A_q, k_q` as before. The grid structure enables us to</span>
+<span class="sd">    express :math:`K` more succintly, relying on the Kronecker product</span>
+<span class="sd">    :math:`\\otimes`.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        K=\sum_{q=1}^QA_qA_q^\\top \\otimes k_q(U, U)</span>
+
+<span class="sd">    Each :math:`A_q` (only a column vector for now) is a parameter of</span>
+<span class="sd">    this model, with name `a&lt;q&gt;`, where `&lt;q&gt;` is replaced with a specific</span>
+<span class="sd">    number.</span>
+
+<span class="sd">    TODO(new parameters)</span>
+<span class="sd">    ranks - currently everything will be rank-1</span>
+<span class="sd">    mean-function - zero-mean for now</span>
+
+<span class="sd">    :param Xs: input observations, should be a list of numpy arrays,</span>
+<span class="sd">               where the numpy arrays are one dimensional.</span>
+<span class="sd">    :param Ys: output observations, this must be a list of one-dimensional</span>
+<span class="sd">               numpy arrays, matching up with the number of rows in `Xs`.</span>
+<span class="sd">    :param normalize: optional normalization for outputs `Ys`.</span>
+<span class="sd">                           Prediction will be un-normalized.</span>
+<span class="sd">    :param kernels: a list of (stationary) kernels which constitute the</span>
+<span class="sd">                    terms of the LMC sums prior to coregionalization. The</span>
+<span class="sd">                    :math:`q`-th index here corresponds to :math:`k_q` above.</span>
+<span class="sd">                    This list&#39;s length is :math:`Q`</span>
+<span class="sd">    :param lo: lexicographically smallest point in inducing point grid used</span>
+<span class="sd">               (by default, a bit less than the minimum of input)</span>
+<span class="sd">    :param hi: lexicographically largest point in inducing point grid used</span>
+<span class="sd">               (by default, a bit more than the maximum of input)</span>
+<span class="sd">    :param m: number of inducing points to use (by default, the total number</span>
+<span class="sd">              of input points)</span>
+<span class="sd">    :param str name:</span>
+<span class="sd">    :raises: :class:`ValueError` if `Xs` and `Ys` lengths do not match.</span>
+<span class="sd">    :raises: :class:`ValueError` if normalization if any `Ys` have no variance</span>
+<span class="sd">                                 or values in `Xs` have multiple identical</span>
+<span class="sd">                                 values.</span>
+<span class="sd">    :raises: :class:`ValueError` if no kernels</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kernels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">lo</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;lmc&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="n">normalize</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">kernels</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Number of kernels should be &gt;0&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">=</span> <span class="n">kernels</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">Xs</span><span class="p">))</span>
+        <span class="n">_LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;LMC </span><span class="si">%s</span><span class="s1"> generating inducing grid n = </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+        <span class="c1"># Grid corresponds to U</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inducing_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_autogrid</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+
+        <span class="c1"># Toeplitz(self.dists) is the pairwise distance matrix of U</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inducing_grid</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">inducing_grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Corresponds to W; block diagonal matrix.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Xs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inducing_grid</span><span class="p">)</span>
+
+        <span class="n">_LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;LMC </span><span class="si">%s</span><span class="s1"> grid (n = </span><span class="si">%d</span><span class="s1">, m = </span><span class="si">%d</span><span class="s1">) complete, &#39;</span>
+                  <span class="s1">&#39;generating first SKI kernel&#39;</span><span class="p">,</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">coreg_vecs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">)):</span>
+            <span class="n">coreg_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Param</span><span class="p">(</span><span class="s1">&#39;a</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">coreg_vec</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">)):</span>
+            <span class="n">coreg_diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Param</span><span class="p">(</span><span class="s1">&#39;kappa</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">coreg_diag</span><span class="p">,</span> <span class="n">Logexp</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Corresponds to epsilon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="s1">&#39;noise&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">),</span> <span class="n">Logexp</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ski_kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_ski</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ys</span><span class="p">)</span>
+
+        <span class="c1"># Predictive weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">native_var</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">_LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;LMC </span><span class="si">%s</span><span class="s1"> fully initialized&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="n">TOL</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">4</span>
+
+    <span class="k">class</span> <span class="nc">_SKI</span><span class="p">(</span><span class="n">PSDMatrix</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K_sum</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">noise</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
+            <span class="n">lens</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">lens</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">K_sum</span> <span class="o">=</span> <span class="n">K_sum</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">W</span> <span class="o">=</span> <span class="n">W</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">WT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">W</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">tocsr</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">noise</span><span class="p">,</span> <span class="n">lens</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">as_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">WKT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">W</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K_sum</span><span class="o">.</span><span class="n">as_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">W</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">WKT</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">W</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K_sum</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">WT</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span> \
+                <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_autogrid</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">)</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">lo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lo</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">hi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">hi</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">)</span>
+
+        <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">hi</span> <span class="o">-</span> <span class="n">lo</span><span class="p">)</span> <span class="o">/</span> <span class="n">m</span>
+        <span class="n">lo</span> <span class="o">-=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">delta</span>
+        <span class="n">hi</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">delta</span>
+        <span class="n">m</span> <span class="o">+=</span> <span class="mi">2</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="n">m</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_interpolant</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">inducing_grid</span><span class="p">):</span> <span class="c1"># pylint: disable=too-many-locals</span>
+        <span class="n">multiout_grid_sizes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">))</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">inducing_grid</span><span class="p">)</span>
+        <span class="n">Ws</span> <span class="o">=</span> <span class="p">[</span><span class="n">interp_cubic</span><span class="p">(</span><span class="n">inducing_grid</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>
+
+        <span class="n">row_lens</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>
+        <span class="n">row_ends</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">row_lens</span><span class="p">)</span>
+        <span class="n">row_begins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">row_ends</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">row_begins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">row_ends</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">col_lens</span> <span class="o">=</span> <span class="p">[</span><span class="n">W</span><span class="o">.</span><span class="n">nnz</span> <span class="k">for</span> <span class="n">W</span> <span class="ow">in</span> <span class="n">Ws</span><span class="p">]</span>
+        <span class="n">col_ends</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">col_lens</span><span class="p">)</span>
+        <span class="n">col_begins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">col_ends</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">col_begins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">col_ends</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">ind_starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">accumulate</span><span class="p">([</span><span class="n">W</span><span class="o">.</span><span class="n">indptr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">W</span> <span class="ow">in</span> <span class="n">Ws</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">ind_starts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">ind_ptr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">ind_starts</span><span class="p">,</span> <span class="n">row_lens</span><span class="p">),</span> <span class="n">width</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
+        <span class="n">col_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">multiout_grid_sizes</span><span class="p">,</span> <span class="n">col_lens</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">rbegin</span><span class="p">,</span> <span class="n">rend</span><span class="p">,</span> <span class="n">cbegin</span><span class="p">,</span> <span class="n">cend</span><span class="p">,</span> <span class="n">W</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">row_begins</span><span class="p">,</span> <span class="n">row_ends</span><span class="p">,</span> <span class="n">col_begins</span><span class="p">,</span> <span class="n">col_ends</span><span class="p">,</span> <span class="n">Ws</span><span class="p">):</span>
+            <span class="n">ind_ptr</span><span class="p">[</span><span class="n">rbegin</span><span class="p">:</span><span class="n">rend</span><span class="p">]</span> <span class="o">+=</span> <span class="n">W</span><span class="o">.</span><span class="n">indptr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">cbegin</span><span class="p">:</span><span class="n">cend</span><span class="p">]</span> <span class="o">=</span> <span class="n">W</span><span class="o">.</span><span class="n">data</span>
+            <span class="n">col_indices</span><span class="p">[</span><span class="n">cbegin</span><span class="p">:</span><span class="n">cend</span><span class="p">]</span> <span class="o">+=</span> <span class="n">W</span><span class="o">.</span><span class="n">indices</span>
+
+        <span class="n">ncols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">inducing_grid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">col_indices</span><span class="p">,</span> <span class="n">ind_ptr</span><span class="p">),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">ncols</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_generate_ski</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">coreg_mats</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+                      <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="p">)]</span>
+        <span class="n">kernels</span> <span class="o">=</span> <span class="p">[</span><span class="n">Toeplitz</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">from_dist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dists</span><span class="p">))</span>
+                   <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">]</span>
+        <span class="n">products</span> <span class="o">=</span> <span class="p">[</span><span class="n">Kronecker</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span> <span class="k">for</span> <span class="n">A</span><span class="p">,</span> <span class="n">K</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">coreg_mats</span><span class="p">,</span> <span class="n">kernels</span><span class="p">)]</span>
+        <span class="n">kern_sum</span> <span class="o">=</span> <span class="n">SumMatrix</span><span class="p">(</span><span class="n">products</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LMC</span><span class="o">.</span><span class="n">_SKI</span><span class="p">(</span>
+            <span class="n">kern_sum</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interpolant</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Xs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LMC.parameters_changed"><a class="viewcode-back" href="../../../runlmc.models.lmc.html#runlmc.models.lmc.LMC.parameters_changed">[docs]</a>    <span class="k">def</span> <span class="nf">parameters_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># derivatives w.r.t. ordinary covariance hyperparameters</span>
+        <span class="c1"># d lam(K) = diag(V&#39;*dK*V), for psd matrix K = V*diag(lam)*V&#39;.</span>
+        <span class="k">if</span> <span class="n">_LOG</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;params changed for LMC</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ski_kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_ski</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">native_var</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="LMC.K_SKI"><a class="viewcode-back" href="../../../runlmc.models.lmc.html#runlmc.models.lmc.LMC.K_SKI">[docs]</a>    <span class="k">def</span> <span class="nf">K_SKI</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. warning:: This generates the entire kernel, a quadratic operation</span>
+<span class="sd">                     in memory and time.</span>
+
+<span class="sd">        :returns: :math:`K_{\\text{SKI}}`, the approximation of the exact</span>
+<span class="sd">                  kernel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ski_kernel</span><span class="o">.</span><span class="n">as_numpy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="LMC.log_det_K"><a class="viewcode-back" href="../../../runlmc.models.lmc.html#runlmc.models.lmc.LMC.log_det_K">[docs]</a>    <span class="k">def</span> <span class="nf">log_det_K</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :returns: an upper bound of the approximate log determinant,</span>
+<span class="sd">                  uses :math:`K_\\text{SKI}` to find an approximate</span>
+<span class="sd">                  upper bound for</span>
+<span class="sd">                  :math:`\\log\\det K_{\text{exact}}`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">min_noise</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">TOL</span><span class="p">)</span>
+        <span class="n">eigs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ski_kernel</span><span class="o">.</span><span class="n">K_sum</span><span class="o">.</span><span class="n">approx_eigs</span><span class="p">(</span><span class="n">min_noise</span><span class="p">)</span>
+        <span class="c1"># noise needs to be adjusted dimensionally. Idea: use top eigs?</span>
+        <span class="n">eigs</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ys</span><span class="p">)))</span>
+        <span class="n">noise</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="c1"># KISS-GP section 2.3.1 from Wilson 2015</span>
+        <span class="c1"># Theorem 3.4 of Baker 1977 in</span>
+        <span class="c1"># The numerical treatment of integral equation</span>
+        <span class="c1"># This converges to the upper bound in the number of examples.</span>
+        <span class="n">top_eigs</span> <span class="o">=</span> <span class="n">eigs</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">noise</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_grid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">top_eigs</span> <span class="o">+</span> <span class="n">noise</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">TOL</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_invmul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ski_kernel</span><span class="o">.</span><span class="n">as_linear_operator</span><span class="p">()</span>
+        <span class="n">Kinv_y</span><span class="p">,</span> <span class="n">succ</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">minres</span><span class="p">(</span>
+            <span class="n">op</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TOL</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">succ</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;MINRES (m = </span><span class="si">%d</span><span class="s1">) for LMC </span><span class="si">%s</span><span class="s1"> did not converge.&#39;</span>
+                          <span class="s1">&#39;Error </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">succ</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Kinv_y</span>
+
+    <span class="k">def</span> <span class="nf">_precompute_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Not optimized for speed - this performs dense linear algebra</span>
+        <span class="c1"># corresponding to Sections 5.1.1 and 5.1.2 from the MSGP paper.</span>
+        <span class="c1"># This can probably be sped up (even by e.g., using the approximations</span>
+        <span class="c1"># offered in those sections, or perhaps some less coarse ones).</span>
+        <span class="c1"># However, it&#39;s the training that&#39;s the bottleneck, not prediction.</span>
+        <span class="n">nongrid_alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_invmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">WT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ski_kernel</span><span class="o">.</span><span class="n">WT</span>
+        <span class="n">K_UU</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ski_kernel</span><span class="o">.</span><span class="n">K_sum</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">K_UU</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">WT</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">nongrid_alpha</span><span class="p">))</span>
+
+        <span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_SKI</span><span class="p">()</span>
+        <span class="n">K_XU</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolant</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">K_UU</span><span class="o">.</span><span class="n">as_numpy</span><span class="p">())</span>
+        <span class="n">Ainv_KXU</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">K_XU</span><span class="p">,</span> <span class="n">sym_pos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">overwrite_a</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">K_XU</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Ainv_KXU</span><span class="p">))</span>
+
+        <span class="c1"># A bit obscure; the native covariance K_** for each output</span>
+        <span class="c1"># is given by diag(K(0, 0)). This happens to be efficiently computed</span>
+        <span class="c1"># here.</span>
+        <span class="n">coregs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="p">))</span>
+        <span class="n">coregs</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="p">)</span>
+        <span class="n">kerns</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">from_dist</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">]</span>
+        <span class="n">native_output_var</span> <span class="o">=</span> <span class="n">coregs</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">kerns</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">native_var</span> <span class="o">=</span> <span class="n">native_output_var</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise</span>
+
+        <span class="k">return</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">native_var</span>
+
+<div class="viewcode-block" id="LMC.normal_quadratic"><a class="viewcode-back" href="../../../runlmc.models.lmc.html#runlmc.models.lmc.LMC.normal_quadratic">[docs]</a>    <span class="k">def</span> <span class="nf">normal_quadratic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If the flattened (Stacked)outputs are written as :math:`\\textbf{y}`,</span>
+<span class="sd">        this returns :math:`\\textbf{y}^\\top K_{\\text{SKI}}^{-1}\\textbf{y}`.</span>
+
+<span class="sd">        :returns: the normal quadratic term for the current outputs `Ys`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_invmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="LMC.log_likelihood"><a class="viewcode-back" href="../../../runlmc.models.lmc.html#runlmc.models.lmc.LMC.log_likelihood">[docs]</a>    <span class="k">def</span> <span class="nf">log_likelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nll</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_det_K</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal_quadratic</span><span class="p">()</span>
+        <span class="n">nll</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">nll</span></div>
+
+    <span class="k">def</span> <span class="nf">_raw_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">native_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precompute_predict</span><span class="p">()</span>
+
+        <span class="n">W</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolant</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inducing_grid</span><span class="p">)</span>
+        <span class="n">lens</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>
+
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">W</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+
+        <span class="n">native_var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">native_var</span><span class="p">,</span> <span class="n">lens</span><span class="p">)</span>
+
+        <span class="n">var</span> <span class="o">=</span> <span class="n">native_var</span> <span class="o">-</span> <span class="n">W</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">)</span>
+        <span class="n">var</span><span class="p">[</span><span class="n">var</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">endpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">lens</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../runlmc.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../runlmc.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

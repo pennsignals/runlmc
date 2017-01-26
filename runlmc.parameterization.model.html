@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.parameterization.model module &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.parameterization package" href="runlmc.parameterization.html" />
+    <link rel="next" title="runlmc.parameterization.param module" href="runlmc.parameterization.param.html" />
+    <link rel="prev" title="runlmc.parameterization package" href="runlmc.parameterization.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runlmc.parameterization.model">
+<span id="runlmc-parameterization-model-module"></span><h1>runlmc.parameterization.model module<a class="headerlink" href="#module-runlmc.parameterization.model" title="Permalink to this headline">¶</a></h1>
+<p>This module defines a generic internal <a class="reference internal" href="#runlmc.parameterization.model.Model" title="runlmc.parameterization.model.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a> class, which handles
+the interface between this class and the <a class="reference external" href="http://pythonhosted.org/paramz/paramz.html#module-paramz" title="(in paramz v0.7.3)"><code class="xref py py-mod docutils literal"><span class="pre">paramz</span></code></a> optimization layer.</p>
+<dl class="class">
+<dt id="runlmc.parameterization.model.Model">
+<em class="property">class </em><code class="descclassname">runlmc.parameterization.model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/parameterization/model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.parameterization.model.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://pythonhosted.org/paramz/paramz.html#paramz.model.Model" title="(in paramz v0.7.3)"><code class="xref py py-class docutils literal"><span class="pre">paramz.model.Model</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">runlmc.parameterization.priorizable._PriorizableNode</span></code></p>
+<p>A <a class="reference internal" href="#runlmc.parameterization.model.Model" title="runlmc.parameterization.model.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a> provides a graphical model dependent on latent parameters,
+which it contains either explicitly (as attributes in derived classes
+of <a class="reference internal" href="#runlmc.parameterization.model.Model" title="runlmc.parameterization.model.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a>) or implicitly (as parameters implicitly linked to
+a model&#8217;s explicit parameters).</p>
+<p>Access to any parameter in this tree can be done by the name of those
+parameters. See the <code class="xref py py-class docutils literal"><span class="pre">Parameterized</span></code> documentation for details.</p>
+<p>The parameters can be either <code class="xref py py-class docutils literal"><span class="pre">Param`s</span> <span class="pre">or</span> <span class="pre">:class:`Parameterized</span></code>.
+In fact, the tree of references from objects to their attributes, as
+represented in the Python garbage collector, matches identically with
+the graphical model that this <a class="reference internal" href="#runlmc.parameterization.model.Model" title="runlmc.parameterization.model.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a> represents (though the
+direction of the links is reversed).</p>
+<p>The <a class="reference internal" href="#runlmc.parameterization.model.Model" title="runlmc.parameterization.model.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a> binds together likelihood values computed from
+the model without the priors (which is implemented by derived classes)
+with the priors. In other words, for observations <span class="math">\(\mathbf{y}\)</span>,
+parameters <span class="math">\(\theta\)</span> dependent on priors <span class="math">\(\phi\)</span>, the user
+supplies <span class="math">\(\log p(\mathbf{y}|\theta,\phi)\)</span> as well as its
+derivative with respect to <span class="math">\(\theta\)</span>. This class automatically
+adds in the missing <span class="math">\(\log p(\theta|\phi)\)</span> term and its derivative.</p>
+<dl class="method">
+<dt id="runlmc.parameterization.model.Model.log_likelihood">
+<code class="descname">log_likelihood</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/parameterization/model.html#Model.log_likelihood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.parameterization.model.Model.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the log likelihood of the current model with respect to its
+current inputs and outputs and the current prior.
+This should NOT include the likelihood of the parameters
+given their priors. In other words, this value should be
+<span class="math">\(\log p(\mathbf{y}|\theta,\phi)\)</span></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.parameterization.model.Model.log_likelihood_with_prior">
+<code class="descname">log_likelihood_with_prior</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/parameterization/model.html#Model.log_likelihood_with_prior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.parameterization.model.Model.log_likelihood_with_prior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Let the observations be <span class="math">\(\mathbf{y}\)</span>,
+parameters be <span class="math">\(\theta\)</span>, and the prior <span class="math">\(\phi\)</span>.</p>
+<div class="math">
+\[\log p(\mathbf{y}|\phi) = \log p(\mathbf{y}|\theta,\phi) +
+\log p(\mathbf{y}|\theta,\phi)\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the overall log likelihood shown above.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.parameterization.model.Model.log_prior">
+<code class="descname">log_prior</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/parameterization/model.html#Model.log_prior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.parameterization.model.Model.log_prior" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the log prior <span class="math">\(\log p(\theta|\phi)\)</span></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.parameterization.model.Model.objective_function">
+<code class="descname">objective_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/parameterization/model.html#Model.objective_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.parameterization.model.Model.objective_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>The objective function for the given algorithm.</p>
+<p>This function is the true objective, which wants to be minimized.
+Note that all parameters are already set and in place, so you just need
+to return the objective function here.</p>
+<p>For probabilistic models this is the negative log_likelihood
+(including the MAP prior), so we return it here. If your model is not
+probabilistic, just return your objective to minimize here!</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.parameterization.model.Model.objective_function_gradients">
+<code class="descname">objective_function_gradients</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/parameterization/model.html#Model.objective_function_gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.parameterization.model.Model.objective_function_gradients" title="Permalink to this definition">¶</a></dt>
+<dd><p>The gradients for the objective function for the given algorithm.
+The gradients are w.r.t. the <em>negative</em> objective function, as
+this framework works with <em>negative</em> log-likelihoods as a default.</p>
+<p>You can find the gradient for the parameters in self.gradient at all times.
+This is the place, where gradients get stored for parameters.</p>
+<p>This function is the true objective, which wants to be minimized.
+Note that all parameters are already set and in place, so you just need
+to return the gradient here.</p>
+<p>For probabilistic models this is the gradient of the negative log_likelihood
+(including the MAP prior), so we return it here. If your model is not
+probabilistic, just return your <em>negative</em> gradient here!</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="runlmc.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="runlmc.parameterization.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.parameterization.model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.param.html">runlmc.parameterization.param module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.parameterized.html">runlmc.parameterization.parameterized module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.priorizable.html">runlmc.parameterization.priorizable module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.priors.html">runlmc.parameterization.priors module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runlmc.parameterization.html#module-runlmc.parameterization">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="runlmc.html">Documentation overview</a><ul>
+  <li><a href="runlmc.parameterization.html">runlmc.parameterization package</a><ul>
+      <li>Previous: <a href="runlmc.parameterization.html" title="previous chapter">runlmc.parameterization package</a></li>
+      <li>Next: <a href="runlmc.parameterization.param.html" title="next chapter">runlmc.parameterization.param module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runlmc.parameterization.model.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/runlmc.parameterization.model.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.parameterization.param module &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.parameterization package" href="runlmc.parameterization.html" />
+    <link rel="next" title="runlmc.parameterization.parameterized module" href="runlmc.parameterization.parameterized.html" />
+    <link rel="prev" title="runlmc.parameterization.model module" href="runlmc.parameterization.model.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runlmc.parameterization.param">
+<span id="runlmc-parameterization-param-module"></span><h1>runlmc.parameterization.param module<a class="headerlink" href="#module-runlmc.parameterization.param" title="Permalink to this headline">¶</a></h1>
+<p>This module contains the <a class="reference internal" href="#runlmc.parameterization.param.Param" title="runlmc.parameterization.param.Param"><code class="xref py py-class docutils literal"><span class="pre">Param</span></code></a> class, used to keep track of
+optimization parameters.</p>
+<p>Developers familiar with <a class="reference external" href="http://pythonhosted.org/paramz/paramz.html#module-paramz" title="(in paramz v0.7.3)"><code class="xref py py-mod docutils literal"><span class="pre">paramz</span></code></a> can add their own parameters
+for custom kernels and priors.</p>
+<p>This class differs from the corresponding <a class="reference external" href="http://pythonhosted.org/paramz/paramz.html#module-paramz" title="(in paramz v0.7.3)"><code class="xref py py-mod docutils literal"><span class="pre">paramz</span></code></a> one because
+it is priorizable.</p>
+<dl class="class">
+<dt id="runlmc.parameterization.param.Param">
+<em class="property">class </em><code class="descclassname">runlmc.parameterization.param.</code><code class="descname">Param</code><span class="sig-paren">(</span><em>name</em>, <em>input_array</em>, <em>default_constraint=None</em>, <em>*a</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/parameterization/param.html#Param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.parameterization.param.Param" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://pythonhosted.org/paramz/paramz.html#paramz.param.Param" title="(in paramz v0.7.3)"><code class="xref py py-class docutils literal"><span class="pre">paramz.param.Param</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">runlmc.parameterization.priorizable._PriorizableLeaf</span></code></p>
+<p>A <a class="reference internal" href="#runlmc.parameterization.param.Param" title="runlmc.parameterization.param.Param"><code class="xref py py-class docutils literal"><span class="pre">Param</span></code></a> should be initialized and used just like a
+<code class="xref py py-class docutils literal"><span class="pre">paramz.Param</span></code>. It contains additional functionality for
+adding priors.</p>
+<dl class="method">
+<dt id="runlmc.parameterization.param.Param.set_prior">
+<code class="descname">set_prior</code><span class="sig-paren">(</span><em>prior</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/parameterization/param.html#Param.set_prior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.parameterization.param.Param.set_prior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the prior for this object to prior.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>prior</strong> (<code class="xref py py-class docutils literal"><span class="pre">runlmc.parameterization.Prior</span></code>) &#8211; prior set for this parameter</li>
+<li><strong>warning</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; whether to warn if another prior was set for this
+parameter</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.parameterization.param.Param.unset_priors">
+<code class="descname">unset_priors</code><span class="sig-paren">(</span><em>*priors</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/parameterization/param.html#Param.unset_priors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.parameterization.param.Param.unset_priors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Un-set all priors given in <cite>*priors</cite> from this parameter handle.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>priors</strong> &#8211; the list of <code class="xref py py-class docutils literal"><span class="pre">runlmc.priors.Prior</span></code> to unset</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="runlmc.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="runlmc.parameterization.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.model.html">runlmc.parameterization.model module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.parameterization.param module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.parameterized.html">runlmc.parameterization.parameterized module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.priorizable.html">runlmc.parameterization.priorizable module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.parameterization.priors.html">runlmc.parameterization.priors module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runlmc.parameterization.html#module-runlmc.parameterization">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="runlmc.html">Documentation overview</a><ul>
+  <li><a href="runlmc.parameterization.html">runlmc.parameterization package</a><ul>
+      <li>Previous: <a href="runlmc.parameterization.model.html" title="previous chapter">runlmc.parameterization.model module</a></li>
+      <li>Next: <a href="runlmc.parameterization.parameterized.html" title="next chapter">runlmc.parameterization.parameterized module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runlmc.parameterization.param.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/runlmc.parameterization.param.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.linalg.toeplitz module &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.linalg package" href="runlmc.linalg.html" />
+    <link rel="next" title="runlmc.mean package" href="runlmc.mean.html" />
+    <link rel="prev" title="runlmc.linalg.sum_matrix module" href="runlmc.linalg.sum_matrix.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runlmc.linalg.toeplitz">
+<span id="runlmc-linalg-toeplitz-module"></span><h1>runlmc.linalg.toeplitz module<a class="headerlink" href="#module-runlmc.linalg.toeplitz" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="runlmc.linalg.toeplitz.Toeplitz">
+<em class="property">class </em><code class="descclassname">runlmc.linalg.toeplitz.</code><code class="descname">Toeplitz</code><span class="sig-paren">(</span><em>top</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/toeplitz.html#Toeplitz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.toeplitz.Toeplitz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="runlmc.linalg.psd_matrix.html#runlmc.linalg.psd_matrix.PSDDecomposableMatrix" title="runlmc.linalg.psd_matrix.PSDDecomposableMatrix"><code class="xref py py-class docutils literal"><span class="pre">runlmc.linalg.psd_matrix.PSDDecomposableMatrix</span></code></a></p>
+<p>Creates a class with a parsimonious representation of a PSD
+Toeplitz matrix; that is, a matrix <span class="math">\(T\)</span> with entries <span class="math">\(T_{ij}\)</span>
+which for all <span class="math">\(i,j\)</span> and <span class="math">\(i'=i+1, j'=j+1\)</span> satisfy:</p>
+<div class="math">
+\[t_{ij} = t_{i'j'}\]</div>
+<p>In addition, <span class="math">\(T\)</span> must be PSD.</p>
+<p>The <a class="reference internal" href="#runlmc.linalg.toeplitz.Toeplitz.eig" title="runlmc.linalg.toeplitz.Toeplitz.eig"><code class="xref py py-func docutils literal"><span class="pre">eig()</span></code></a> implementation assumes an ordering and positivity
+<span class="math">\(0\le t_{1i}\le t_{1j}\)</span> for <span class="math">\(i\ge j\)</span>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>top</strong> &#8211; 1-dimensional <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/index.html#module-numpy" title="(in NumPy v1.11)"><code class="xref py py-mod docutils literal"><span class="pre">numpy</span></code></a> array, used as the underlying
+storage, which represents the first row <span class="math">\(t_{1j}\)</span>.
+Should be castable to a float64.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ValueError</strong> &#8211; if <cite>top</cite> isn&#8217;t of the right shape or is empty.</li>
+<li><strong>RuntimError</strong> &#8211; if induced Toeplitz matrix
+is not PSD (if logger with this module&#8217;s fully
+qualified name is set to debug mode)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="runlmc.linalg.toeplitz.Toeplitz.as_numpy">
+<code class="descname">as_numpy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/toeplitz.html#Toeplitz.as_numpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.toeplitz.Toeplitz.as_numpy" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">numpy matrix equivalent, as a 2D <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.linalg.toeplitz.Toeplitz.eig">
+<code class="descname">eig</code><span class="sig-paren">(</span><em>cutoff</em>, <em>exact</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/toeplitz.html#Toeplitz.eig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.toeplitz.Toeplitz.eig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the eigenvalues of this matrix of magnitude above the cutoff.</p>
+<p>The approximate eigenvalues are only good for computing
+log-determinants, though there&#8217;s no good guarantee there.
+The approximation generally holds well for well-conditioned matrices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cutoff</strong> &#8211; eigenvalue cutoff</li>
+<li><strong>exact</strong> &#8211; whether to use exact computation, or approximate.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a numpy array of eigenvalues in decreasing order, repeated by
+multiplicity.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.linalg.toeplitz.Toeplitz.matvec">
+<code class="descname">matvec</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/toeplitz.html#Toeplitz.matvec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.toeplitz.Toeplitz.matvec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Multiply a vector <span class="math">\(\textbf{x}\)</span> by this matrix,
+<span class="math">\(K\)</span>, yielding <span class="math">\(K\textbf{x}\)</span>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> &#8211; a one-dimensional numpy array of the same size as this matrix</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the matrix-vector product</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.linalg.toeplitz.Toeplitz.upper_eig_bound">
+<code class="descname">upper_eig_bound</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/toeplitz.html#Toeplitz.upper_eig_bound"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.toeplitz.Toeplitz.upper_eig_bound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an upper bound <span class="math">\(B\)</span> for the largest eigenvalue of this
+PSD matrix.</p>
+<p>Impementations can rely on the fairly tight and efficient-to-compute
+Gershgorin circle theorem, which implies that the largest eigenvalue
+is bounded by the largest absolute row sum in PSD matices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><span class="math">\(B\)</span></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="runlmc.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="runlmc.linalg.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.kronecker.html">runlmc.linalg.kronecker module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.numpy_matrix.html">runlmc.linalg.numpy_matrix module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.psd_matrix.html">runlmc.linalg.psd_matrix module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.sum_matrix.html">runlmc.linalg.sum_matrix module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.linalg.toeplitz module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runlmc.linalg.html#module-runlmc.linalg">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="runlmc.html">Documentation overview</a><ul>
+  <li><a href="runlmc.linalg.html">runlmc.linalg package</a><ul>
+      <li>Previous: <a href="runlmc.linalg.sum_matrix.html" title="previous chapter">runlmc.linalg.sum_matrix module</a></li>
+      <li>Next: <a href="runlmc.mean.html" title="next chapter">runlmc.mean package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runlmc.linalg.toeplitz.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/runlmc.linalg.toeplitz.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

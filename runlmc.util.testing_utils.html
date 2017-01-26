@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.util.testing_utils module &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.util package" href="runlmc.util.html" />
+    <link rel="prev" title="runlmc.util.numpy_convenience module" href="runlmc.util.numpy_convenience.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runlmc.util.testing_utils">
+<span id="runlmc-util-testing-utils-module"></span><h1>runlmc.util.testing_utils module<a class="headerlink" href="#module-runlmc.util.testing_utils" title="Permalink to this headline">¶</a></h1>
+<p>The following methods are useful for generating various matrices for testing.</p>
+<p>&#8220;PSDT&#8221; stands for positive semi-definite Toeplitz (and, implicitly, symmetric).</p>
+<dl class="class">
+<dt id="runlmc.util.testing_utils.RandomTest">
+<em class="property">class </em><code class="descclassname">runlmc.util.testing_utils.</code><code class="descname">RandomTest</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#RandomTest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.RandomTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>This test case sets the random seed to be based on the time
+that the test is run.</p>
+<p>If there is a <cite>SEED</cite> variable in the enviornment, then this is used as the
+seed.</p>
+<p>Sets both random and numpy.random.
+Prints the seed to stdout before running each test case.</p>
+<dl class="method">
+<dt id="runlmc.util.testing_utils.RandomTest.setUp">
+<code class="descname">setUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#RandomTest.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.RandomTest.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="runlmc.util.testing_utils.SingleGradOptimizer">
+<em class="property">class </em><code class="descclassname">runlmc.util.testing_utils.</code><code class="descname">SingleGradOptimizer</code><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#SingleGradOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.SingleGradOptimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://pythonhosted.org/paramz/paramz.optimization.html#paramz.optimization.optimization.Optimizer" title="(in paramz v0.7.3)"><code class="xref py py-class docutils literal"><span class="pre">paramz.optimization.optimization.Optimizer</span></code></a></p>
+<dl class="method">
+<dt id="runlmc.util.testing_utils.SingleGradOptimizer.opt">
+<code class="descname">opt</code><span class="sig-paren">(</span><em>x_init</em>, <em>f_fp=None</em>, <em>f=None</em>, <em>fp=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#SingleGradOptimizer.opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.SingleGradOptimizer.opt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="runlmc.util.testing_utils.check_np_lists">
+<code class="descclassname">runlmc.util.testing_utils.</code><code class="descname">check_np_lists</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>atol=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#check_np_lists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.check_np_lists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verifies that two lists of numpy arrays are all close.
+:param a:
+:param b:</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="runlmc.util.testing_utils.exp_decr_toep">
+<code class="descclassname">runlmc.util.testing_utils.</code><code class="descname">exp_decr_toep</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#exp_decr_toep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.exp_decr_toep" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">top row of a PSDT matrix of size <cite>n</cite> with terms
+exponentially decreasing in distance from the main diagonal;
+the rate of which is randomly generated but at least
+<span class="math">\(e\)</span>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="runlmc.util.testing_utils.poor_cond_toep">
+<code class="descclassname">runlmc.util.testing_utils.</code><code class="descname">poor_cond_toep</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#poor_cond_toep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.poor_cond_toep" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> &#8211; size of output</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the top row of a randomly scaled PSDT matrix whose
+<span class="math">\(L^2\)</span> condition number scales exponentially with <cite>n</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="runlmc.util.testing_utils.rand_psd">
+<code class="descclassname">runlmc.util.testing_utils.</code><code class="descname">rand_psd</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#rand_psd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.rand_psd" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a random <cite>n</cite> by <cite>n</cite> symmetric PSD matrix with positive entries</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="runlmc.util.testing_utils.random_toep">
+<code class="descclassname">runlmc.util.testing_utils.</code><code class="descname">random_toep</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#random_toep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.random_toep" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">top row of a random PSDT matrix of size <cite>n</cite>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="runlmc.util.testing_utils.run_main">
+<code class="descclassname">runlmc.util.testing_utils.</code><code class="descname">run_main</code><span class="sig-paren">(</span><em>f</em>, <em>help_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/util/testing_utils.html#run_main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.util.testing_utils.run_main" title="Permalink to this definition">¶</a></dt>
+<dd><p>A helper function which is re-used in setting up benchmarks for kernels
+that are shaped in a specific manner; namely, sums of Kronecker products
+of small dense and large Toeplitz matrices.</p>
+<p>This function reads in command-line arguments and executes a simple
+benchmarking script.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>f</strong> &#8211; benchmarking function to pass generated inputs with
+user-specified parameters to.</li>
+<li><strong>help_str</strong> &#8211; a help-string to be printed when the user does not
+call a correct invocation of the program.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="runlmc.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="runlmc.util.html">runlmc.util package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="runlmc.util.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="runlmc.util.docs.html">runlmc.util.docs module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.util.interpolation.html">runlmc.util.interpolation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.util.numpy_convenience.html">runlmc.util.numpy_convenience module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.util.testing_utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runlmc.util.html#module-runlmc.util">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="runlmc.html">Documentation overview</a><ul>
+  <li><a href="runlmc.util.html">runlmc.util package</a><ul>
+      <li>Previous: <a href="runlmc.util.numpy_convenience.html" title="previous chapter">runlmc.util.numpy_convenience module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runlmc.util.testing_utils.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/runlmc.util.testing_utils.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
