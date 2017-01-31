@@ -28,8 +28,8 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
     <link rel="up" title="runlmc.linalg package" href="runlmc.linalg.html" />
-    <link rel="next" title="runlmc.linalg.psd_matrix module" href="runlmc.linalg.psd_matrix.html" />
-    <link rel="prev" title="runlmc.linalg.kronecker module" href="runlmc.linalg.kronecker.html" />
+    <link rel="next" title="runlmc.linalg.sum_matrix module" href="runlmc.linalg.sum_matrix.html" />
+    <link rel="prev" title="runlmc.linalg.matrix module" href="runlmc.linalg.matrix.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -50,16 +50,16 @@
 <dl class="class">
 <dt id="runlmc.linalg.numpy_matrix.NumpyMatrix">
 <em class="property">class </em><code class="descclassname">runlmc.linalg.numpy_matrix.</code><code class="descname">NumpyMatrix</code><span class="sig-paren">(</span><em>nparr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/numpy_matrix.html#NumpyMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.numpy_matrix.NumpyMatrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="runlmc.linalg.psd_matrix.html#runlmc.linalg.psd_matrix.PSDDecomposableMatrix" title="runlmc.linalg.psd_matrix.PSDDecomposableMatrix"><code class="xref py py-class docutils literal"><span class="pre">runlmc.linalg.psd_matrix.PSDDecomposableMatrix</span></code></a></p>
-<p>Adapter to <code class="xref py py-class docutils literal"><span class="pre">PSDDecomposableMatrix</span></code> with <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/index.html#module-numpy" title="(in NumPy v1.12)"><code class="xref py py-mod docutils literal"><span class="pre">numpy</span></code></a> arrays.</p>
-<p>Creates a <a class="reference internal" href="#runlmc.linalg.numpy_matrix.NumpyMatrix" title="runlmc.linalg.numpy_matrix.NumpyMatrix"><code class="xref py py-class docutils literal"><span class="pre">NumpyMatrix</span></code></a> matrix. Its positivity is assumed.</p>
+<dd><p>Bases: <a class="reference internal" href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix" title="runlmc.linalg.matrix.Matrix"><code class="xref py py-class docutils literal"><span class="pre">runlmc.linalg.matrix.Matrix</span></code></a></p>
+<p>Adapter to <code class="xref py py-class docutils literal"><span class="pre">Matrix</span></code> with <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/index.html#module-numpy" title="(in NumPy v1.12)"><code class="xref py py-mod docutils literal"><span class="pre">numpy</span></code></a> arrays.</p>
+<p>Creates a <a class="reference internal" href="#runlmc.linalg.numpy_matrix.NumpyMatrix" title="runlmc.linalg.numpy_matrix.NumpyMatrix"><code class="xref py py-class docutils literal"><span class="pre">NumpyMatrix</span></code></a> matrix.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nparr</strong> &#8211; 2-dimensional <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/index.html#module-numpy" title="(in NumPy v1.12)"><code class="xref py py-mod docutils literal"><span class="pre">numpy</span></code></a> array</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>ValueError</strong> &#8211; if <cite>nparr</cite> isn&#8217;t 2D or square or symmetric</td>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>ValueError</strong> &#8211; if <cite>nparr</cite> isn&#8217;t 2D</td>
 </tr>
 </tbody>
 </table>
@@ -77,25 +77,18 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="runlmc.linalg.numpy_matrix.NumpyMatrix.eig">
-<code class="descname">eig</code><span class="sig-paren">(</span><em>cutoff</em>, <em>exact</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/numpy_matrix.html#NumpyMatrix.eig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.numpy_matrix.NumpyMatrix.eig" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds the eigenvalues of this matrix of magnitude above the cutoff.</p>
-<p>The approximate eigenvalues are only good for computing
-log-determinants, though there&#8217;s no good guarantee there.
-The approximation generally holds well for well-conditioned matrices.</p>
+<dt id="runlmc.linalg.numpy_matrix.NumpyMatrix.matmat">
+<code class="descname">matmat</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/numpy_matrix.html#NumpyMatrix.matmat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.numpy_matrix.NumpyMatrix.matmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Multiply a matrix <span class="math">\(X\)</span> by this matrix,
+<span class="math">\(K\)</span>, yielding <span class="math">\(KX\)</span>. By default, this just repeatedly calls
+<a class="reference internal" href="#runlmc.linalg.numpy_matrix.NumpyMatrix.matvec" title="runlmc.linalg.numpy_matrix.NumpyMatrix.matvec"><code class="xref py py-func docutils literal"><span class="pre">matvec()</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>cutoff</strong> &#8211; eigenvalue cutoff</li>
-<li><strong>exact</strong> &#8211; whether to use exact computation, or approximate.</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; a (possibly rectangular) dense matrix.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a numpy array of eigenvalues in decreasing order, repeated by
-multiplicity.</p>
-</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the matrix-matrix product</td>
 </tr>
 </tbody>
 </table>
@@ -118,24 +111,6 @@ multiplicity.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
-<dt id="runlmc.linalg.numpy_matrix.NumpyMatrix.upper_eig_bound">
-<code class="descname">upper_eig_bound</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/numpy_matrix.html#NumpyMatrix.upper_eig_bound"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.numpy_matrix.NumpyMatrix.upper_eig_bound" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns an upper bound <span class="math">\(B\)</span> for the largest eigenvalue of this
-PSD matrix.</p>
-<p>Impementations can rely on the fairly tight and efficient-to-compute
-Gershgorin circle theorem, which implies that the largest eigenvalue
-is bounded by the largest absolute row sum in PSD matices.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><span class="math">\(B\)</span></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 </dd></dl>
 
 </div>
@@ -148,12 +123,18 @@ is bounded by the largest absolute row sum in PSD matices.</p>
         <div class="sphinxsidebarwrapper">
 <h3><a href="runlmc.html">Table Of Contents</a></h3>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.approx.html">runlmc.approx package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="runlmc.linalg.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.block_diag.html">runlmc.linalg.block_diag module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.block_matrix.html">runlmc.linalg.block_matrix module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.composition.html">runlmc.linalg.composition module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.diag.html">runlmc.linalg.diag module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.identity.html">runlmc.linalg.identity module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.kronecker.html">runlmc.linalg.kronecker module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.matrix.html">runlmc.linalg.matrix module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.linalg.numpy_matrix module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.psd_matrix.html">runlmc.linalg.psd_matrix module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.sum_matrix.html">runlmc.linalg.sum_matrix module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.toeplitz.html">runlmc.linalg.toeplitz module</a></li>
 </ul>
@@ -161,6 +142,7 @@ is bounded by the largest absolute row sum in PSD matices.</p>
 <li class="toctree-l2"><a class="reference internal" href="runlmc.linalg.html#module-runlmc.linalg">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.lmc.html">runlmc.lmc package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a></li>
@@ -171,8 +153,8 @@ is bounded by the largest absolute row sum in PSD matices.</p>
 <ul>
   <li><a href="runlmc.html">Documentation overview</a><ul>
   <li><a href="runlmc.linalg.html">runlmc.linalg package</a><ul>
-      <li>Previous: <a href="runlmc.linalg.kronecker.html" title="previous chapter">runlmc.linalg.kronecker module</a></li>
-      <li>Next: <a href="runlmc.linalg.psd_matrix.html" title="next chapter">runlmc.linalg.psd_matrix module</a></li>
+      <li>Previous: <a href="runlmc.linalg.matrix.html" title="previous chapter">runlmc.linalg.matrix module</a></li>
+      <li>Next: <a href="runlmc.linalg.sum_matrix.html" title="next chapter">runlmc.linalg.sum_matrix module</a></li>
   </ul></li>
   </ul></li>
 </ul>

@@ -211,30 +211,17 @@
 <span class="sd">        `kwargs` are passed to the optimizer. See parameters for handled</span>
 <span class="sd">        keywords.</span>
 
-<span class="sd">        TODO: do these parameters actually do anything? Check the paramz</span>
-<span class="sd">        code that&#39;s actually called here (or just use your own</span>
-<span class="sd">        `paramz.optimization.Optimizer`, see `examples/example.ipynb`).</span>
+<span class="sd">        :param optimizer: A :py:class:`paramz.optimization.Optimizer`.</span>
+<span class="sd">                          Pre-built ones available in</span>
+<span class="sd">                          :py:mod:`runlmc.models.optimization`.</span>
 
-<span class="sd">        :param max_iters: maximum number of function evaluations</span>
-<span class="sd">        :type max_iters: int</span>
-<span class="sd">        :messages: whether to display during optimisation</span>
-<span class="sd">        :type messages: bool</span>
-<span class="sd">        :param optimizer: which optimizer to use (defaults to `&#39;lbfgsb&#39;`),</span>
-<span class="sd">                          options include `&#39;scg&#39;`, `&#39;org-bfgs&#39;`, `&#39;tnc&#39;`,</span>
-<span class="sd">                          `&#39;adadelta&#39;`, `&#39;rprop&#39;`, `&#39;simplex&#39;`. This can either</span>
-<span class="sd">                          be a `str` or `paramz.optimization.Optimizer`.</span>
-<span class="sd">        :param bool ipython_notebook: whether to use ipython notebook widgets</span>
-<span class="sd">                                      or not (default true)</span>
-<span class="sd">        :param bool clear_after_finish: if in ipython notebook, we can clear</span>
-<span class="sd">                                        the widgets after optimization.</span>
-<span class="sd">                                        Default false.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">dfldict</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="s1">&#39;messages&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="s1">&#39;max_iters&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+                <span class="s1">&#39;max_iters&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
                 <span class="s1">&#39;ipython_notebook&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="s1">&#39;clear_after_finish&#39;</span><span class="p">:</span> <span class="kc">False</span>
             <span class="p">}</span>
@@ -286,8 +273,10 @@
         <div class="sphinxsidebarwrapper">
 <h3><a href="../../../runlmc.html">Table Of Contents</a></h3>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.approx.html">runlmc.approx package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.kern.html">runlmc.kern package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.lmc.html">runlmc.lmc package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.mean.html">runlmc.mean package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.models.html">runlmc.models package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.parameterization.html">runlmc.parameterization package</a></li>

@@ -1,0 +1,7 @@
+runlmc.linalg.identity module
+=============================
+
+.. automodule:: runlmc.linalg.identity
+    :members:
+    :undoc-members:
+    :show-inheritance:

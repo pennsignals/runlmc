@@ -28,7 +28,7 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
     <link rel="up" title="runlmc.models package" href="runlmc.models.html" />
-    <link rel="next" title="runlmc.parameterization package" href="runlmc.parameterization.html" />
+    <link rel="next" title="runlmc.models.optimization module" href="runlmc.models.optimization.html" />
     <link rel="prev" title="runlmc.models.lmc module" href="runlmc.models.lmc.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -100,29 +100,13 @@ this is the objective function of the model being optimised</p>
 <code class="xref py py-func docutils literal"><span class="pre">self.log_likelihood_gradient()</span></code>, as well as <code class="xref py py-func docutils literal"><span class="pre">self.priors()</span></code>.</p>
 <p><cite>kwargs</cite> are passed to the optimizer. See parameters for handled
 keywords.</p>
-<p>TODO: do these parameters actually do anything? Check the paramz
-code that&#8217;s actually called here (or just use your own
-<cite>paramz.optimization.Optimizer</cite>, see <cite>examples/example.ipynb</cite>).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>max_iters</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; maximum number of function evaluations</li>
-<li><strong>optimizer</strong> &#8211; which optimizer to use (defaults to <cite>&#8216;lbfgsb&#8217;</cite>),
-options include <cite>&#8216;scg&#8217;</cite>, <cite>&#8216;org-bfgs&#8217;</cite>, <cite>&#8216;tnc&#8217;</cite>,
-<cite>&#8216;adadelta&#8217;</cite>, <cite>&#8216;rprop&#8217;</cite>, <cite>&#8216;simplex&#8217;</cite>. This can either
-be a <cite>str</cite> or <cite>paramz.optimization.Optimizer</cite>.</li>
-<li><strong>ipython_notebook</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; whether to use ipython notebook widgets
-or not (default true)</li>
-<li><strong>clear_after_finish</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if in ipython notebook, we can clear
-the widgets after optimization.
-Default false.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Messages:</th><td class="field-body"><p class="first last">whether to display during optimisation</p>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>optimizer</strong> &#8211; A <code class="xref py py-class docutils literal"><span class="pre">paramz.optimization.Optimizer</span></code>.
+Pre-built ones available in
+<a class="reference internal" href="runlmc.models.optimization.html#module-runlmc.models.optimization" title="runlmc.models.optimization"><code class="xref py py-mod docutils literal"><span class="pre">runlmc.models.optimization</span></code></a>.</td>
 </tr>
 </tbody>
 </table>
@@ -197,14 +181,17 @@ input index and the second to the quantile index.</td>
         <div class="sphinxsidebarwrapper">
 <h3><a href="runlmc.html">Table Of Contents</a></h3>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.approx.html">runlmc.approx package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.lmc.html">runlmc.lmc package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="runlmc.models.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="runlmc.models.exact.html">runlmc.models.exact module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.models.gpy_lmc.html">runlmc.models.gpy_lmc module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.models.lmc.html">runlmc.models.lmc module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.models.multigp module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.models.optimization.html">runlmc.models.optimization module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="runlmc.models.html#module-runlmc.models">Module contents</a></li>
@@ -219,7 +206,7 @@ input index and the second to the quantile index.</td>
   <li><a href="runlmc.html">Documentation overview</a><ul>
   <li><a href="runlmc.models.html">runlmc.models package</a><ul>
       <li>Previous: <a href="runlmc.models.lmc.html" title="previous chapter">runlmc.models.lmc module</a></li>
-      <li>Next: <a href="runlmc.parameterization.html" title="next chapter">runlmc.parameterization package</a></li>
+      <li>Next: <a href="runlmc.models.optimization.html" title="next chapter">runlmc.models.optimization module</a></li>
   </ul></li>
   </ul></li>
 </ul>

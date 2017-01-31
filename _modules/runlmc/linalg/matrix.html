@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.linalg.matrix &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="../../../runlmc.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for runlmc.linalg.matrix</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2016, Vladimir Feinberg</span>
+<span class="c1"># Licensed under the BSD 3-clause license (see LICENSE)</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse.linalg</span>
+
+<div class="viewcode-block" id="Matrix"><a class="viewcode-back" href="../../../runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix">[docs]</a><span class="k">class</span> <span class="nc">Matrix</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An abstract class defining the interface for the necessary</span>
+<span class="sd">    sparse matrix operations.</span>
+
+<span class="sd">    All matrices are assumed real.</span>
+
+<span class="sd">    :param n: number of rows in this matrix</span>
+<span class="sd">    :param m: number of columns in this matrix</span>
+<span class="sd">    :raises ValueError: if `n &lt; 1 or m &lt; 1`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">m</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Size of the matrix </span><span class="si">{}</span><span class="s1"> &lt; 1&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Matrix.as_linear_operator"><a class="viewcode-back" href="../../../runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.as_linear_operator">[docs]</a>    <span class="k">def</span> <span class="nf">as_linear_operator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :returns: this matrix as a</span>
+<span class="sd">                  :class:`scipy.sparse.linalg.LinearOperator`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">(</span>
+                <span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+                <span class="n">matvec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">matvec</span><span class="p">,</span>
+                <span class="n">matmat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">matmat</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span></div>
+
+<div class="viewcode-block" id="Matrix.as_numpy"><a class="viewcode-back" href="../../../runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.as_numpy">[docs]</a>    <span class="k">def</span> <span class="nf">as_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :returns: numpy matrix equivalent, as a 2D :class:`numpy.ndarray`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">matmat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="Matrix.matvec"><a class="viewcode-back" href="../../../runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.matvec">[docs]</a>    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Multiply a vector :math:`\\textbf{x}` by this matrix,</span>
+<span class="sd">        :math:`K`, yielding :math:`K\\textbf{x}`.</span>
+
+<span class="sd">        :param x: a one-dimensional numpy array of the same size as this matrix</span>
+<span class="sd">        :returns: the matrix-vector product</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Matrix.matmat"><a class="viewcode-back" href="../../../runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.matmat">[docs]</a>    <span class="k">def</span> <span class="nf">matmat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Multiply a matrix :math:`X` by this matrix,</span>
+<span class="sd">        :math:`K`, yielding :math:`KX`. By default, this just repeatedly calls</span>
+<span class="sd">        :func:`matvec`.</span>
+
+<span class="sd">        :param X: a (possibly rectangular) dense matrix.</span>
+<span class="sd">        :returns: the matrix-matrix product</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">T</span></div>
+
+<div class="viewcode-block" id="Matrix.is_square"><a class="viewcode-back" href="../../../runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.is_square">[docs]</a>    <span class="k">def</span> <span class="nf">is_square</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Matrix.wrap"><a class="viewcode-back" href="../../../runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.wrap">[docs]</a>    <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">mvm</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_MatrixImpl</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">mvm</span><span class="p">)</span></div></div>
+
+<span class="k">class</span> <span class="nc">_MatrixImpl</span><span class="p">(</span><span class="n">Matrix</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">mvm</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">shape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mvm</span> <span class="o">=</span> <span class="n">mvm</span>
+
+    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mvm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../runlmc.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.approx.html">runlmc.approx package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.lmc.html">runlmc.lmc package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../runlmc.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

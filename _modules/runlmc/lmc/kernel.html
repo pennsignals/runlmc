@@ -1,0 +1,258 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.lmc.kernel &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="../../../runlmc.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for runlmc.lmc.kernel</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2016, Vladimir Feinberg</span>
+<span class="c1"># Licensed under the BSD 3-clause license (see LICENSE)</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
+
+<span class="kn">from</span> <span class="nn">.exact_deriv</span> <span class="k">import</span> <span class="n">ExactDeriv</span>
+<span class="kn">from</span> <span class="nn">.stochastic_deriv</span> <span class="k">import</span> <span class="n">StochasticDeriv</span>
+<span class="kn">from</span> <span class="nn">..approx.ski</span> <span class="k">import</span> <span class="n">SKI</span>
+<span class="kn">from</span> <span class="nn">..linalg.diag</span> <span class="k">import</span> <span class="n">Diag</span>
+<span class="kn">from</span> <span class="nn">..linalg.toeplitz</span> <span class="k">import</span> <span class="n">Toeplitz</span>
+<span class="kn">from</span> <span class="nn">..linalg.kronecker</span> <span class="k">import</span> <span class="n">Kronecker</span>
+<span class="kn">from</span> <span class="nn">..linalg.numpy_matrix</span> <span class="k">import</span> <span class="n">NumpyMatrix</span>
+<span class="kn">from</span> <span class="nn">..util.numpy_convenience</span> <span class="k">import</span> <span class="n">begin_end_indices</span>
+
+<span class="c1"># TODO(cleanup): document purpose: separated from paramz logic &lt;- document</span>
+<span class="c1"># TODO(test): all of below. Should be able to copy flow of benchmark,</span>
+<span class="c1"># more or less</span>
+
+<div class="viewcode-block" id="LMCKernel"><a class="viewcode-back" href="../../../runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel">[docs]</a><span class="k">class</span> <span class="nc">LMCKernel</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+
+    <span class="k">def</span> <span class="nf">_dKdt_from_dAdt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dAdt</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">_dKdts_from_dKqdts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">_dKdt_from_dEpsdt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dEpsdt</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">_dLdt_from_dKdt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dKdt</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<div class="viewcode-block" id="LMCKernel.alpha"><a class="viewcode-back" href="../../../runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.alpha">[docs]</a>    <span class="k">def</span> <span class="nf">alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="LMCKernel.coreg_vec_gradients"><a class="viewcode-back" href="../../../runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.coreg_vec_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">coreg_vec_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">grads</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="p">):</span>
+            <span class="n">grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ai</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">D</span><span class="p">):</span>
+                    <span class="n">dAdt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">D</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">D</span><span class="p">))</span>
+                    <span class="n">dAdt</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">ai</span>
+                    <span class="n">dAdt</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">ai</span>
+                    <span class="c1"># TODO(sparse-derivatives)</span>
+                    <span class="n">dKdt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dKdt_from_dAdt</span><span class="p">(</span><span class="n">dAdt</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+                    <span class="n">grad</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dLdt_from_dKdt</span><span class="p">(</span><span class="n">dKdt</span><span class="p">)</span>
+            <span class="n">grads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">grads</span></div>
+
+<div class="viewcode-block" id="LMCKernel.coreg_diag_gradients"><a class="viewcode-back" href="../../../runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.coreg_diag_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">coreg_diag_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">grads</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Q</span><span class="p">):</span>
+            <span class="n">zeros</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">D</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">D</span><span class="p">))</span>
+            <span class="n">grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">D</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">D</span><span class="p">):</span>
+                <span class="n">zeros</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="c1"># TODO(sparse-derivatives)</span>
+                <span class="n">dKdt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dKdt_from_dAdt</span><span class="p">(</span><span class="n">zeros</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+                <span class="n">grad</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dLdt_from_dKdt</span><span class="p">(</span><span class="n">dKdt</span><span class="p">)</span>
+                <span class="n">zeros</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">grads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">grads</span></div>
+
+<div class="viewcode-block" id="LMCKernel.kernel_gradients"><a class="viewcode-back" href="../../../runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.kernel_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">kernel_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">grads</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">A</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">coreg_mats</span><span class="p">):</span>
+            <span class="n">kern_grad</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">dKdt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dKdts_from_dKqdts</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+                <span class="n">dLdt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dLdt_from_dKdt</span><span class="p">(</span><span class="n">dKdt</span><span class="p">)</span>
+                <span class="n">kern_grad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dLdt</span><span class="p">)</span>
+            <span class="n">grads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kern_grad</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">grads</span></div>
+
+<div class="viewcode-block" id="LMCKernel.noise_gradient"><a class="viewcode-back" href="../../../runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.noise_gradient">[docs]</a>    <span class="k">def</span> <span class="nf">noise_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">noise</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">D</span><span class="p">):</span>
+            <span class="n">d_noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">D</span><span class="p">)</span>
+            <span class="n">d_noise</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">dKdt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dKdt_from_dEpsdt</span><span class="p">(</span><span class="n">d_noise</span><span class="p">)</span>
+            <span class="n">grad</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dLdt_from_dKdt</span><span class="p">(</span><span class="n">dKdt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">grad</span></div></div>
+
+<div class="viewcode-block" id="ApproxLMCKernel"><a class="viewcode-back" href="../../../runlmc.lmc.kernel.html#runlmc.lmc.kernel.ApproxLMCKernel">[docs]</a><span class="k">class</span> <span class="nc">ApproxLMCKernel</span><span class="p">(</span><span class="n">LMCKernel</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_kern</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">grid_kern</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">materialized_kernels</span> <span class="o">=</span> <span class="p">[</span><span class="n">Toeplitz</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">from_dist</span><span class="p">(</span><span class="n">grid_kern</span><span class="o">.</span><span class="n">dists</span><span class="p">))</span>
+                                     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">kernels</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolant</span> <span class="o">=</span> <span class="n">grid_kern</span><span class="o">.</span><span class="n">interpolant</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolantT</span> <span class="o">=</span> <span class="n">grid_kern</span><span class="o">.</span><span class="n">interpolantT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="n">grid_kern</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deriv</span> <span class="o">=</span> <span class="n">StochasticDeriv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ski</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">SKI</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolant</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolantT</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_dKdt_from_dAdt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dAdt</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ski</span><span class="p">(</span><span class="n">Kronecker</span><span class="p">(</span>
+            <span class="n">NumpyMatrix</span><span class="p">(</span><span class="n">dAdt</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">materialized_kernels</span><span class="p">[</span><span class="n">q</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">_dKdts_from_dKqdts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">dKqdt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">kernels</span><span class="p">[</span><span class="n">q</span><span class="p">]</span><span class="o">.</span><span class="n">kernel_gradient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">dists</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ski</span><span class="p">(</span><span class="n">Kronecker</span><span class="p">(</span>
+                <span class="n">NumpyMatrix</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="n">Toeplitz</span><span class="p">(</span><span class="n">dKqdt</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">_dKdt_from_dEpsdt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dEpsdt</span><span class="p">):</span>
+        <span class="c1"># no SKI approximation necessary for noise</span>
+        <span class="k">return</span> <span class="n">Diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">dEpsdt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lens</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_dLdt_from_dKdt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dKdt</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deriv</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="n">dKdt</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ApproxLMCKernel.alpha"><a class="viewcode-back" href="../../../runlmc.lmc.kernel.html#runlmc.lmc.kernel.ApproxLMCKernel.alpha">[docs]</a>    <span class="k">def</span> <span class="nf">alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deriv</span><span class="o">.</span><span class="n">alpha</span></div></div>
+
+<div class="viewcode-block" id="ExactLMCKernel"><a class="viewcode-back" href="../../../runlmc.lmc.kernel.html#runlmc.lmc.kernel.ExactLMCKernel">[docs]</a><span class="k">class</span> <span class="nc">ExactLMCKernel</span><span class="p">(</span><span class="n">LMCKernel</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">pair_dists</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">materialized_kernels</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">from_dist</span><span class="p">(</span><span class="n">pair_dists</span><span class="p">)</span>
+                                     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">kernels</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pair_dists</span> <span class="o">=</span> <span class="n">pair_dists</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_scale</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">Kq</span><span class="p">)</span> <span class="k">for</span> <span class="n">A</span><span class="p">,</span> <span class="n">Kq</span> <span class="ow">in</span>
+                     <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">coreg_mats</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">materialized_kernels</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">noise</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">lens</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">cho_factor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deriv</span> <span class="o">=</span> <span class="n">ExactDeriv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ExactLMCKernel.coreg_scale"><a class="viewcode-back" href="../../../runlmc.lmc.kernel.html#runlmc.lmc.kernel.ExactLMCKernel.coreg_scale">[docs]</a>    <span class="k">def</span> <span class="nf">coreg_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">K</span><span class="p">):</span>
+        <span class="n">begins</span><span class="p">,</span> <span class="n">ends</span> <span class="o">=</span> <span class="n">begin_end_indices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lens</span><span class="p">)</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">D</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">D</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">D</span><span class="p">)):</span>
+            <span class="n">rbegin</span><span class="p">,</span> <span class="n">rend</span> <span class="o">=</span> <span class="n">begins</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ends</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">cbegin</span><span class="p">,</span> <span class="n">cend</span> <span class="o">=</span> <span class="n">begins</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">ends</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">K</span><span class="p">[</span><span class="n">rbegin</span><span class="p">:</span><span class="n">rend</span><span class="p">,</span> <span class="n">cbegin</span><span class="p">:</span><span class="n">cend</span><span class="p">]</span> <span class="o">*=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">K</span></div>
+
+    <span class="k">def</span> <span class="nf">_dKdt_from_dAdt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dAdt</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coreg_scale</span><span class="p">(</span><span class="n">dAdt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">materialized_kernels</span><span class="p">[</span><span class="n">q</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_dKdts_from_dKqdts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">dKqdt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">kernels</span><span class="p">[</span><span class="n">q</span><span class="p">]</span><span class="o">.</span><span class="n">kernel_gradient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pair_dists</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">coreg_scale</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">dKqdt</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_dKdt_from_dEpsdt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dEpsdt</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">dEpsdt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lens</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_dLdt_from_dKdt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dKdt</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deriv</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="n">dKdt</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ExactLMCKernel.alpha"><a class="viewcode-back" href="../../../runlmc.lmc.kernel.html#runlmc.lmc.kernel.ExactLMCKernel.alpha">[docs]</a>    <span class="k">def</span> <span class="nf">alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deriv</span><span class="o">.</span><span class="n">alpha</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../../runlmc.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.approx.html">runlmc.approx package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.lmc.html">runlmc.lmc package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../runlmc.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

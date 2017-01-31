@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.linalg.block_matrix module &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.linalg package" href="runlmc.linalg.html" />
+    <link rel="next" title="runlmc.linalg.composition module" href="runlmc.linalg.composition.html" />
+    <link rel="prev" title="runlmc.linalg.block_diag module" href="runlmc.linalg.block_diag.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runlmc.linalg.block_matrix">
+<span id="runlmc-linalg-block-matrix-module"></span><h1>runlmc.linalg.block_matrix module<a class="headerlink" href="#module-runlmc.linalg.block_matrix" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="runlmc.linalg.block_matrix.SymmSquareBlockMatrix">
+<em class="property">class </em><code class="descclassname">runlmc.linalg.block_matrix.</code><code class="descname">SymmSquareBlockMatrix</code><span class="sig-paren">(</span><em>blocks</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/block_matrix.html#SymmSquareBlockMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.block_matrix.SymmSquareBlockMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix" title="runlmc.linalg.matrix.Matrix"><code class="xref py py-class docutils literal"><span class="pre">runlmc.linalg.matrix.Matrix</span></code></a></p>
+<p>Creates a block matrix from a 2D array of matrices, which must
+all be square. The blocks array is assumed to be symmetric.
+:param blocks: a 2D array
+:raises ValueError: if the size is 0.</p>
+<dl class="method">
+<dt id="runlmc.linalg.block_matrix.SymmSquareBlockMatrix.as_numpy">
+<code class="descname">as_numpy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/block_matrix.html#SymmSquareBlockMatrix.as_numpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.block_matrix.SymmSquareBlockMatrix.as_numpy" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">numpy matrix equivalent, as a 2D <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.12)"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.linalg.block_matrix.SymmSquareBlockMatrix.matvec">
+<code class="descname">matvec</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/block_matrix.html#SymmSquareBlockMatrix.matvec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.block_matrix.SymmSquareBlockMatrix.matvec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Multiply a vector <span class="math">\(\textbf{x}\)</span> by this matrix,
+<span class="math">\(K\)</span>, yielding <span class="math">\(K\textbf{x}\)</span>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> &#8211; a one-dimensional numpy array of the same size as this matrix</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the matrix-vector product</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.linalg.block_matrix.SymmSquareBlockMatrix.upper_eig_bound">
+<code class="descname">upper_eig_bound</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/block_matrix.html#SymmSquareBlockMatrix.upper_eig_bound"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.block_matrix.SymmSquareBlockMatrix.upper_eig_bound" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="runlmc.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.approx.html">runlmc.approx package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="runlmc.linalg.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.block_diag.html">runlmc.linalg.block_diag module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.linalg.block_matrix module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.composition.html">runlmc.linalg.composition module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.diag.html">runlmc.linalg.diag module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.identity.html">runlmc.linalg.identity module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.kronecker.html">runlmc.linalg.kronecker module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.matrix.html">runlmc.linalg.matrix module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.numpy_matrix.html">runlmc.linalg.numpy_matrix module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.sum_matrix.html">runlmc.linalg.sum_matrix module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.toeplitz.html">runlmc.linalg.toeplitz module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runlmc.linalg.html#module-runlmc.linalg">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.lmc.html">runlmc.lmc package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="runlmc.html">Documentation overview</a><ul>
+  <li><a href="runlmc.linalg.html">runlmc.linalg package</a><ul>
+      <li>Previous: <a href="runlmc.linalg.block_diag.html" title="previous chapter">runlmc.linalg.block_diag module</a></li>
+      <li>Next: <a href="runlmc.linalg.composition.html" title="next chapter">runlmc.linalg.composition module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runlmc.linalg.block_matrix.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/runlmc.linalg.block_matrix.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

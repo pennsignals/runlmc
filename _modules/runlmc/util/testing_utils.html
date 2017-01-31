@@ -199,7 +199,7 @@
     <span class="k">return</span> <span class="n">A</span> <span class="o">+</span> <span class="n">D</span></div>
 
 
-<div class="viewcode-block" id="check_np_lists"><a class="viewcode-back" href="../../../runlmc.util.testing_utils.html#runlmc.util.testing_utils.check_np_lists">[docs]</a><span class="k">def</span> <span class="nf">check_np_lists</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="check_np_lists"><a class="viewcode-back" href="../../../runlmc.util.testing_utils.html#runlmc.util.testing_utils.check_np_lists">[docs]</a><span class="k">def</span> <span class="nf">check_np_lists</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">7</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">7</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Verifies that two lists of numpy arrays are all close.</span>
 <span class="sd">    :param a:</span>
@@ -208,7 +208,7 @@
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="s1">&#39;a </span><span class="si">{}</span><span class="s1"> b </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">sub_a</span><span class="p">,</span> <span class="n">sub_b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)):</span>
         <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
-            <span class="n">sub_a</span><span class="p">,</span> <span class="n">sub_b</span><span class="p">,</span> <span class="n">err_msg</span><span class="o">=</span><span class="s1">&#39;output </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span></div>
+            <span class="n">sub_a</span><span class="p">,</span> <span class="n">sub_b</span><span class="p">,</span> <span class="n">err_msg</span><span class="o">=</span><span class="s1">&#39;output </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SingleGradOptimizer"><a class="viewcode-back" href="../../../runlmc.util.testing_utils.html#runlmc.util.testing_utils.SingleGradOptimizer">[docs]</a><span class="k">class</span> <span class="nc">SingleGradOptimizer</span><span class="p">(</span><span class="n">Optimizer</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lipschitz</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -265,8 +265,10 @@
         <div class="sphinxsidebarwrapper">
 <h3><a href="../../../runlmc.html">Table Of Contents</a></h3>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.approx.html">runlmc.approx package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.kern.html">runlmc.kern package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.lmc.html">runlmc.lmc package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.mean.html">runlmc.mean package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.models.html">runlmc.models package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.parameterization.html">runlmc.parameterization package</a></li>

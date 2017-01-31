@@ -29,7 +29,7 @@
     <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
     <link rel="up" title="runlmc.linalg package" href="runlmc.linalg.html" />
     <link rel="next" title="runlmc.linalg.toeplitz module" href="runlmc.linalg.toeplitz.html" />
-    <link rel="prev" title="runlmc.linalg.psd_matrix module" href="runlmc.linalg.psd_matrix.html" />
+    <link rel="prev" title="runlmc.linalg.numpy_matrix module" href="runlmc.linalg.numpy_matrix.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -50,13 +50,10 @@
 <dl class="class">
 <dt id="runlmc.linalg.sum_matrix.SumMatrix">
 <em class="property">class </em><code class="descclassname">runlmc.linalg.sum_matrix.</code><code class="descname">SumMatrix</code><span class="sig-paren">(</span><em>Ks</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/sum_matrix.html#SumMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.sum_matrix.SumMatrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="runlmc.linalg.psd_matrix.html#runlmc.linalg.psd_matrix.PSDMatrix" title="runlmc.linalg.psd_matrix.PSDMatrix"><code class="xref py py-class docutils literal"><span class="pre">runlmc.linalg.psd_matrix.PSDMatrix</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix" title="runlmc.linalg.matrix.Matrix"><code class="xref py py-class docutils literal"><span class="pre">runlmc.linalg.matrix.Matrix</span></code></a></p>
 <p>The sum matrix represents a sum of other possibly sparse
-<code class="xref py py-class docutils literal"><span class="pre">runlmc.linalg.PSDDecomposableMatrix</span></code> instances <span class="math">\(A_i\)</span>,
+<code class="xref py py-class docutils literal"><span class="pre">runlmc.linalg.SymmetricMatrix</span></code> instances <span class="math">\(A_i\)</span>,
 taking on the meaning <span class="math">\(\sum_iA_i\)</span>.</p>
-<p>It is special in that it does not admit an easy way to
-eigendecompose itself given the eigendecompostion of its elements.</p>
-<p>However, it has some other convenient properties.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -67,44 +64,6 @@ eigendecompose itself given the eigendecompostion of its elements.</p>
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
-<dt id="runlmc.linalg.sum_matrix.SumMatrix.APPROX_EIG_METHODS">
-<code class="descname">APPROX_EIG_METHODS</code><em class="property"> = ['greedy_fiedler', 'simultaneous_diag', 'greedy_weyl']</em><a class="headerlink" href="#runlmc.linalg.sum_matrix.SumMatrix.APPROX_EIG_METHODS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="runlmc.linalg.sum_matrix.SumMatrix.approx_eigs">
-<code class="descname">approx_eigs</code><span class="sig-paren">(</span><em>min_eig</em>, <em>method='greedy_fiedler'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/sum_matrix.html#SumMatrix.approx_eigs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.sum_matrix.SumMatrix.approx_eigs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Using the eigendecomposition of each <span class="math">\(A_i\)</span>, this method computes
-a set of psuedo-eigenvalues of <span class="math">\(K\)</span>. If multiplied (or,
-to avoid overflow, log-summed), the result is an approximation
-to the log-determinant:</p>
-<div class="math">
-\[\log\left|K\right|\]</div>
-<p>None of these methods have any particular guarantees. The
-approximations are done by either minimizing an upper bound
-or maximizing a lower bound.</p>
-<p>The current empirically best strategy, <cite>&#8216;greedy_fiedler&#8217;</cite>, is
-a greedy calculation of a combinatorical upper bound (and therfore
-it can be both smaller or greater than the actual determinant).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>min_eig</strong> &#8211; smallest eigenvalue to consider</li>
-<li><strong>method</strong> &#8211; which approximation to use; options are
-<cite>SumMatrix.APPROX_EIG_METHODS</cite></li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a vector of the approximate eigenvalues of <span class="math">\(K\)</span>.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 <dl class="method">
 <dt id="runlmc.linalg.sum_matrix.SumMatrix.as_numpy">
 <code class="descname">as_numpy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/sum_matrix.html#SumMatrix.as_numpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.sum_matrix.SumMatrix.as_numpy" title="Permalink to this definition">¶</a></dt>
@@ -135,6 +94,11 @@ it can be both smaller or greater than the actual determinant).</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="runlmc.linalg.sum_matrix.SumMatrix.upper_eig_bound">
+<code class="descname">upper_eig_bound</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/linalg/sum_matrix.html#SumMatrix.upper_eig_bound"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.linalg.sum_matrix.SumMatrix.upper_eig_bound" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -147,12 +111,18 @@ it can be both smaller or greater than the actual determinant).</p>
         <div class="sphinxsidebarwrapper">
 <h3><a href="runlmc.html">Table Of Contents</a></h3>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.approx.html">runlmc.approx package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="runlmc.linalg.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.block_diag.html">runlmc.linalg.block_diag module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.block_matrix.html">runlmc.linalg.block_matrix module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.composition.html">runlmc.linalg.composition module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.diag.html">runlmc.linalg.diag module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.identity.html">runlmc.linalg.identity module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.kronecker.html">runlmc.linalg.kronecker module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.matrix.html">runlmc.linalg.matrix module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.numpy_matrix.html">runlmc.linalg.numpy_matrix module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.psd_matrix.html">runlmc.linalg.psd_matrix module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.linalg.sum_matrix module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.linalg.toeplitz.html">runlmc.linalg.toeplitz module</a></li>
 </ul>
@@ -160,6 +130,7 @@ it can be both smaller or greater than the actual determinant).</p>
 <li class="toctree-l2"><a class="reference internal" href="runlmc.linalg.html#module-runlmc.linalg">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.lmc.html">runlmc.lmc package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a></li>
@@ -170,7 +141,7 @@ it can be both smaller or greater than the actual determinant).</p>
 <ul>
   <li><a href="runlmc.html">Documentation overview</a><ul>
   <li><a href="runlmc.linalg.html">runlmc.linalg package</a><ul>
-      <li>Previous: <a href="runlmc.linalg.psd_matrix.html" title="previous chapter">runlmc.linalg.psd_matrix module</a></li>
+      <li>Previous: <a href="runlmc.linalg.numpy_matrix.html" title="previous chapter">runlmc.linalg.numpy_matrix module</a></li>
       <li>Next: <a href="runlmc.linalg.toeplitz.html" title="next chapter">runlmc.linalg.toeplitz module</a></li>
   </ul></li>
   </ul></li>

@@ -6,10 +6,11 @@ Submodules
 
 .. toctree::
 
-   runlmc.models.exact
+   runlmc.models.gpy_lmc
    runlmc.models.lmc
    runlmc.models.multigp
-   runlmc.models.test_exact
+   runlmc.models.optimization
+   runlmc.models.test_gpy_lmc
    runlmc.models.test_lmc
    runlmc.models.test_multigp
 

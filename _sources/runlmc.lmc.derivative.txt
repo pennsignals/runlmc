@@ -1,0 +1,7 @@
+runlmc.lmc.derivative module
+============================
+
+.. automodule:: runlmc.lmc.derivative
+    :members:
+    :undoc-members:
+    :show-inheritance:

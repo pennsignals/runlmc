@@ -29,7 +29,7 @@
     <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
     <link rel="up" title="runlmc.models package" href="runlmc.models.html" />
     <link rel="next" title="runlmc.models.multigp module" href="runlmc.models.multigp.html" />
-    <link rel="prev" title="runlmc.models.exact module" href="runlmc.models.exact.html" />
+    <link rel="prev" title="runlmc.models.gpy_lmc module" href="runlmc.models.gpy_lmc.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -49,7 +49,7 @@
 <span id="runlmc-models-lmc-module"></span><h1>runlmc.models.lmc module<a class="headerlink" href="#module-runlmc.models.lmc" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="runlmc.models.lmc.LMC">
-<em class="property">class </em><code class="descclassname">runlmc.models.lmc.</code><code class="descname">LMC</code><span class="sig-paren">(</span><em>Xs</em>, <em>Ys</em>, <em>normalize=True</em>, <em>kernels=None</em>, <em>lo=None</em>, <em>hi=None</em>, <em>m=None</em>, <em>name='lmc'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">runlmc.models.lmc.</code><code class="descname">LMC</code><span class="sig-paren">(</span><em>Xs</em>, <em>Ys</em>, <em>normalize=True</em>, <em>kernels=None</em>, <em>ranks=None</em>, <em>lo=None</em>, <em>hi=None</em>, <em>m=None</em>, <em>name='lmc'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP" title="runlmc.models.multigp.MultiGP"><code class="xref py py-class docutils literal"><span class="pre">runlmc.models.multigp.MultiGP</span></code></a></p>
 <p>The main class of this package, <cite>LMC</cite> implements linearithmic
 Gaussian Process learning in the multi-output case. [TODO(PAPER)].</p>
@@ -94,7 +94,6 @@ express <span class="math">\(K\)</span> more succintly, relying on the Kronecker
 this model, with name <cite>a&lt;q&gt;</cite>, where <cite>&lt;q&gt;</cite> is replaced with a specific
 number.</p>
 <p>TODO(new parameters)
-ranks - currently everything will be rank-1
 mean-function - zero-mean for now</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -111,6 +110,8 @@ Prediction will be un-normalized.</li>
 terms of the LMC sums prior to coregionalization. The
 <span class="math">\(q\)</span>-th index here corresponds to <span class="math">\(k_q\)</span> above.
 This list&#8217;s length is <span class="math">\(Q\)</span></li>
+<li><strong>ranks</strong> &#8211; list of integer ranks for coregionalization factors,
+defaults to 1 everywhere.</li>
 <li><strong>lo</strong> &#8211; lexicographically smallest point in inducing point grid used
 (by default, a bit less than the minimum of input)</li>
 <li><strong>hi</strong> &#8211; lexicographically largest point in inducing point grid used
@@ -135,8 +136,8 @@ values.</p>
 </tbody>
 </table>
 <dl class="method">
-<dt id="runlmc.models.lmc.LMC.K_SKI">
-<code class="descname">K_SKI</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC.K_SKI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC.K_SKI" title="Permalink to this definition">¶</a></dt>
+<dt id="runlmc.models.lmc.LMC.K">
+<code class="descname">K</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC.K"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC.K" title="Permalink to this definition">¶</a></dt>
 <dd><div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">This generates the entire kernel, a quadratic operation
@@ -152,11 +153,6 @@ kernel.</td>
 </tbody>
 </table>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="runlmc.models.lmc.LMC.TOL">
-<code class="descname">TOL</code><em class="property"> = 1e-10</em><a class="headerlink" href="#runlmc.models.lmc.LMC.TOL" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="runlmc.models.lmc.LMC.log_det_K">
@@ -219,14 +215,17 @@ are consistent with the new parameters.</p>
         <div class="sphinxsidebarwrapper">
 <h3><a href="runlmc.html">Table Of Contents</a></h3>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.approx.html">runlmc.approx package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.lmc.html">runlmc.lmc package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="runlmc.models.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="runlmc.models.exact.html">runlmc.models.exact module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.models.gpy_lmc.html">runlmc.models.gpy_lmc module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.models.lmc module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.models.multigp.html">runlmc.models.multigp module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.models.optimization.html">runlmc.models.optimization module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="runlmc.models.html#module-runlmc.models">Module contents</a></li>
@@ -240,7 +239,7 @@ are consistent with the new parameters.</p>
 <ul>
   <li><a href="runlmc.html">Documentation overview</a><ul>
   <li><a href="runlmc.models.html">runlmc.models package</a><ul>
-      <li>Previous: <a href="runlmc.models.exact.html" title="previous chapter">runlmc.models.exact module</a></li>
+      <li>Previous: <a href="runlmc.models.gpy_lmc.html" title="previous chapter">runlmc.models.gpy_lmc module</a></li>
       <li>Next: <a href="runlmc.models.multigp.html" title="next chapter">runlmc.models.multigp module</a></li>
   </ul></li>
   </ul></li>

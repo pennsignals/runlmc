@@ -6,14 +6,22 @@ Submodules
 
 .. toctree::
 
+   runlmc.linalg.block_diag
+   runlmc.linalg.block_matrix
+   runlmc.linalg.composition
+   runlmc.linalg.diag
+   runlmc.linalg.identity
    runlmc.linalg.kronecker
+   runlmc.linalg.matrix
    runlmc.linalg.numpy_matrix
-   runlmc.linalg.psd_matrix
    runlmc.linalg.sum_matrix
+   runlmc.linalg.test_block_diag
+   runlmc.linalg.test_block_matrix
+   runlmc.linalg.test_diag
    runlmc.linalg.test_kronecker
+   runlmc.linalg.test_matrix
    runlmc.linalg.test_matrix_base
    runlmc.linalg.test_numpy_matrix
-   runlmc.linalg.test_psd_matrix
    runlmc.linalg.test_sum_matrix
    runlmc.linalg.test_toeplitz
    runlmc.linalg.toeplitz

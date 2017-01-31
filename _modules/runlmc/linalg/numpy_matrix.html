@@ -47,34 +47,25 @@
 <span></span><span class="c1"># Copyright (c) 2016, Vladimir Feinberg</span>
 <span class="c1"># Licensed under the BSD 3-clause license (see LICENSE)</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
-<span class="kn">from</span> <span class="nn">.psd_matrix</span> <span class="k">import</span> <span class="n">PSDDecomposableMatrix</span>
+<span class="kn">from</span> <span class="nn">.matrix</span> <span class="k">import</span> <span class="n">Matrix</span>
 <span class="kn">from</span> <span class="nn">..util.docs</span> <span class="k">import</span> <span class="n">inherit_doc</span>
-<span class="kn">from</span> <span class="nn">..util.numpy_convenience</span> <span class="k">import</span> <span class="n">EPS</span>
 
 <span class="nd">@inherit_doc</span>
-<div class="viewcode-block" id="NumpyMatrix"><a class="viewcode-back" href="../../../runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix">[docs]</a><span class="k">class</span> <span class="nc">NumpyMatrix</span><span class="p">(</span><span class="n">PSDDecomposableMatrix</span><span class="p">):</span>
+<div class="viewcode-block" id="NumpyMatrix"><a class="viewcode-back" href="../../../runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix">[docs]</a><span class="k">class</span> <span class="nc">NumpyMatrix</span><span class="p">(</span><span class="n">Matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Adapter to :class:`PSDDecomposableMatrix` with :mod:`numpy` arrays.</span>
+<span class="sd">    Adapter to :class:`Matrix` with :mod:`numpy` arrays.</span>
 
-<span class="sd">    Creates a :class:`NumpyMatrix` matrix. Its positivity is assumed.</span>
+<span class="sd">    Creates a :class:`NumpyMatrix` matrix.</span>
 
 <span class="sd">    :param nparr: 2-dimensional :mod:`numpy` array</span>
-<span class="sd">    :raises ValueError: if `nparr` isn&#39;t 2D or square or symmetric</span>
+<span class="sd">    :raises ValueError: if `nparr` isn&#39;t 2D</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nparr</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">nparr</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">nparr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">nparr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Input numpy array of shape </span><span class="si">{}</span><span class="s1"> not square matrix&#39;</span>
+        <span class="k">if</span> <span class="n">nparr</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Input numpy array of shape </span><span class="si">{}</span><span class="s1"> not matrix&#39;</span>
                              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nparr</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">nparr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">casting</span><span class="o">=</span><span class="s1">&#39;safe&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">EPS</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="p">(</span><span class="n">EPS</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Input numpy array </span><span class="si">{}</span><span class="s1"> not symmetric &#39;</span>
-                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nparr</span><span class="p">))</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
 <div class="viewcode-block" id="NumpyMatrix.as_numpy"><a class="viewcode-back" href="../../../runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.as_numpy">[docs]</a>    <span class="k">def</span> <span class="nf">as_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span></div>
@@ -82,14 +73,8 @@
 <div class="viewcode-block" id="NumpyMatrix.matvec"><a class="viewcode-back" href="../../../runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.matvec">[docs]</a>    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="NumpyMatrix.eig"><a class="viewcode-back" href="../../../runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.eig">[docs]</a>    <span class="k">def</span> <span class="nf">eig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">exact</span><span class="p">):</span>
-        <span class="n">sol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvalsh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
-        <span class="n">sol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">sol</span><span class="p">)</span>
-        <span class="n">cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">sol</span><span class="p">[</span><span class="n">cut</span><span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="NumpyMatrix.upper_eig_bound"><a class="viewcode-back" href="../../../runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.upper_eig_bound">[docs]</a>    <span class="k">def</span> <span class="nf">upper_eig_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span></div>
+<div class="viewcode-block" id="NumpyMatrix.matmat"><a class="viewcode-back" href="../../../runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.matmat">[docs]</a>    <span class="k">def</span> <span class="nf">matmat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span></div>
@@ -102,8 +87,10 @@
         <div class="sphinxsidebarwrapper">
 <h3><a href="../../../runlmc.html">Table Of Contents</a></h3>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.approx.html">runlmc.approx package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.kern.html">runlmc.kern package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runlmc.lmc.html">runlmc.lmc package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.mean.html">runlmc.mean package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.models.html">runlmc.models package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runlmc.parameterization.html">runlmc.parameterization package</a></li>

@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>runlmc.models.gpy_lmc module &#8212; runlmc 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.models package" href="runlmc.models.html" />
+    <link rel="next" title="runlmc.models.lmc module" href="runlmc.models.lmc.html" />
+    <link rel="prev" title="runlmc.models package" href="runlmc.models.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runlmc.models.gpy_lmc">
+<span id="runlmc-models-gpy-lmc-module"></span><h1>runlmc.models.gpy_lmc module<a class="headerlink" href="#module-runlmc.models.gpy_lmc" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="runlmc.models.gpy_lmc.GPyLMC">
+<em class="property">class </em><code class="descclassname">runlmc.models.gpy_lmc.</code><code class="descname">GPyLMC</code><span class="sig-paren">(</span><em>Xs</em>, <em>Ys</em>, <em>kernels</em>, <em>ranks</em>, <em>name='GPyLMC'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/gpy_lmc.html#GPyLMC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.gpy_lmc.GPyLMC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP" title="runlmc.models.multigp.MultiGP"><code class="xref py py-class docutils literal"><span class="pre">runlmc.models.multigp.MultiGP</span></code></a></p>
+<p>This wraps GPy for the Gaussian Process model for multioutput regression
+under a Linear Model of Coregionalization.</p>
+<p>This performs the inversion-based cubic-time algorithm.</p>
+<p>Uses the Gaussian likelihood. See <a class="reference internal" href="runlmc.models.lmc.html#runlmc.models.lmc.LMC" title="runlmc.models.lmc.LMC"><code class="xref py py-class docutils literal"><span class="pre">runlmc.models.lmc.LMC</span></code></a> for the
+explicit LMC formula.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Xs</strong> &#8211; input observations, should be a list of numpy arrays,
+where the numpy arrays are one dimensional.</li>
+<li><strong>Ys</strong> &#8211; output observations, this must be a list of one-dimensional
+numpy arrays, matching up with the number of rows in <cite>Xs</cite>.</li>
+<li><strong>kernels</strong> &#8211; a list of (stationary) kernels which constitute the
+terms of the LMC sums prior to coregionalization.</li>
+<li><strong>ranks</strong> (<em>list of integer</em>) &#8211; list of ranks for coregionalization factors</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; model name</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="runlmc.models.gpy_lmc.GPyLMC.log_likelihood">
+<code class="descname">log_likelihood</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/gpy_lmc.html#GPyLMC.log_likelihood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.gpy_lmc.GPyLMC.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>The log marginal likelihood of the model, <span class="math">\(p(\mathbf{y})\)</span>,
+this is the objective function of the model being optimised</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.models.gpy_lmc.GPyLMC.optimize">
+<code class="descname">optimize</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/gpy_lmc.html#GPyLMC.optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.gpy_lmc.GPyLMC.optimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimize the model using <code class="xref py py-func docutils literal"><span class="pre">self.log_likelihood()</span></code> and
+<code class="xref py py-func docutils literal"><span class="pre">self.log_likelihood_gradient()</span></code>, as well as <code class="xref py py-func docutils literal"><span class="pre">self.priors()</span></code>.</p>
+<p><cite>kwargs</cite> are passed to the optimizer. See parameters for handled
+keywords.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>optimizer</strong> &#8211; A <code class="xref py py-class docutils literal"><span class="pre">paramz.optimization.Optimizer</span></code>.
+Pre-built ones available in
+<a class="reference internal" href="runlmc.models.optimization.html#module-runlmc.models.optimization" title="runlmc.models.optimization"><code class="xref py py-mod docutils literal"><span class="pre">runlmc.models.optimization</span></code></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.models.gpy_lmc.GPyLMC.parameters_changed">
+<code class="descname">parameters_changed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/gpy_lmc.html#GPyLMC.parameters_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.gpy_lmc.GPyLMC.parameters_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called automatically when linked parameters change,
+which the may during the optimization process.</p>
+<p>Classes should update their posterior information, log likelihood,
+and gradients when this happens, such that <cite>self._raw_predict</cite>,
+<cite>self.log_likelihood</cite>, and <cite>self.gradient</cite>
+are consistent with the new parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.models.gpy_lmc.GPyLMC.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>Xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/gpy_lmc.html#GPyLMC.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.gpy_lmc.GPyLMC.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict the functions at the new points <cite>Xs</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>Xs</strong> &#8211; The points at which to make a prediction for each output.
+Should be empty if no output desired for a certain index.
+This is a <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#list" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.12)"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></a> for each
+output <cite>d</cite>, one-dimensional
+of size <cite>n_d</cite> each. Length of <cite>Xs</cite> should be equal to the
+number of outputs <cite>self.output_dim</cite>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><cite>(mean, var)</cite>:<dl class="docutils">
+<dt><cite>mean</cite>: posterior mean, a list of length <cite>self.output_dim</cite> with</dt>
+<dd>one-dimensional numpy arrays of length <cite>n_d</cite> at index <cite>d</cite>.</dd>
+</dl>
+<p><cite>var</cite>: posterior variance, corresponding to each mean entry.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.models.gpy_lmc.GPyLMC.predict_quantiles">
+<code class="descname">predict_quantiles</code><span class="sig-paren">(</span><em>Xs</em>, <em>quantiles=(2.5</em>, <em>97.5)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/gpy_lmc.html#GPyLMC.predict_quantiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.gpy_lmc.GPyLMC.predict_quantiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identical to predict, but returns quantiles instead of mean and
+variance according to the Gaussian likelihood.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>quantiles</strong> (<em>tuple of doubles</em>) &#8211; tuple of quantiles, default is (2.5, 97.5),
+which is the 95% interval; shouldn&#8217;t be 0 or 100</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of quantiles for each output&#8217;s input, as a numpy
+array, 2-D, the first axis corresponding to the
+input index and the second to the quantile index.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="runlmc.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runlmc.approx.html">runlmc.approx package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.kern.html">runlmc.kern package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.linalg.html">runlmc.linalg package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.lmc.html">runlmc.lmc package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.mean.html">runlmc.mean package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="runlmc.models.html">runlmc.models package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="runlmc.models.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.models.gpy_lmc module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.models.lmc.html">runlmc.models.lmc module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.models.multigp.html">runlmc.models.multigp module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.models.optimization.html">runlmc.models.optimization module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runlmc.models.html#module-runlmc.models">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.parameterization.html">runlmc.parameterization package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runlmc.util.html">runlmc.util package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="runlmc.html">Documentation overview</a><ul>
+  <li><a href="runlmc.models.html">runlmc.models package</a><ul>
+      <li>Previous: <a href="runlmc.models.html" title="previous chapter">runlmc.models package</a></li>
+      <li>Next: <a href="runlmc.models.lmc.html" title="next chapter">runlmc.models.lmc module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runlmc.models.gpy_lmc.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Vlad Feinberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/runlmc.models.gpy_lmc.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,7 @@
+runlmc.models.gpy_lmc module
+============================
+
+.. automodule:: runlmc.models.gpy_lmc
+    :members:
+    :undoc-members:
+    :show-inheritance:

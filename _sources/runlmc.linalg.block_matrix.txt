@@ -1,0 +1,7 @@
+runlmc.linalg.block_matrix module
+=================================
+
+.. automodule:: runlmc.linalg.block_matrix
+    :members:
+    :undoc-members:
+    :show-inheritance:

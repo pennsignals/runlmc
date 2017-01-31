@@ -1,0 +1,7 @@
+runlmc.linalg.composition module
+================================
+
+.. automodule:: runlmc.linalg.composition
+    :members:
+    :undoc-members:
+    :show-inheritance:

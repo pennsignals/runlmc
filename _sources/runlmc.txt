@@ -6,8 +6,10 @@ Subpackages
 
 .. toctree::
 
+    runlmc.approx
     runlmc.kern
     runlmc.linalg
+    runlmc.lmc
     runlmc.mean
     runlmc.models
     runlmc.parameterization
