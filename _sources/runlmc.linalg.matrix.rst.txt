@@ -1,0 +1,7 @@
+runlmc.linalg.matrix module
+===========================
+
+.. automodule:: runlmc.linalg.matrix
+    :members:
+    :undoc-members:
+    :show-inheritance:

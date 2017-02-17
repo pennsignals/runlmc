@@ -1,0 +1,7 @@
+runlmc.kern.identity module
+===========================
+
+.. automodule:: runlmc.kern.identity
+    :members:
+    :undoc-members:
+    :show-inheritance:

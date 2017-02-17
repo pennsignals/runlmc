@@ -17,7 +17,8 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -26,9 +27,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
-    <link rel="up" title="runlmc.lmc package" href="runlmc.lmc.html" />
-    <link rel="next" title="runlmc.lmc.parameter_values module" href="runlmc.lmc.parameter_values.html" />
+    <link rel="next" title="runlmc.lmc.metrics module" href="runlmc.lmc.metrics.html" />
     <link rel="prev" title="runlmc.lmc.grid_kernel module" href="runlmc.lmc.grid_kernel.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -49,7 +48,7 @@
 <span id="runlmc-lmc-kernel-module"></span><h1>runlmc.lmc.kernel module<a class="headerlink" href="#module-runlmc.lmc.kernel" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="runlmc.lmc.kernel.ApproxLMCKernel">
-<em class="property">class </em><code class="descclassname">runlmc.lmc.kernel.</code><code class="descname">ApproxLMCKernel</code><span class="sig-paren">(</span><em>grid_kern</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/lmc/kernel.html#ApproxLMCKernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.lmc.kernel.ApproxLMCKernel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">runlmc.lmc.kernel.</code><code class="descname">ApproxLMCKernel</code><span class="sig-paren">(</span><em>params</em>, <em>grid_kern</em>, <em>grid_dists</em>, <em>metrics</em>, <em>pool=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/lmc/kernel.html#ApproxLMCKernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.lmc.kernel.ApproxLMCKernel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#runlmc.lmc.kernel.LMCKernel" title="runlmc.lmc.kernel.LMCKernel"><code class="xref py py-class docutils literal"><span class="pre">runlmc.lmc.kernel.LMCKernel</span></code></a></p>
 <dl class="method">
 <dt id="runlmc.lmc.kernel.ApproxLMCKernel.alpha">
@@ -60,7 +59,7 @@
 
 <dl class="class">
 <dt id="runlmc.lmc.kernel.ExactLMCKernel">
-<em class="property">class </em><code class="descclassname">runlmc.lmc.kernel.</code><code class="descname">ExactLMCKernel</code><span class="sig-paren">(</span><em>params</em>, <em>pair_dists</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/lmc/kernel.html#ExactLMCKernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.lmc.kernel.ExactLMCKernel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">runlmc.lmc.kernel.</code><code class="descname">ExactLMCKernel</code><span class="sig-paren">(</span><em>params</em>, <em>pair_dists</em>, <em>invert=True</em>, <em>noise=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/lmc/kernel.html#ExactLMCKernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.lmc.kernel.ExactLMCKernel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#runlmc.lmc.kernel.LMCKernel" title="runlmc.lmc.kernel.LMCKernel"><code class="xref py py-class docutils literal"><span class="pre">runlmc.lmc.kernel.LMCKernel</span></code></a></p>
 <dl class="method">
 <dt id="runlmc.lmc.kernel.ExactLMCKernel.alpha">
@@ -124,6 +123,7 @@
 <li class="toctree-l3"><a class="reference internal" href="runlmc.lmc.exact_deriv.html">runlmc.lmc.exact_deriv module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.lmc.grid_kernel.html">runlmc.lmc.grid_kernel module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.lmc.kernel module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.lmc.metrics.html">runlmc.lmc.metrics module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.lmc.parameter_values.html">runlmc.lmc.parameter_values module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.lmc.stochastic_deriv.html">runlmc.lmc.stochastic_deriv module</a></li>
 </ul>
@@ -142,7 +142,7 @@
   <li><a href="runlmc.html">Documentation overview</a><ul>
   <li><a href="runlmc.lmc.html">runlmc.lmc package</a><ul>
       <li>Previous: <a href="runlmc.lmc.grid_kernel.html" title="previous chapter">runlmc.lmc.grid_kernel module</a></li>
-      <li>Next: <a href="runlmc.lmc.parameter_values.html" title="next chapter">runlmc.lmc.parameter_values module</a></li>
+      <li>Next: <a href="runlmc.lmc.metrics.html" title="next chapter">runlmc.lmc.metrics module</a></li>
   </ul></li>
   </ul></li>
 </ul>
@@ -150,7 +150,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/runlmc.lmc.kernel.txt"
+      <li><a href="_sources/runlmc.lmc.kernel.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -172,11 +172,11 @@
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
-      <a href="_sources/runlmc.lmc.kernel.txt"
+      <a href="_sources/runlmc.lmc.kernel.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

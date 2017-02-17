@@ -1,0 +1,7 @@
+runlmc.models.multigp module
+============================
+
+.. automodule:: runlmc.models.multigp
+    :members:
+    :undoc-members:
+    :show-inheritance:

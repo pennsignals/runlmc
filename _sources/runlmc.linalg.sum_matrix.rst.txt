@@ -1,0 +1,7 @@
+runlmc.linalg.sum_matrix module
+===============================
+
+.. automodule:: runlmc.linalg.sum_matrix
+    :members:
+    :undoc-members:
+    :show-inheritance:

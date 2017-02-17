@@ -17,7 +17,8 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
-    <link rel="up" title="runlmc.models package" href="runlmc.models.html" />
     <link rel="next" title="runlmc.models.multigp module" href="runlmc.models.multigp.html" />
     <link rel="prev" title="runlmc.models.gpy_lmc module" href="runlmc.models.gpy_lmc.html" />
    
@@ -49,7 +48,7 @@
 <span id="runlmc-models-lmc-module"></span><h1>runlmc.models.lmc module<a class="headerlink" href="#module-runlmc.models.lmc" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="runlmc.models.lmc.LMC">
-<em class="property">class </em><code class="descclassname">runlmc.models.lmc.</code><code class="descname">LMC</code><span class="sig-paren">(</span><em>Xs</em>, <em>Ys</em>, <em>normalize=True</em>, <em>kernels=None</em>, <em>ranks=None</em>, <em>lo=None</em>, <em>hi=None</em>, <em>m=None</em>, <em>name='lmc'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">runlmc.models.lmc.</code><code class="descname">LMC</code><span class="sig-paren">(</span><em>Xs</em>, <em>Ys</em>, <em>normalize=True</em>, <em>kernels=[]</em>, <em>ranks=None</em>, <em>lo=None</em>, <em>hi=None</em>, <em>m=None</em>, <em>name='lmc'</em>, <em>metrics=False</em>, <em>prediction='matrix-free'</em>, <em>variance_samples=20</em>, <em>max_procs=None</em>, <em>extrapool=None</em>, <em>slfm_kerns=[]</em>, <em>indep_gp=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP" title="runlmc.models.multigp.MultiGP"><code class="xref py py-class docutils literal"><span class="pre">runlmc.models.multigp.MultiGP</span></code></a></p>
 <p>The main class of this package, <cite>LMC</cite> implements linearithmic
 Gaussian Process learning in the multi-output case. [TODO(PAPER)].</p>
@@ -93,6 +92,31 @@ express <span class="math">\(K\)</span> more succintly, relying on the Kronecker
 <p>Each <span class="math">\(A_q\)</span> (only a column vector for now) is a parameter of
 this model, with name <cite>a&lt;q&gt;</cite>, where <cite>&lt;q&gt;</cite> is replaced with a specific
 number.</p>
+<p>The functionality for the various prediction modes is summarized below.
+Note <cite>&#8216;matrix-free&#8217;</cite> is the default.</p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt><cite>&#8216;matrix-free&#8217;</cite> - If the number of test points is smaller than the</dt>
+<dd>number of grid points, use <cite>&#8216;on-the-fly&#8217;</cite>. If the
+number of points is greater than the number of grid
+points, use <cite>&#8216;precompute&#8217;</cite>, and use that from then
+onwards.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><cite>&#8216;on-the-fly&#8217;</cite> - Use matrix-free inversion to compute the covariance</dt>
+<dd>for the entire set of points on which we&#8217;re predicting.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><cite>&#8216;precompute&#8217;</cite> - Compute an auxiliary predictive variance matrix for the</dt>
+<dd>grid points, but then cheaply re-use that work for
+prediction.</dd>
+</dl>
+</li>
+<li><cite>&#8216;exact&#8217;</cite> - Use the exact cholesky-based algorithm (not matrix free)</li>
+<li><cite>&#8216;sample&#8217;</cite> - Use the sampling algorithm from Wilson 2015.</li>
+</ul>
 <p>TODO(new parameters)
 mean-function - zero-mean for now</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -119,6 +143,26 @@ defaults to 1 everywhere.</li>
 <li><strong>m</strong> &#8211; number of inducing points to use (by default, the total number
 of input points)</li>
 <li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>metrics</strong> &#8211; whether to record optimization metrics during optimization
+(runs exact solution alongside this one, may be slow).</li>
+<li><strong>prediction</strong> &#8211; one of <cite>&#8216;matrix-free&#8217;</cite>, <cite>&#8216;on-the-fly&#8217;</cite>,
+<cite>&#8216;precompute&#8217;</cite>, <cite>&#8216;exact&#8217;</cite>, <cite>&#8216;sample&#8217;</cite>.</li>
+<li><strong>variance_samples</strong> &#8211; only used if <cite>prediction</cite> is set to <cite>&#8216;sample&#8217;</cite>.
+number of variance samples used for predictive
+variance.</li>
+<li><strong>max_procs</strong> &#8211; maximum number of processes to use for parallelism,
+defaults to cpu count.</li>
+<li><strong>extrapool</strong> &#8211; temporary pool for re-use in benchmarks - this is an ugly
+interface option that will be soon removed.</li>
+<li><strong>slfm_kerns</strong> &#8211; add kernel terms with kernel <span class="math">\(k_q\)</span> given by this list
+using the SLFM model, which means the corresponding rank
+is 1 and terms <span class="math">\(\boldsymbol\kappa_q=\textbf{0}\)</span></li>
+<li><strong>indep_gp</strong> &#8211; add in a term for independent GPs for each output,
+this must be a list of <span class="math">\(D\)</span> kernels if specified
+at all, corresponding to terms with
+<span class="math">\(A_q=0,\boldsymbol\kappa_q=\boldsymbol\kron_d\)</span>
+for the <span class="math">\(d\)</span>-th element of this list
+<span class="math">\(k_d\)</span>.</li>
 </ul>
 </td>
 </tr>
@@ -135,6 +179,11 @@ values.</p>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="runlmc.models.lmc.LMC.EVAL_NORM">
+<code class="descname">EVAL_NORM</code><em class="property"> = inf</em><a class="headerlink" href="#runlmc.models.lmc.LMC.EVAL_NORM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="runlmc.models.lmc.LMC.K">
 <code class="descname">K</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC.K"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC.K" title="Permalink to this definition">¶</a></dt>
@@ -187,6 +236,25 @@ this returns <span class="math">\(\textbf{y}^\top K_{\text{SKI}}^{-1}\textbf{y}\
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the normal quadratic term for the current outputs <cite>Ys</cite>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="runlmc.models.lmc.LMC.optimize">
+<code class="descname">optimize</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC.optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC.optimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimize the model using <code class="xref py py-func docutils literal"><span class="pre">self.log_likelihood()</span></code> and
+<code class="xref py py-func docutils literal"><span class="pre">self.log_likelihood_gradient()</span></code>, as well as <code class="xref py py-func docutils literal"><span class="pre">self.priors()</span></code>.</p>
+<p><cite>kwargs</cite> are passed to the optimizer. See parameters for handled
+keywords.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>optimizer</strong> &#8211; A <code class="xref py py-class docutils literal"><span class="pre">paramz.optimization.Optimizer</span></code>.
+Pre-built ones available in
+<a class="reference internal" href="runlmc.models.optimization.html#module-runlmc.models.optimization" title="runlmc.models.optimization"><code class="xref py py-mod docutils literal"><span class="pre">runlmc.models.optimization</span></code></a>.</td>
 </tr>
 </tbody>
 </table>
@@ -248,7 +316,7 @@ are consistent with the new parameters.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/runlmc.models.lmc.txt"
+      <li><a href="_sources/runlmc.models.lmc.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -270,11 +338,11 @@ are consistent with the new parameters.</p>
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
-      <a href="_sources/runlmc.models.lmc.txt"
+      <a href="_sources/runlmc.models.lmc.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

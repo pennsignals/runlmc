@@ -1,0 +1,7 @@
+runlmc.mean.mean_function module
+================================
+
+.. automodule:: runlmc.mean.mean_function
+    :members:
+    :undoc-members:
+    :show-inheritance:

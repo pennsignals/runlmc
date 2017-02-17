@@ -18,7 +18,8 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -27,7 +28,6 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -71,1108 +71,664 @@
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.models.optimization.html#runlmc.models.optimization.AdaDelta">AdaDelta (class in runlmc.models.optimization)</a>
-  </dt>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.models.optimization.html#runlmc.models.optimization.AdaDelta">AdaDelta (class in runlmc.models.optimization)</a>
+</li>
+      <li><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.ApproxLMCKernel.alpha">alpha() (runlmc.lmc.kernel.ApproxLMCKernel method)</a>
 
-      
-  <dt><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.ApproxLMCKernel.alpha">alpha() (runlmc.lmc.kernel.ApproxLMCKernel method)</a>
-  </dt>
+      <ul>
+        <li><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.ExactLMCKernel.alpha">(runlmc.lmc.kernel.ExactLMCKernel method)</a>
+</li>
+        <li><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.alpha">(runlmc.lmc.kernel.LMCKernel method)</a>
+</li>
+      </ul></li>
+      <li><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.ApproxLMCKernel">ApproxLMCKernel (class in runlmc.lmc.kernel)</a>
+</li>
+      <li><a href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.as_linear_operator">as_linear_operator() (runlmc.linalg.matrix.Matrix method)</a>
+</li>
+      <li><a href="runlmc.approx.ski.html#runlmc.approx.ski.SKI.as_numpy">as_numpy() (runlmc.approx.ski.SKI method)</a>
 
-      <dd><dl>
-        
-  <dt><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.ExactLMCKernel.alpha">(runlmc.lmc.kernel.ExactLMCKernel method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.alpha">(runlmc.lmc.kernel.LMCKernel method)</a>
-  </dt>
-
-      </dl></dd>
-      
-  <dt><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.ApproxLMCKernel">ApproxLMCKernel (class in runlmc.lmc.kernel)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.as_linear_operator">as_linear_operator() (runlmc.linalg.matrix.Matrix method)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.approx.ski.html#runlmc.approx.ski.SKI.as_numpy">as_numpy() (runlmc.approx.ski.SKI method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="runlmc.linalg.block_diag.html#runlmc.linalg.block_diag.BlockDiag.as_numpy">(runlmc.linalg.block_diag.BlockDiag method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.block_matrix.html#runlmc.linalg.block_matrix.SymmSquareBlockMatrix.as_numpy">(runlmc.linalg.block_matrix.SymmSquareBlockMatrix method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.diag.html#runlmc.linalg.diag.Diag.as_numpy">(runlmc.linalg.diag.Diag method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.identity.html#runlmc.linalg.identity.Identity.as_numpy">(runlmc.linalg.identity.Identity method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.kronecker.html#runlmc.linalg.kronecker.Kronecker.as_numpy">(runlmc.linalg.kronecker.Kronecker method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.as_numpy">(runlmc.linalg.matrix.Matrix method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.as_numpy">(runlmc.linalg.numpy_matrix.NumpyMatrix method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.sum_matrix.html#runlmc.linalg.sum_matrix.SumMatrix.as_numpy">(runlmc.linalg.sum_matrix.SumMatrix method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz.as_numpy">(runlmc.linalg.toeplitz.Toeplitz method)</a>
-  </dt>
-
-      </dl></dd>
-  </dl></td>
+      <ul>
+        <li><a href="runlmc.linalg.block_diag.html#runlmc.linalg.block_diag.BlockDiag.as_numpy">(runlmc.linalg.block_diag.BlockDiag method)</a>
+</li>
+        <li><a href="runlmc.linalg.block_matrix.html#runlmc.linalg.block_matrix.SymmSquareBlockMatrix.as_numpy">(runlmc.linalg.block_matrix.SymmSquareBlockMatrix method)</a>
+</li>
+        <li><a href="runlmc.linalg.diag.html#runlmc.linalg.diag.Diag.as_numpy">(runlmc.linalg.diag.Diag method)</a>
+</li>
+        <li><a href="runlmc.linalg.identity.html#runlmc.linalg.identity.Identity.as_numpy">(runlmc.linalg.identity.Identity method)</a>
+</li>
+        <li><a href="runlmc.linalg.kronecker.html#runlmc.linalg.kronecker.Kronecker.as_numpy">(runlmc.linalg.kronecker.Kronecker method)</a>
+</li>
+        <li><a href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.as_numpy">(runlmc.linalg.matrix.Matrix method)</a>
+</li>
+        <li><a href="runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.as_numpy">(runlmc.linalg.numpy_matrix.NumpyMatrix method)</a>
+</li>
+        <li><a href="runlmc.linalg.sum_matrix.html#runlmc.linalg.sum_matrix.SumMatrix.as_numpy">(runlmc.linalg.sum_matrix.SumMatrix method)</a>
+</li>
+        <li><a href="runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz.as_numpy">(runlmc.linalg.toeplitz.Toeplitz method)</a>
+</li>
+      </ul></li>
+  </ul></td>
 </tr></table>
 
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.BasicModel">BasicModel (class in runlmc.util.testing_utils)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.util.numpy_convenience.html#runlmc.util.numpy_convenience.begin_end_indices">begin_end_indices() (in module runlmc.util.numpy_convenience)</a>
-  </dt>
-
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.linalg.block_diag.html#runlmc.linalg.block_diag.BlockDiag">BlockDiag (class in runlmc.linalg.block_diag)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.BlockToeplitz">BlockToeplitz (class in runlmc.lmc.grid_kernel)</a>
-  </dt>
-
-  </dl></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.BasicModel">BasicModel (class in runlmc.util.testing_utils)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.util.numpy_convenience.html#runlmc.util.numpy_convenience.begin_end_indices">begin_end_indices() (in module runlmc.util.numpy_convenience)</a>
+</li>
+      <li><a href="runlmc.linalg.block_diag.html#runlmc.linalg.block_diag.BlockDiag">BlockDiag (class in runlmc.linalg.block_diag)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.check_np_lists">check_np_lists() (in module runlmc.util.testing_utils)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.composition.html#runlmc.linalg.composition.Composition">Composition (class in runlmc.linalg.composition)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.mean.constant.html#runlmc.mean.constant.Constant">Constant (class in runlmc.mean.constant)</a>
-  </dt>
-
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.coreg_diag_gradients">coreg_diag_gradients() (runlmc.lmc.kernel.LMCKernel method)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.ExactLMCKernel.coreg_scale">coreg_scale() (runlmc.lmc.kernel.ExactLMCKernel method)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.coreg_vec_gradients">coreg_vec_gradients() (runlmc.lmc.kernel.LMCKernel method)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.approx.interpolation.html#runlmc.approx.interpolation.cubic_kernel">cubic_kernel() (in module runlmc.approx.interpolation)</a>
-  </dt>
-
-  </dl></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.check_np_lists">check_np_lists() (in module runlmc.util.testing_utils)</a>
+</li>
+      <li><a href="runlmc.linalg.composition.html#runlmc.linalg.composition.Composition">Composition (class in runlmc.linalg.composition)</a>
+</li>
+      <li><a href="runlmc.mean.constant.html#runlmc.mean.constant.Constant">Constant (class in runlmc.mean.constant)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.coreg_diag_gradients">coreg_diag_gradients() (runlmc.lmc.kernel.LMCKernel method)</a>
+</li>
+      <li><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.ExactLMCKernel.coreg_scale">coreg_scale() (runlmc.lmc.kernel.ExactLMCKernel method)</a>
+</li>
+      <li><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.coreg_vec_gradients">coreg_vec_gradients() (runlmc.lmc.kernel.LMCKernel method)</a>
+</li>
+      <li><a href="runlmc.approx.interpolation.html#runlmc.approx.interpolation.cubic_kernel">cubic_kernel() (in module runlmc.approx.interpolation)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.lmc.derivative.html#runlmc.lmc.derivative.Derivative.d_logdet_K">d_logdet_K() (runlmc.lmc.derivative.Derivative method)</a>
-  </dt>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.lmc.derivative.html#runlmc.lmc.derivative.Derivative.d_logdet_K">d_logdet_K() (runlmc.lmc.derivative.Derivative method)</a>
 
-      <dd><dl>
-        
-  <dt><a href="runlmc.lmc.exact_deriv.html#runlmc.lmc.exact_deriv.ExactDeriv.d_logdet_K">(runlmc.lmc.exact_deriv.ExactDeriv method)</a>
-  </dt>
+      <ul>
+        <li><a href="runlmc.lmc.exact_deriv.html#runlmc.lmc.exact_deriv.ExactDeriv.d_logdet_K">(runlmc.lmc.exact_deriv.ExactDeriv method)</a>
+</li>
+        <li><a href="runlmc.lmc.stochastic_deriv.html#runlmc.lmc.stochastic_deriv.StochasticDeriv.d_logdet_K">(runlmc.lmc.stochastic_deriv.StochasticDeriv method)</a>
+</li>
+      </ul></li>
+      <li><a href="runlmc.lmc.derivative.html#runlmc.lmc.derivative.Derivative.d_normal_quadratic">d_normal_quadratic() (runlmc.lmc.derivative.Derivative method)</a>
 
-        
-  <dt><a href="runlmc.lmc.stochastic_deriv.html#runlmc.lmc.stochastic_deriv.StochasticDeriv.d_logdet_K">(runlmc.lmc.stochastic_deriv.StochasticDeriv method)</a>
-  </dt>
-
-      </dl></dd>
-      
-  <dt><a href="runlmc.lmc.derivative.html#runlmc.lmc.derivative.Derivative.d_normal_quadratic">d_normal_quadratic() (runlmc.lmc.derivative.Derivative method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="runlmc.lmc.exact_deriv.html#runlmc.lmc.exact_deriv.ExactDeriv.d_normal_quadratic">(runlmc.lmc.exact_deriv.ExactDeriv method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.lmc.stochastic_deriv.html#runlmc.lmc.stochastic_deriv.StochasticDeriv.d_normal_quadratic">(runlmc.lmc.stochastic_deriv.StochasticDeriv method)</a>
-  </dt>
-
-      </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.lmc.derivative.html#runlmc.lmc.derivative.Derivative">Derivative (class in runlmc.lmc.derivative)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.derivative.html#runlmc.lmc.derivative.Derivative.derivative">derivative() (runlmc.lmc.derivative.Derivative method)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.diag.html#runlmc.linalg.diag.Diag">Diag (class in runlmc.linalg.diag)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.parameterization.priors.html#runlmc.parameterization.priors.Prior.domain">domain (runlmc.parameterization.priors.Prior attribute)</a>
-  </dt>
-
-  </dl></td>
+      <ul>
+        <li><a href="runlmc.lmc.exact_deriv.html#runlmc.lmc.exact_deriv.ExactDeriv.d_normal_quadratic">(runlmc.lmc.exact_deriv.ExactDeriv method)</a>
+</li>
+        <li><a href="runlmc.lmc.stochastic_deriv.html#runlmc.lmc.stochastic_deriv.StochasticDeriv.d_normal_quadratic">(runlmc.lmc.stochastic_deriv.StochasticDeriv method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.lmc.derivative.html#runlmc.lmc.derivative.Derivative">Derivative (class in runlmc.lmc.derivative)</a>
+</li>
+      <li><a href="runlmc.lmc.derivative.html#runlmc.lmc.derivative.Derivative.derivative">derivative() (runlmc.lmc.derivative.Derivative method)</a>
+</li>
+      <li><a href="runlmc.linalg.diag.html#runlmc.linalg.diag.Diag">Diag (class in runlmc.linalg.diag)</a>
+</li>
+      <li><a href="runlmc.parameterization.priors.html#runlmc.parameterization.priors.Prior.domain">domain (runlmc.parameterization.priors.Prior attribute)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.lmc.exact_deriv.html#runlmc.lmc.exact_deriv.ExactDeriv">ExactDeriv (class in runlmc.lmc.exact_deriv)</a>
-  </dt>
-
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.ExactLMCKernel">ExactLMCKernel (class in runlmc.lmc.kernel)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.exp_decr_toep">exp_decr_toep() (in module runlmc.util.testing_utils)</a>
-  </dt>
-
-  </dl></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.models.lmc.html#runlmc.models.lmc.LMC.EVAL_NORM">EVAL_NORM (runlmc.models.lmc.LMC attribute)</a>
+</li>
+      <li><a href="runlmc.lmc.exact_deriv.html#runlmc.lmc.exact_deriv.ExactDeriv">ExactDeriv (class in runlmc.lmc.exact_deriv)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.ExactLMCKernel">ExactLMCKernel (class in runlmc.lmc.kernel)</a>
+</li>
+      <li><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.exp_decr_toep">exp_decr_toep() (in module runlmc.util.testing_utils)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.mean.constant.html#runlmc.mean.constant.Constant.f">f() (runlmc.mean.constant.Constant method)</a>
-  </dt>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.mean.constant.html#runlmc.mean.constant.Constant.f">f() (runlmc.mean.constant.Constant method)</a>
 
-      <dd><dl>
-        
-  <dt><a href="runlmc.mean.mean_function.html#runlmc.mean.mean_function.MeanFunction.f">(runlmc.mean.mean_function.MeanFunction method)</a>
-  </dt>
+      <ul>
+        <li><a href="runlmc.mean.mean_function.html#runlmc.mean.mean_function.MeanFunction.f">(runlmc.mean.mean_function.MeanFunction method)</a>
+</li>
+        <li><a href="runlmc.mean.zero.html#runlmc.mean.zero.Zero.f">(runlmc.mean.zero.Zero method)</a>
+</li>
+      </ul></li>
+      <li><a href="runlmc.kern.identity.html#runlmc.kern.identity.Identity.from_dist">from_dist() (runlmc.kern.identity.Identity method)</a>
 
-        
-  <dt><a href="runlmc.mean.zero.html#runlmc.mean.zero.Zero.f">(runlmc.mean.zero.Zero method)</a>
-  </dt>
-
-      </dl></dd>
-      
-  <dt><a href="runlmc.kern.identity.html#runlmc.kern.identity.Identity.from_dist">from_dist() (runlmc.kern.identity.Identity method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32.from_dist">(runlmc.kern.matern32.Matern32 method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.kern.rbf.html#runlmc.kern.rbf.RBF.from_dist">(runlmc.kern.rbf.RBF method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern.from_dist">(runlmc.kern.stationary_kern.StationaryKern method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.kern.std_periodic.html#runlmc.kern.std_periodic.StdPeriodic.from_dist">(runlmc.kern.std_periodic.StdPeriodic method)</a>
-  </dt>
-
-      </dl></dd>
-  </dl></td>
+      <ul>
+        <li><a href="runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32.from_dist">(runlmc.kern.matern32.Matern32 method)</a>
+</li>
+        <li><a href="runlmc.kern.rbf.html#runlmc.kern.rbf.RBF.from_dist">(runlmc.kern.rbf.RBF method)</a>
+</li>
+        <li><a href="runlmc.kern.scaled.html#runlmc.kern.scaled.Scaled.from_dist">(runlmc.kern.scaled.Scaled method)</a>
+</li>
+        <li><a href="runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern.from_dist">(runlmc.kern.stationary_kern.StationaryKern method)</a>
+</li>
+        <li><a href="runlmc.kern.std_periodic.html#runlmc.kern.std_periodic.StdPeriodic.from_dist">(runlmc.kern.std_periodic.StdPeriodic method)</a>
+</li>
+      </ul></li>
+  </ul></td>
 </tr></table>
 
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.gen_grid_kernel">gen_grid_kernel() (in module runlmc.lmc.grid_kernel)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.parameter_values.html#runlmc.lmc.parameter_values.ParameterValues.generate">generate() (runlmc.lmc.parameter_values.ParameterValues static method)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.models.gpy_lmc.html#runlmc.models.gpy_lmc.GPyLMC">GPyLMC (class in runlmc.models.gpy_lmc)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.BlockToeplitz.grid_only">grid_only() (runlmc.lmc.grid_kernel.BlockToeplitz method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridKernel.grid_only">(runlmc.lmc.grid_kernel.GridKernel method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridSLFM.grid_only">(runlmc.lmc.grid_kernel.GridSLFM method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.SumGrid.grid_only">(runlmc.lmc.grid_kernel.SumGrid method)</a>
-  </dt>
-
-      </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridKernel">GridKernel (class in runlmc.lmc.grid_kernel)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridSLFM">GridSLFM (class in runlmc.lmc.grid_kernel)</a>
-  </dt>
-
-  </dl></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.gen_grid_kernel">gen_grid_kernel() (in module runlmc.lmc.grid_kernel)</a>
+</li>
+      <li><a href="runlmc.lmc.parameter_values.html#runlmc.lmc.parameter_values.ParameterValues.generate">generate() (runlmc.lmc.parameter_values.ParameterValues static method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.models.gpy_lmc.html#runlmc.models.gpy_lmc.GPyLMC">GPyLMC (class in runlmc.models.gpy_lmc)</a>
+</li>
+      <li><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridKernel">GridKernel (class in runlmc.lmc.grid_kernel)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.kern.identity.html#runlmc.kern.identity.Identity">Identity (class in runlmc.kern.identity)</a>
-  </dt>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.kern.identity.html#runlmc.kern.identity.Identity">Identity (class in runlmc.kern.identity)</a>
 
-      <dd><dl>
-        
-  <dt><a href="runlmc.linalg.identity.html#runlmc.linalg.identity.Identity">(class in runlmc.linalg.identity)</a>
-  </dt>
-
-      </dl></dd>
-      
-  <dt><a href="runlmc.util.docs.html#runlmc.util.docs.inherit_doc">inherit_doc() (in module runlmc.util.docs)</a>
-  </dt>
-
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.approx.interpolation.html#runlmc.approx.interpolation.interp_cubic">interp_cubic() (in module runlmc.approx.interpolation)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.is_square">is_square() (runlmc.linalg.matrix.Matrix method)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.approx.iterative.html#runlmc.approx.iterative.Iterative">Iterative (class in runlmc.approx.iterative)</a>
-  </dt>
-
-  </dl></td>
+      <ul>
+        <li><a href="runlmc.linalg.identity.html#runlmc.linalg.identity.Identity">(class in runlmc.linalg.identity)</a>
+</li>
+      </ul></li>
+      <li><a href="runlmc.util.docs.html#runlmc.util.docs.inherit_doc">inherit_doc() (in module runlmc.util.docs)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.approx.interpolation.html#runlmc.approx.interpolation.interp_cubic">interp_cubic() (in module runlmc.approx.interpolation)</a>
+</li>
+      <li><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridKernel.interpolants">interpolants() (runlmc.lmc.grid_kernel.GridKernel method)</a>
+</li>
+      <li><a href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.is_square">is_square() (runlmc.linalg.matrix.Matrix method)</a>
+</li>
+      <li><a href="runlmc.approx.iterative.html#runlmc.approx.iterative.Iterative">Iterative (class in runlmc.approx.iterative)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="K">K</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.models.lmc.html#runlmc.models.lmc.LMC.K">K() (runlmc.models.lmc.LMC method)</a>
-  </dt>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.models.lmc.html#runlmc.models.lmc.LMC.K">K() (runlmc.models.lmc.LMC method)</a>
+</li>
+      <li><a href="runlmc.kern.identity.html#runlmc.kern.identity.Identity.kernel_gradient">kernel_gradient() (runlmc.kern.identity.Identity method)</a>
 
-      
-  <dt><a href="runlmc.kern.identity.html#runlmc.kern.identity.Identity.kernel_gradient">kernel_gradient() (runlmc.kern.identity.Identity method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32.kernel_gradient">(runlmc.kern.matern32.Matern32 method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.kern.rbf.html#runlmc.kern.rbf.RBF.kernel_gradient">(runlmc.kern.rbf.RBF method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern.kernel_gradient">(runlmc.kern.stationary_kern.StationaryKern method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.kern.std_periodic.html#runlmc.kern.std_periodic.StdPeriodic.kernel_gradient">(runlmc.kern.std_periodic.StdPeriodic method)</a>
-  </dt>
-
-      </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.kernel_gradients">kernel_gradients() (runlmc.lmc.kernel.LMCKernel method)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.kronecker.html#runlmc.linalg.kronecker.Kronecker">Kronecker (class in runlmc.linalg.kronecker)</a>
-  </dt>
-
-  </dl></td>
+      <ul>
+        <li><a href="runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32.kernel_gradient">(runlmc.kern.matern32.Matern32 method)</a>
+</li>
+        <li><a href="runlmc.kern.rbf.html#runlmc.kern.rbf.RBF.kernel_gradient">(runlmc.kern.rbf.RBF method)</a>
+</li>
+        <li><a href="runlmc.kern.scaled.html#runlmc.kern.scaled.Scaled.kernel_gradient">(runlmc.kern.scaled.Scaled method)</a>
+</li>
+        <li><a href="runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern.kernel_gradient">(runlmc.kern.stationary_kern.StationaryKern method)</a>
+</li>
+        <li><a href="runlmc.kern.std_periodic.html#runlmc.kern.std_periodic.StdPeriodic.kernel_gradient">(runlmc.kern.std_periodic.StdPeriodic method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.kernel_gradients">kernel_gradients() (runlmc.lmc.kernel.LMCKernel method)</a>
+</li>
+      <li><a href="runlmc.linalg.kronecker.html#runlmc.linalg.kronecker.Kronecker">Kronecker (class in runlmc.linalg.kronecker)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.parameterization.parameterized.html#runlmc.parameterization.parameterized.Parameterized.link_parameter">link_parameter() (runlmc.parameterization.parameterized.Parameterized method)</a>
-  </dt>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.parameterization.parameterized.html#runlmc.parameterization.parameterized.Parameterized.link_parameter">link_parameter() (runlmc.parameterization.parameterized.Parameterized method)</a>
+</li>
+      <li><a href="runlmc.models.lmc.html#runlmc.models.lmc.LMC">LMC (class in runlmc.models.lmc)</a>
+</li>
+      <li><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel">LMCKernel (class in runlmc.lmc.kernel)</a>
+</li>
+      <li><a href="runlmc.parameterization.priors.html#runlmc.parameterization.priors.Prior.lnpdf">lnpdf() (runlmc.parameterization.priors.Prior method)</a>
+</li>
+      <li><a href="runlmc.parameterization.priors.html#runlmc.parameterization.priors.Prior.lnpdf_grad">lnpdf_grad() (runlmc.parameterization.priors.Prior method)</a>
+</li>
+      <li><a href="runlmc.models.lmc.html#runlmc.models.lmc.LMC.log_det_K">log_det_K() (runlmc.models.lmc.LMC method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.models.gpy_lmc.html#runlmc.models.gpy_lmc.GPyLMC.log_likelihood">log_likelihood() (runlmc.models.gpy_lmc.GPyLMC method)</a>
 
-      
-  <dt><a href="runlmc.models.lmc.html#runlmc.models.lmc.LMC">LMC (class in runlmc.models.lmc)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel">LMCKernel (class in runlmc.lmc.kernel)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.parameterization.priors.html#runlmc.parameterization.priors.Prior.lnpdf">lnpdf() (runlmc.parameterization.priors.Prior method)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.parameterization.priors.html#runlmc.parameterization.priors.Prior.lnpdf_grad">lnpdf_grad() (runlmc.parameterization.priors.Prior method)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.models.lmc.html#runlmc.models.lmc.LMC.log_det_K">log_det_K() (runlmc.models.lmc.LMC method)</a>
-  </dt>
-
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.models.gpy_lmc.html#runlmc.models.gpy_lmc.GPyLMC.log_likelihood">log_likelihood() (runlmc.models.gpy_lmc.GPyLMC method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="runlmc.models.lmc.html#runlmc.models.lmc.LMC.log_likelihood">(runlmc.models.lmc.LMC method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP.log_likelihood">(runlmc.models.multigp.MultiGP method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.parameterization.model.html#runlmc.parameterization.model.Model.log_likelihood">(runlmc.parameterization.model.Model method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.BasicModel.log_likelihood">(runlmc.util.testing_utils.BasicModel method)</a>
-  </dt>
-
-      </dl></dd>
-      
-  <dt><a href="runlmc.parameterization.model.html#runlmc.parameterization.model.Model.log_likelihood_with_prior">log_likelihood_with_prior() (runlmc.parameterization.model.Model method)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.parameterization.model.html#runlmc.parameterization.model.Model.log_prior">log_prior() (runlmc.parameterization.model.Model method)</a>
-  </dt>
-
-  </dl></td>
+      <ul>
+        <li><a href="runlmc.models.lmc.html#runlmc.models.lmc.LMC.log_likelihood">(runlmc.models.lmc.LMC method)</a>
+</li>
+        <li><a href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP.log_likelihood">(runlmc.models.multigp.MultiGP method)</a>
+</li>
+        <li><a href="runlmc.parameterization.model.html#runlmc.parameterization.model.Model.log_likelihood">(runlmc.parameterization.model.Model method)</a>
+</li>
+        <li><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.BasicModel.log_likelihood">(runlmc.util.testing_utils.BasicModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="runlmc.parameterization.model.html#runlmc.parameterization.model.Model.log_likelihood_with_prior">log_likelihood_with_prior() (runlmc.parameterization.model.Model method)</a>
+</li>
+      <li><a href="runlmc.parameterization.model.html#runlmc.parameterization.model.Model.log_prior">log_prior() (runlmc.parameterization.model.Model method)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.util.numpy_convenience.html#runlmc.util.numpy_convenience.map_entries">map_entries() (in module runlmc.util.numpy_convenience)</a>
-  </dt>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.util.numpy_convenience.html#runlmc.util.numpy_convenience.map_entries">map_entries() (in module runlmc.util.numpy_convenience)</a>
+</li>
+      <li><a href="runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32">Matern32 (class in runlmc.kern.matern32)</a>
+</li>
+      <li><a href="runlmc.linalg.composition.html#runlmc.linalg.composition.Composition.matmat">matmat() (runlmc.linalg.composition.Composition method)</a>
 
-      
-  <dt><a href="runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32">Matern32 (class in runlmc.kern.matern32)</a>
-  </dt>
+      <ul>
+        <li><a href="runlmc.linalg.diag.html#runlmc.linalg.diag.Diag.matmat">(runlmc.linalg.diag.Diag method)</a>
+</li>
+        <li><a href="runlmc.linalg.identity.html#runlmc.linalg.identity.Identity.matmat">(runlmc.linalg.identity.Identity method)</a>
+</li>
+        <li><a href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.matmat">(runlmc.linalg.matrix.Matrix method)</a>
+</li>
+        <li><a href="runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.matmat">(runlmc.linalg.numpy_matrix.NumpyMatrix method)</a>
+</li>
+      </ul></li>
+      <li><a href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix">Matrix (class in runlmc.linalg.matrix)</a>
+</li>
+      <li><a href="runlmc.linalg.block_diag.html#runlmc.linalg.block_diag.BlockDiag.matvec">matvec() (runlmc.linalg.block_diag.BlockDiag method)</a>
 
-      
-  <dt><a href="runlmc.linalg.composition.html#runlmc.linalg.composition.Composition.matmat">matmat() (runlmc.linalg.composition.Composition method)</a>
-  </dt>
+      <ul>
+        <li><a href="runlmc.linalg.block_matrix.html#runlmc.linalg.block_matrix.SymmSquareBlockMatrix.matvec">(runlmc.linalg.block_matrix.SymmSquareBlockMatrix method)</a>
+</li>
+        <li><a href="runlmc.linalg.composition.html#runlmc.linalg.composition.Composition.matvec">(runlmc.linalg.composition.Composition method)</a>
+</li>
+        <li><a href="runlmc.linalg.diag.html#runlmc.linalg.diag.Diag.matvec">(runlmc.linalg.diag.Diag method)</a>
+</li>
+        <li><a href="runlmc.linalg.identity.html#runlmc.linalg.identity.Identity.matvec">(runlmc.linalg.identity.Identity method)</a>
+</li>
+        <li><a href="runlmc.linalg.kronecker.html#runlmc.linalg.kronecker.Kronecker.matvec">(runlmc.linalg.kronecker.Kronecker method)</a>
+</li>
+        <li><a href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.matvec">(runlmc.linalg.matrix.Matrix method)</a>
+</li>
+        <li><a href="runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.matvec">(runlmc.linalg.numpy_matrix.NumpyMatrix method)</a>
+</li>
+        <li><a href="runlmc.linalg.sum_matrix.html#runlmc.linalg.sum_matrix.SumMatrix.matvec">(runlmc.linalg.sum_matrix.SumMatrix method)</a>
+</li>
+        <li><a href="runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz.matvec">(runlmc.linalg.toeplitz.Toeplitz method)</a>
+</li>
+        <li><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridKernel.matvec">(runlmc.lmc.grid_kernel.GridKernel method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.mean.constant.html#runlmc.mean.constant.Constant.mean_gradient">mean_gradient() (runlmc.mean.constant.Constant method)</a>
 
-      <dd><dl>
-        
-  <dt><a href="runlmc.linalg.diag.html#runlmc.linalg.diag.Diag.matmat">(runlmc.linalg.diag.Diag method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.identity.html#runlmc.linalg.identity.Identity.matmat">(runlmc.linalg.identity.Identity method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.matmat">(runlmc.linalg.matrix.Matrix method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.matmat">(runlmc.linalg.numpy_matrix.NumpyMatrix method)</a>
-  </dt>
-
-      </dl></dd>
-      
-  <dt><a href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix">Matrix (class in runlmc.linalg.matrix)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.block_diag.html#runlmc.linalg.block_diag.BlockDiag.matvec">matvec() (runlmc.linalg.block_diag.BlockDiag method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="runlmc.linalg.block_matrix.html#runlmc.linalg.block_matrix.SymmSquareBlockMatrix.matvec">(runlmc.linalg.block_matrix.SymmSquareBlockMatrix method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.composition.html#runlmc.linalg.composition.Composition.matvec">(runlmc.linalg.composition.Composition method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.diag.html#runlmc.linalg.diag.Diag.matvec">(runlmc.linalg.diag.Diag method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.identity.html#runlmc.linalg.identity.Identity.matvec">(runlmc.linalg.identity.Identity method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.kronecker.html#runlmc.linalg.kronecker.Kronecker.matvec">(runlmc.linalg.kronecker.Kronecker method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.matvec">(runlmc.linalg.matrix.Matrix method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix.matvec">(runlmc.linalg.numpy_matrix.NumpyMatrix method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.sum_matrix.html#runlmc.linalg.sum_matrix.SumMatrix.matvec">(runlmc.linalg.sum_matrix.SumMatrix method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz.matvec">(runlmc.linalg.toeplitz.Toeplitz method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.BlockToeplitz.matvec">(runlmc.lmc.grid_kernel.BlockToeplitz method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridSLFM.matvec">(runlmc.lmc.grid_kernel.GridSLFM method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.SumGrid.matvec">(runlmc.lmc.grid_kernel.SumGrid method)</a>
-  </dt>
-
-      </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.mean.constant.html#runlmc.mean.constant.Constant.mean_gradient">mean_gradient() (runlmc.mean.constant.Constant method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="runlmc.mean.mean_function.html#runlmc.mean.mean_function.MeanFunction.mean_gradient">(runlmc.mean.mean_function.MeanFunction method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.mean.zero.html#runlmc.mean.zero.Zero.mean_gradient">(runlmc.mean.zero.Zero method)</a>
-  </dt>
-
-      </dl></dd>
-      
-  <dt><a href="runlmc.mean.mean_function.html#runlmc.mean.mean_function.MeanFunction">MeanFunction (class in runlmc.mean.mean_function)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.parameterization.model.html#runlmc.parameterization.model.Model">Model (class in runlmc.parameterization.model)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.approx.interpolation.html#runlmc.approx.interpolation.multi_interpolant">multi_interpolant() (in module runlmc.approx.interpolation)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP">MultiGP (class in runlmc.models.multigp)</a>
-  </dt>
-
-  </dl></td>
+      <ul>
+        <li><a href="runlmc.mean.mean_function.html#runlmc.mean.mean_function.MeanFunction.mean_gradient">(runlmc.mean.mean_function.MeanFunction method)</a>
+</li>
+        <li><a href="runlmc.mean.zero.html#runlmc.mean.zero.Zero.mean_gradient">(runlmc.mean.zero.Zero method)</a>
+</li>
+      </ul></li>
+      <li><a href="runlmc.mean.mean_function.html#runlmc.mean.mean_function.MeanFunction">MeanFunction (class in runlmc.mean.mean_function)</a>
+</li>
+      <li><a href="runlmc.lmc.metrics.html#runlmc.lmc.metrics.Metrics">Metrics (class in runlmc.lmc.metrics)</a>
+</li>
+      <li><a href="runlmc.parameterization.model.html#runlmc.parameterization.model.Model">Model (class in runlmc.parameterization.model)</a>
+</li>
+      <li><a href="runlmc.models.optimization.html#runlmc.models.optimization.MovingAverage">MovingAverage (class in runlmc.models.optimization)</a>
+</li>
+      <li><a href="runlmc.approx.interpolation.html#runlmc.approx.interpolation.multi_interpolant">multi_interpolant() (in module runlmc.approx.interpolation)</a>
+</li>
+      <li><a href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP">MultiGP (class in runlmc.models.multigp)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.lmc.stochastic_deriv.html#runlmc.lmc.stochastic_deriv.StochasticDeriv.N_IT">N_IT (runlmc.lmc.stochastic_deriv.StochasticDeriv attribute)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.noise_gradient">noise_gradient() (runlmc.lmc.kernel.LMCKernel method)</a>
-  </dt>
-
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.models.lmc.html#runlmc.models.lmc.LMC.normal_quadratic">normal_quadratic() (runlmc.models.lmc.LMC method)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix">NumpyMatrix (class in runlmc.linalg.numpy_matrix)</a>
-  </dt>
-
-  </dl></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.lmc.stochastic_deriv.html#runlmc.lmc.stochastic_deriv.StochasticDeriv.N_IT">N_IT (runlmc.lmc.stochastic_deriv.StochasticDeriv attribute)</a>
+</li>
+      <li><a href="runlmc.lmc.kernel.html#runlmc.lmc.kernel.LMCKernel.noise_gradient">noise_gradient() (runlmc.lmc.kernel.LMCKernel method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.models.optimization.html#runlmc.models.optimization.AdaDelta.noop">noop() (runlmc.models.optimization.AdaDelta static method)</a>
+</li>
+      <li><a href="runlmc.models.lmc.html#runlmc.models.lmc.LMC.normal_quadratic">normal_quadratic() (runlmc.models.lmc.LMC method)</a>
+</li>
+      <li><a href="runlmc.linalg.numpy_matrix.html#runlmc.linalg.numpy_matrix.NumpyMatrix">NumpyMatrix (class in runlmc.linalg.numpy_matrix)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.parameterization.model.html#runlmc.parameterization.model.Model.objective_function">objective_function() (runlmc.parameterization.model.Model method)</a>
-  </dt>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.parameterization.model.html#runlmc.parameterization.model.Model.objective_function">objective_function() (runlmc.parameterization.model.Model method)</a>
+</li>
+      <li><a href="runlmc.parameterization.model.html#runlmc.parameterization.model.Model.objective_function_gradients">objective_function_gradients() (runlmc.parameterization.model.Model method)</a>
+</li>
+      <li><a href="runlmc.models.optimization.html#runlmc.models.optimization.AdaDelta.opt">opt() (runlmc.models.optimization.AdaDelta method)</a>
 
-      
-  <dt><a href="runlmc.parameterization.model.html#runlmc.parameterization.model.Model.objective_function_gradients">objective_function_gradients() (runlmc.parameterization.model.Model method)</a>
-  </dt>
+      <ul>
+        <li><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.SingleGradOptimizer.opt">(runlmc.util.testing_utils.SingleGradOptimizer method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.models.gpy_lmc.html#runlmc.models.gpy_lmc.GPyLMC.optimize">optimize() (runlmc.models.gpy_lmc.GPyLMC method)</a>
 
-      
-  <dt><a href="runlmc.models.optimization.html#runlmc.models.optimization.AdaDelta.opt">opt() (runlmc.models.optimization.AdaDelta method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.SingleGradOptimizer.opt">(runlmc.util.testing_utils.SingleGradOptimizer method)</a>
-  </dt>
-
-      </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.models.gpy_lmc.html#runlmc.models.gpy_lmc.GPyLMC.optimize">optimize() (runlmc.models.gpy_lmc.GPyLMC method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP.optimize">(runlmc.models.multigp.MultiGP method)</a>
-  </dt>
-
-      </dl></dd>
-  </dl></td>
+      <ul>
+        <li><a href="runlmc.models.lmc.html#runlmc.models.lmc.LMC.optimize">(runlmc.models.lmc.LMC method)</a>
+</li>
+        <li><a href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP.optimize">(runlmc.models.multigp.MultiGP method)</a>
+</li>
+      </ul></li>
+  </ul></td>
 </tr></table>
 
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.parameterization.param.html#runlmc.parameterization.param.Param">Param (class in runlmc.parameterization.param)</a>
-  </dt>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.parameterization.param.html#runlmc.parameterization.param.Param">Param (class in runlmc.parameterization.param)</a>
+</li>
+      <li><a href="runlmc.parameterization.parameterized.html#runlmc.parameterization.parameterized.Parameterized">Parameterized (class in runlmc.parameterization.parameterized)</a>
+</li>
+      <li><a href="runlmc.models.gpy_lmc.html#runlmc.models.gpy_lmc.GPyLMC.parameters_changed">parameters_changed() (runlmc.models.gpy_lmc.GPyLMC method)</a>
 
-      
-  <dt><a href="runlmc.parameterization.parameterized.html#runlmc.parameterization.parameterized.Parameterized">Parameterized (class in runlmc.parameterization.parameterized)</a>
-  </dt>
+      <ul>
+        <li><a href="runlmc.models.lmc.html#runlmc.models.lmc.LMC.parameters_changed">(runlmc.models.lmc.LMC method)</a>
+</li>
+        <li><a href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP.parameters_changed">(runlmc.models.multigp.MultiGP method)</a>
+</li>
+        <li><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.BasicModel.parameters_changed">(runlmc.util.testing_utils.BasicModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="runlmc.lmc.parameter_values.html#runlmc.lmc.parameter_values.ParameterValues">ParameterValues (class in runlmc.lmc.parameter_values)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.poor_cond_toep">poor_cond_toep() (in module runlmc.util.testing_utils)</a>
+</li>
+      <li><a href="runlmc.models.gpy_lmc.html#runlmc.models.gpy_lmc.GPyLMC.predict">predict() (runlmc.models.gpy_lmc.GPyLMC method)</a>
 
-      
-  <dt><a href="runlmc.models.gpy_lmc.html#runlmc.models.gpy_lmc.GPyLMC.parameters_changed">parameters_changed() (runlmc.models.gpy_lmc.GPyLMC method)</a>
-  </dt>
+      <ul>
+        <li><a href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP.predict">(runlmc.models.multigp.MultiGP method)</a>
+</li>
+      </ul></li>
+      <li><a href="runlmc.models.gpy_lmc.html#runlmc.models.gpy_lmc.GPyLMC.predict_quantiles">predict_quantiles() (runlmc.models.gpy_lmc.GPyLMC method)</a>
 
-      <dd><dl>
-        
-  <dt><a href="runlmc.models.lmc.html#runlmc.models.lmc.LMC.parameters_changed">(runlmc.models.lmc.LMC method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP.parameters_changed">(runlmc.models.multigp.MultiGP method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.BasicModel.parameters_changed">(runlmc.util.testing_utils.BasicModel method)</a>
-  </dt>
-
-      </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.lmc.parameter_values.html#runlmc.lmc.parameter_values.ParameterValues">ParameterValues (class in runlmc.lmc.parameter_values)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.poor_cond_toep">poor_cond_toep() (in module runlmc.util.testing_utils)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.models.gpy_lmc.html#runlmc.models.gpy_lmc.GPyLMC.predict">predict() (runlmc.models.gpy_lmc.GPyLMC method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP.predict">(runlmc.models.multigp.MultiGP method)</a>
-  </dt>
-
-      </dl></dd>
-      
-  <dt><a href="runlmc.models.gpy_lmc.html#runlmc.models.gpy_lmc.GPyLMC.predict_quantiles">predict_quantiles() (runlmc.models.gpy_lmc.GPyLMC method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP.predict_quantiles">(runlmc.models.multigp.MultiGP method)</a>
-  </dt>
-
-      </dl></dd>
-      
-  <dt><a href="runlmc.parameterization.priors.html#runlmc.parameterization.priors.Prior">Prior (class in runlmc.parameterization.priors)</a>
-  </dt>
-
-  </dl></td>
+      <ul>
+        <li><a href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP.predict_quantiles">(runlmc.models.multigp.MultiGP method)</a>
+</li>
+      </ul></li>
+      <li><a href="runlmc.parameterization.priors.html#runlmc.parameterization.priors.Prior">Prior (class in runlmc.parameterization.priors)</a>
+</li>
+      <li><a href="runlmc.models.optimization.html#runlmc.models.optimization.MovingAverage.push">push() (runlmc.models.optimization.MovingAverage method)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.rand_psd">rand_psd() (in module runlmc.util.testing_utils)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.random_toep">random_toep() (in module runlmc.util.testing_utils)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.RandomTest">RandomTest (class in runlmc.util.testing_utils)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.kern.rbf.html#runlmc.kern.rbf.RBF">RBF (class in runlmc.kern.rbf)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.run_main">run_main() (in module runlmc.util.testing_utils)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.html#module-runlmc">runlmc (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.approx.html#module-runlmc.approx">runlmc.approx (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.approx.interpolation.html#module-runlmc.approx.interpolation">runlmc.approx.interpolation (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.approx.iterative.html#module-runlmc.approx.iterative">runlmc.approx.iterative (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.approx.ski.html#module-runlmc.approx.ski">runlmc.approx.ski (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.kern.html#module-runlmc.kern">runlmc.kern (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.kern.identity.html#module-runlmc.kern.identity">runlmc.kern.identity (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.kern.matern32.html#module-runlmc.kern.matern32">runlmc.kern.matern32 (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.kern.rbf.html#module-runlmc.kern.rbf">runlmc.kern.rbf (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.kern.stationary_kern.html#module-runlmc.kern.stationary_kern">runlmc.kern.stationary_kern (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.kern.std_periodic.html#module-runlmc.kern.std_periodic">runlmc.kern.std_periodic (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.html#module-runlmc.linalg">runlmc.linalg (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.block_diag.html#module-runlmc.linalg.block_diag">runlmc.linalg.block_diag (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.block_matrix.html#module-runlmc.linalg.block_matrix">runlmc.linalg.block_matrix (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.composition.html#module-runlmc.linalg.composition">runlmc.linalg.composition (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.diag.html#module-runlmc.linalg.diag">runlmc.linalg.diag (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.identity.html#module-runlmc.linalg.identity">runlmc.linalg.identity (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.kronecker.html#module-runlmc.linalg.kronecker">runlmc.linalg.kronecker (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.matrix.html#module-runlmc.linalg.matrix">runlmc.linalg.matrix (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.numpy_matrix.html#module-runlmc.linalg.numpy_matrix">runlmc.linalg.numpy_matrix (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.sum_matrix.html#module-runlmc.linalg.sum_matrix">runlmc.linalg.sum_matrix (module)</a>
-  </dt>
-
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.linalg.toeplitz.html#module-runlmc.linalg.toeplitz">runlmc.linalg.toeplitz (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.html#module-runlmc.lmc">runlmc.lmc (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.derivative.html#module-runlmc.lmc.derivative">runlmc.lmc.derivative (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.exact_deriv.html#module-runlmc.lmc.exact_deriv">runlmc.lmc.exact_deriv (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.grid_kernel.html#module-runlmc.lmc.grid_kernel">runlmc.lmc.grid_kernel (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.kernel.html#module-runlmc.lmc.kernel">runlmc.lmc.kernel (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.parameter_values.html#module-runlmc.lmc.parameter_values">runlmc.lmc.parameter_values (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.stochastic_deriv.html#module-runlmc.lmc.stochastic_deriv">runlmc.lmc.stochastic_deriv (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.mean.html#module-runlmc.mean">runlmc.mean (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.mean.constant.html#module-runlmc.mean.constant">runlmc.mean.constant (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.mean.mean_function.html#module-runlmc.mean.mean_function">runlmc.mean.mean_function (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.mean.zero.html#module-runlmc.mean.zero">runlmc.mean.zero (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.models.html#module-runlmc.models">runlmc.models (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.models.gpy_lmc.html#module-runlmc.models.gpy_lmc">runlmc.models.gpy_lmc (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.models.lmc.html#module-runlmc.models.lmc">runlmc.models.lmc (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.models.multigp.html#module-runlmc.models.multigp">runlmc.models.multigp (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.models.optimization.html#module-runlmc.models.optimization">runlmc.models.optimization (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.parameterization.html#module-runlmc.parameterization">runlmc.parameterization (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.parameterization.model.html#module-runlmc.parameterization.model">runlmc.parameterization.model (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.parameterization.param.html#module-runlmc.parameterization.param">runlmc.parameterization.param (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.parameterization.parameterized.html#module-runlmc.parameterization.parameterized">runlmc.parameterization.parameterized (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.parameterization.priorizable.html#module-runlmc.parameterization.priorizable">runlmc.parameterization.priorizable (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.parameterization.priors.html#module-runlmc.parameterization.priors">runlmc.parameterization.priors (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.util.html#module-runlmc.util">runlmc.util (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.util.docs.html#module-runlmc.util.docs">runlmc.util.docs (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.util.numpy_convenience.html#module-runlmc.util.numpy_convenience">runlmc.util.numpy_convenience (module)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.util.testing_utils.html#module-runlmc.util.testing_utils">runlmc.util.testing_utils (module)</a>
-  </dt>
-
-  </dl></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.rand_psd">rand_psd() (in module runlmc.util.testing_utils)</a>
+</li>
+      <li><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.random_toep">random_toep() (in module runlmc.util.testing_utils)</a>
+</li>
+      <li><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.RandomTest">RandomTest (class in runlmc.util.testing_utils)</a>
+</li>
+      <li><a href="runlmc.kern.rbf.html#runlmc.kern.rbf.RBF">RBF (class in runlmc.kern.rbf)</a>
+</li>
+      <li><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.run_main">run_main() (in module runlmc.util.testing_utils)</a>
+</li>
+      <li><a href="runlmc.html#module-runlmc">runlmc (module)</a>
+</li>
+      <li><a href="runlmc.approx.html#module-runlmc.approx">runlmc.approx (module)</a>
+</li>
+      <li><a href="runlmc.approx.interpolation.html#module-runlmc.approx.interpolation">runlmc.approx.interpolation (module)</a>
+</li>
+      <li><a href="runlmc.approx.iterative.html#module-runlmc.approx.iterative">runlmc.approx.iterative (module)</a>
+</li>
+      <li><a href="runlmc.approx.ski.html#module-runlmc.approx.ski">runlmc.approx.ski (module)</a>
+</li>
+      <li><a href="runlmc.kern.html#module-runlmc.kern">runlmc.kern (module)</a>
+</li>
+      <li><a href="runlmc.kern.identity.html#module-runlmc.kern.identity">runlmc.kern.identity (module)</a>
+</li>
+      <li><a href="runlmc.kern.matern32.html#module-runlmc.kern.matern32">runlmc.kern.matern32 (module)</a>
+</li>
+      <li><a href="runlmc.kern.rbf.html#module-runlmc.kern.rbf">runlmc.kern.rbf (module)</a>
+</li>
+      <li><a href="runlmc.kern.scaled.html#module-runlmc.kern.scaled">runlmc.kern.scaled (module)</a>
+</li>
+      <li><a href="runlmc.kern.stationary_kern.html#module-runlmc.kern.stationary_kern">runlmc.kern.stationary_kern (module)</a>
+</li>
+      <li><a href="runlmc.kern.std_periodic.html#module-runlmc.kern.std_periodic">runlmc.kern.std_periodic (module)</a>
+</li>
+      <li><a href="runlmc.linalg.html#module-runlmc.linalg">runlmc.linalg (module)</a>
+</li>
+      <li><a href="runlmc.linalg.block_diag.html#module-runlmc.linalg.block_diag">runlmc.linalg.block_diag (module)</a>
+</li>
+      <li><a href="runlmc.linalg.block_matrix.html#module-runlmc.linalg.block_matrix">runlmc.linalg.block_matrix (module)</a>
+</li>
+      <li><a href="runlmc.linalg.composition.html#module-runlmc.linalg.composition">runlmc.linalg.composition (module)</a>
+</li>
+      <li><a href="runlmc.linalg.diag.html#module-runlmc.linalg.diag">runlmc.linalg.diag (module)</a>
+</li>
+      <li><a href="runlmc.linalg.identity.html#module-runlmc.linalg.identity">runlmc.linalg.identity (module)</a>
+</li>
+      <li><a href="runlmc.linalg.kronecker.html#module-runlmc.linalg.kronecker">runlmc.linalg.kronecker (module)</a>
+</li>
+      <li><a href="runlmc.linalg.matrix.html#module-runlmc.linalg.matrix">runlmc.linalg.matrix (module)</a>
+</li>
+      <li><a href="runlmc.linalg.numpy_matrix.html#module-runlmc.linalg.numpy_matrix">runlmc.linalg.numpy_matrix (module)</a>
+</li>
+      <li><a href="runlmc.linalg.shur.html#module-runlmc.linalg.shur">runlmc.linalg.shur (module)</a>
+</li>
+      <li><a href="runlmc.linalg.sum_matrix.html#module-runlmc.linalg.sum_matrix">runlmc.linalg.sum_matrix (module)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.linalg.toeplitz.html#module-runlmc.linalg.toeplitz">runlmc.linalg.toeplitz (module)</a>
+</li>
+      <li><a href="runlmc.lmc.html#module-runlmc.lmc">runlmc.lmc (module)</a>
+</li>
+      <li><a href="runlmc.lmc.derivative.html#module-runlmc.lmc.derivative">runlmc.lmc.derivative (module)</a>
+</li>
+      <li><a href="runlmc.lmc.exact_deriv.html#module-runlmc.lmc.exact_deriv">runlmc.lmc.exact_deriv (module)</a>
+</li>
+      <li><a href="runlmc.lmc.grid_kernel.html#module-runlmc.lmc.grid_kernel">runlmc.lmc.grid_kernel (module)</a>
+</li>
+      <li><a href="runlmc.lmc.kernel.html#module-runlmc.lmc.kernel">runlmc.lmc.kernel (module)</a>
+</li>
+      <li><a href="runlmc.lmc.metrics.html#module-runlmc.lmc.metrics">runlmc.lmc.metrics (module)</a>
+</li>
+      <li><a href="runlmc.lmc.parameter_values.html#module-runlmc.lmc.parameter_values">runlmc.lmc.parameter_values (module)</a>
+</li>
+      <li><a href="runlmc.lmc.stochastic_deriv.html#module-runlmc.lmc.stochastic_deriv">runlmc.lmc.stochastic_deriv (module)</a>
+</li>
+      <li><a href="runlmc.mean.html#module-runlmc.mean">runlmc.mean (module)</a>
+</li>
+      <li><a href="runlmc.mean.constant.html#module-runlmc.mean.constant">runlmc.mean.constant (module)</a>
+</li>
+      <li><a href="runlmc.mean.mean_function.html#module-runlmc.mean.mean_function">runlmc.mean.mean_function (module)</a>
+</li>
+      <li><a href="runlmc.mean.zero.html#module-runlmc.mean.zero">runlmc.mean.zero (module)</a>
+</li>
+      <li><a href="runlmc.models.html#module-runlmc.models">runlmc.models (module)</a>
+</li>
+      <li><a href="runlmc.models.gpy_lmc.html#module-runlmc.models.gpy_lmc">runlmc.models.gpy_lmc (module)</a>
+</li>
+      <li><a href="runlmc.models.lmc.html#module-runlmc.models.lmc">runlmc.models.lmc (module)</a>
+</li>
+      <li><a href="runlmc.models.multigp.html#module-runlmc.models.multigp">runlmc.models.multigp (module)</a>
+</li>
+      <li><a href="runlmc.models.optimization.html#module-runlmc.models.optimization">runlmc.models.optimization (module)</a>
+</li>
+      <li><a href="runlmc.parameterization.html#module-runlmc.parameterization">runlmc.parameterization (module)</a>
+</li>
+      <li><a href="runlmc.parameterization.model.html#module-runlmc.parameterization.model">runlmc.parameterization.model (module)</a>
+</li>
+      <li><a href="runlmc.parameterization.param.html#module-runlmc.parameterization.param">runlmc.parameterization.param (module)</a>
+</li>
+      <li><a href="runlmc.parameterization.parameterized.html#module-runlmc.parameterization.parameterized">runlmc.parameterization.parameterized (module)</a>
+</li>
+      <li><a href="runlmc.parameterization.priorizable.html#module-runlmc.parameterization.priorizable">runlmc.parameterization.priorizable (module)</a>
+</li>
+      <li><a href="runlmc.parameterization.priors.html#module-runlmc.parameterization.priors">runlmc.parameterization.priors (module)</a>
+</li>
+      <li><a href="runlmc.util.html#module-runlmc.util">runlmc.util (module)</a>
+</li>
+      <li><a href="runlmc.util.docs.html#module-runlmc.util.docs">runlmc.util.docs (module)</a>
+</li>
+      <li><a href="runlmc.util.numpy_convenience.html#module-runlmc.util.numpy_convenience">runlmc.util.numpy_convenience (module)</a>
+</li>
+      <li><a href="runlmc.util.testing_utils.html#module-runlmc.util.testing_utils">runlmc.util.testing_utils (module)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.util.numpy_convenience.html#runlmc.util.numpy_convenience.search_descending">search_descending() (in module runlmc.util.numpy_convenience)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.parameterization.param.html#runlmc.parameterization.param.Param.set_prior">set_prior() (runlmc.parameterization.param.Param method)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.RandomTest.setUp">setUp() (runlmc.util.testing_utils.RandomTest method)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.SingleGradOptimizer">SingleGradOptimizer (class in runlmc.util.testing_utils)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.approx.ski.html#runlmc.approx.ski.SKI">SKI (class in runlmc.approx.ski)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.util.numpy_convenience.html#runlmc.util.numpy_convenience.smallest_eig">smallest_eig() (in module runlmc.util.numpy_convenience)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.approx.iterative.html#runlmc.approx.iterative.Iterative.solve">solve() (runlmc.approx.iterative.Iterative static method)</a>
-  </dt>
-
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern">StationaryKern (class in runlmc.kern.stationary_kern)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.kern.std_periodic.html#runlmc.kern.std_periodic.StdPeriodic">StdPeriodic (class in runlmc.kern.std_periodic)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.stochastic_deriv.html#runlmc.lmc.stochastic_deriv.StochasticDeriv">StochasticDeriv (class in runlmc.lmc.stochastic_deriv)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.SumGrid">SumGrid (class in runlmc.lmc.grid_kernel)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.sum_matrix.html#runlmc.linalg.sum_matrix.SumMatrix">SumMatrix (class in runlmc.linalg.sum_matrix)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.util.numpy_convenience.html#runlmc.util.numpy_convenience.symm_2d_list_map">symm_2d_list_map() (in module runlmc.util.numpy_convenience)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.linalg.block_matrix.html#runlmc.linalg.block_matrix.SymmSquareBlockMatrix">SymmSquareBlockMatrix (class in runlmc.linalg.block_matrix)</a>
-  </dt>
-
-  </dl></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.kern.scaled.html#runlmc.kern.scaled.Scaled">Scaled (class in runlmc.kern.scaled)</a>
+</li>
+      <li><a href="runlmc.util.numpy_convenience.html#runlmc.util.numpy_convenience.search_descending">search_descending() (in module runlmc.util.numpy_convenience)</a>
+</li>
+      <li><a href="runlmc.parameterization.param.html#runlmc.parameterization.param.Param.set_prior">set_prior() (runlmc.parameterization.param.Param method)</a>
+</li>
+      <li><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.RandomTest.setUp">setUp() (runlmc.util.testing_utils.RandomTest method)</a>
+</li>
+      <li><a href="runlmc.linalg.shur.html#runlmc.linalg.shur.shur">shur() (in module runlmc.linalg.shur)</a>
+</li>
+      <li><a href="runlmc.util.testing_utils.html#runlmc.util.testing_utils.SingleGradOptimizer">SingleGradOptimizer (class in runlmc.util.testing_utils)</a>
+</li>
+      <li><a href="runlmc.approx.ski.html#runlmc.approx.ski.SKI">SKI (class in runlmc.approx.ski)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.util.numpy_convenience.html#runlmc.util.numpy_convenience.smallest_eig">smallest_eig() (in module runlmc.util.numpy_convenience)</a>
+</li>
+      <li><a href="runlmc.approx.iterative.html#runlmc.approx.iterative.Iterative.solve">solve() (runlmc.approx.iterative.Iterative static method)</a>
+</li>
+      <li><a href="runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern">StationaryKern (class in runlmc.kern.stationary_kern)</a>
+</li>
+      <li><a href="runlmc.kern.std_periodic.html#runlmc.kern.std_periodic.StdPeriodic">StdPeriodic (class in runlmc.kern.std_periodic)</a>
+</li>
+      <li><a href="runlmc.lmc.stochastic_deriv.html#runlmc.lmc.stochastic_deriv.StochasticDeriv">StochasticDeriv (class in runlmc.lmc.stochastic_deriv)</a>
+</li>
+      <li><a href="runlmc.linalg.sum_matrix.html#runlmc.linalg.sum_matrix.SumMatrix">SumMatrix (class in runlmc.linalg.sum_matrix)</a>
+</li>
+      <li><a href="runlmc.util.numpy_convenience.html#runlmc.util.numpy_convenience.symm_2d_list_map">symm_2d_list_map() (in module runlmc.util.numpy_convenience)</a>
+</li>
+      <li><a href="runlmc.linalg.block_matrix.html#runlmc.linalg.block_matrix.SymmSquareBlockMatrix">SymmSquareBlockMatrix (class in runlmc.linalg.block_matrix)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.util.numpy_convenience.html#runlmc.util.numpy_convenience.tesselate">tesselate() (in module runlmc.util.numpy_convenience)</a>
-  </dt>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.util.numpy_convenience.html#runlmc.util.numpy_convenience.tesselate">tesselate() (in module runlmc.util.numpy_convenience)</a>
+</li>
+      <li><a href="runlmc.kern.identity.html#runlmc.kern.identity.Identity.to_gpy">to_gpy() (runlmc.kern.identity.Identity method)</a>
 
-      
-  <dt><a href="runlmc.kern.identity.html#runlmc.kern.identity.Identity.to_gpy">to_gpy() (runlmc.kern.identity.Identity method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32.to_gpy">(runlmc.kern.matern32.Matern32 method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.kern.rbf.html#runlmc.kern.rbf.RBF.to_gpy">(runlmc.kern.rbf.RBF method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern.to_gpy">(runlmc.kern.stationary_kern.StationaryKern method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.kern.std_periodic.html#runlmc.kern.std_periodic.StdPeriodic.to_gpy">(runlmc.kern.std_periodic.StdPeriodic method)</a>
-  </dt>
-
-      </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz">Toeplitz (class in runlmc.linalg.toeplitz)</a>
-  </dt>
-
-      
-  <dt><a href="runlmc.approx.iterative.html#runlmc.approx.iterative.Iterative.TOL">TOL (runlmc.approx.iterative.Iterative attribute)</a>
-  </dt>
-
-  </dl></td>
+      <ul>
+        <li><a href="runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32.to_gpy">(runlmc.kern.matern32.Matern32 method)</a>
+</li>
+        <li><a href="runlmc.kern.rbf.html#runlmc.kern.rbf.RBF.to_gpy">(runlmc.kern.rbf.RBF method)</a>
+</li>
+        <li><a href="runlmc.kern.scaled.html#runlmc.kern.scaled.Scaled.to_gpy">(runlmc.kern.scaled.Scaled method)</a>
+</li>
+        <li><a href="runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern.to_gpy">(runlmc.kern.stationary_kern.StationaryKern method)</a>
+</li>
+        <li><a href="runlmc.kern.std_periodic.html#runlmc.kern.std_periodic.StdPeriodic.to_gpy">(runlmc.kern.std_periodic.StdPeriodic method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz">Toeplitz (class in runlmc.linalg.toeplitz)</a>
+</li>
+      <li><a href="runlmc.approx.iterative.html#runlmc.approx.iterative.Iterative.TOL">TOL (runlmc.approx.iterative.Iterative attribute)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.parameterization.param.html#runlmc.parameterization.param.Param.unset_priors">unset_priors() (runlmc.parameterization.param.Param method)</a>
-  </dt>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.parameterization.param.html#runlmc.parameterization.param.Param.unset_priors">unset_priors() (runlmc.parameterization.param.Param method)</a>
+</li>
+      <li><a href="runlmc.kern.identity.html#runlmc.kern.identity.Identity.update_gradient">update_gradient() (runlmc.kern.identity.Identity method)</a>
 
-      
-  <dt><a href="runlmc.kern.identity.html#runlmc.kern.identity.Identity.update_gradient">update_gradient() (runlmc.kern.identity.Identity method)</a>
-  </dt>
+      <ul>
+        <li><a href="runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32.update_gradient">(runlmc.kern.matern32.Matern32 method)</a>
+</li>
+        <li><a href="runlmc.kern.rbf.html#runlmc.kern.rbf.RBF.update_gradient">(runlmc.kern.rbf.RBF method)</a>
+</li>
+        <li><a href="runlmc.kern.scaled.html#runlmc.kern.scaled.Scaled.update_gradient">(runlmc.kern.scaled.Scaled method)</a>
+</li>
+        <li><a href="runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern.update_gradient">(runlmc.kern.stationary_kern.StationaryKern method)</a>
+</li>
+        <li><a href="runlmc.kern.std_periodic.html#runlmc.kern.std_periodic.StdPeriodic.update_gradient">(runlmc.kern.std_periodic.StdPeriodic method)</a>
+</li>
+        <li><a href="runlmc.mean.constant.html#runlmc.mean.constant.Constant.update_gradient">(runlmc.mean.constant.Constant method)</a>
+</li>
+        <li><a href="runlmc.mean.mean_function.html#runlmc.mean.mean_function.MeanFunction.update_gradient">(runlmc.mean.mean_function.MeanFunction method)</a>
+</li>
+        <li><a href="runlmc.mean.zero.html#runlmc.mean.zero.Zero.update_gradient">(runlmc.mean.zero.Zero method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.approx.ski.html#runlmc.approx.ski.SKI.upper_eig_bound">upper_eig_bound() (runlmc.approx.ski.SKI method)</a>
 
-      <dd><dl>
-        
-  <dt><a href="runlmc.kern.matern32.html#runlmc.kern.matern32.Matern32.update_gradient">(runlmc.kern.matern32.Matern32 method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.kern.rbf.html#runlmc.kern.rbf.RBF.update_gradient">(runlmc.kern.rbf.RBF method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.kern.stationary_kern.html#runlmc.kern.stationary_kern.StationaryKern.update_gradient">(runlmc.kern.stationary_kern.StationaryKern method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.kern.std_periodic.html#runlmc.kern.std_periodic.StdPeriodic.update_gradient">(runlmc.kern.std_periodic.StdPeriodic method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.mean.constant.html#runlmc.mean.constant.Constant.update_gradient">(runlmc.mean.constant.Constant method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.mean.mean_function.html#runlmc.mean.mean_function.MeanFunction.update_gradient">(runlmc.mean.mean_function.MeanFunction method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.mean.zero.html#runlmc.mean.zero.Zero.update_gradient">(runlmc.mean.zero.Zero method)</a>
-  </dt>
-
-      </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.approx.ski.html#runlmc.approx.ski.SKI.upper_eig_bound">upper_eig_bound() (runlmc.approx.ski.SKI method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="runlmc.linalg.block_matrix.html#runlmc.linalg.block_matrix.SymmSquareBlockMatrix.upper_eig_bound">(runlmc.linalg.block_matrix.SymmSquareBlockMatrix method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.diag.html#runlmc.linalg.diag.Diag.upper_eig_bound">(runlmc.linalg.diag.Diag method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.identity.html#runlmc.linalg.identity.Identity.upper_eig_bound">(runlmc.linalg.identity.Identity method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.kronecker.html#runlmc.linalg.kronecker.Kronecker.upper_eig_bound">(runlmc.linalg.kronecker.Kronecker method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.sum_matrix.html#runlmc.linalg.sum_matrix.SumMatrix.upper_eig_bound">(runlmc.linalg.sum_matrix.SumMatrix method)</a>
-  </dt>
-
-        
-  <dt><a href="runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz.upper_eig_bound">(runlmc.linalg.toeplitz.Toeplitz method)</a>
-  </dt>
-
-      </dl></dd>
-  </dl></td>
+      <ul>
+        <li><a href="runlmc.linalg.block_matrix.html#runlmc.linalg.block_matrix.SymmSquareBlockMatrix.upper_eig_bound">(runlmc.linalg.block_matrix.SymmSquareBlockMatrix method)</a>
+</li>
+        <li><a href="runlmc.linalg.diag.html#runlmc.linalg.diag.Diag.upper_eig_bound">(runlmc.linalg.diag.Diag method)</a>
+</li>
+        <li><a href="runlmc.linalg.identity.html#runlmc.linalg.identity.Identity.upper_eig_bound">(runlmc.linalg.identity.Identity method)</a>
+</li>
+        <li><a href="runlmc.linalg.kronecker.html#runlmc.linalg.kronecker.Kronecker.upper_eig_bound">(runlmc.linalg.kronecker.Kronecker method)</a>
+</li>
+        <li><a href="runlmc.linalg.sum_matrix.html#runlmc.linalg.sum_matrix.SumMatrix.upper_eig_bound">(runlmc.linalg.sum_matrix.SumMatrix method)</a>
+</li>
+        <li><a href="runlmc.linalg.toeplitz.html#runlmc.linalg.toeplitz.Toeplitz.upper_eig_bound">(runlmc.linalg.toeplitz.Toeplitz method)</a>
+</li>
+      </ul></li>
+  </ul></td>
 </tr></table>
 
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.wrap">wrap() (runlmc.linalg.matrix.Matrix static method)</a>
-  </dt>
-
-  </dl></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.linalg.matrix.html#runlmc.linalg.matrix.Matrix.wrap">wrap() (runlmc.linalg.matrix.Matrix static method)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="Z">Z</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="runlmc.mean.zero.html#runlmc.mean.zero.Zero">Zero (class in runlmc.mean.zero)</a>
-  </dt>
-
-  </dl></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runlmc.mean.zero.html#runlmc.mean.zero.Zero">Zero (class in runlmc.mean.zero)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 
@@ -1218,7 +774,7 @@
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
     </div>

@@ -1,0 +1,7 @@
+runlmc.lmc.exact_deriv module
+=============================
+
+.. automodule:: runlmc.lmc.exact_deriv
+    :members:
+    :undoc-members:
+    :show-inheritance:

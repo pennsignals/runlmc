@@ -17,7 +17,8 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="top" title="runlmc 0.0 documentation" href="../../../runlmc.html" />
-    <link rel="up" title="Module code" href="../../index.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
   
@@ -56,6 +55,8 @@
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">count</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">GPy.models</span> <span class="k">as</span> <span class="nn">models</span>
+<span class="kn">from</span> <span class="nn">GPy.util.multioutput</span> <span class="k">import</span> <span class="n">ICM</span>
 
 <span class="kn">from</span> <span class="nn">.multigp</span> <span class="k">import</span> <span class="n">MultiGP</span>
 <span class="kn">from</span> <span class="nn">..util.docs</span> <span class="k">import</span> <span class="n">inherit_doc</span>
@@ -75,6 +76,10 @@
 <span class="sd">    Uses the Gaussian likelihood. See :class:`runlmc.models.lmc.LMC` for the</span>
 <span class="sd">    explicit LMC formula.</span>
 
+<span class="sd">    The DTCVAR algorithm (the `sparse` parameter) is based on Efficient</span>
+<span class="sd">    Multioutput Gaussian Processes through Variational Inducing Kernels</span>
+<span class="sd">    by Álvarez et al. 2010.</span>
+
 <span class="sd">    :param Xs: input observations, should be a list of numpy arrays,</span>
 <span class="sd">               where the numpy arrays are one dimensional.</span>
 <span class="sd">    :param Ys: output observations, this must be a list of one-dimensional</span>
@@ -85,12 +90,17 @@
 <span class="sd">    :type ranks: list of integer</span>
 <span class="sd">    :param name: model name</span>
 <span class="sd">    :type name: string</span>
+<span class="sd">    :param sparse: an integer. If 0, uses</span>
+<span class="sd">                   :py:class:`GPy.models.GPCoregionalizedRegression`,</span>
+<span class="sd">                   the typical cholesky algorithm.</span>
+<span class="sd">                   If &gt;0, then this determines the number of inducing points</span>
+<span class="sd">                   used by the DTCVAR algorithm in</span>
+<span class="sd">                   use :py:class:`GPy.models.SparseGPCoregionalizedRegression`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">kernels</span><span class="p">,</span> <span class="n">ranks</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;GPyLMC&#39;</span><span class="p">):</span>
-
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">kernels</span><span class="p">,</span> <span class="n">ranks</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;GPyLMC&#39;</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gpy_model</span> <span class="o">=</span> <span class="n">GPyLMC</span><span class="o">.</span><span class="n">_construct_gpy</span><span class="p">(</span>
-            <span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">kernels</span><span class="p">,</span> <span class="n">ranks</span><span class="p">)</span>
+            <span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">kernels</span><span class="p">,</span> <span class="n">ranks</span><span class="p">,</span> <span class="n">sparse</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_raw_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
         <span class="k">pass</span>
@@ -105,16 +115,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">gpy_model</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GPyLMC.predict"><a class="viewcode-back" href="../../../runlmc.models.gpy_lmc.html#runlmc.models.gpy_lmc.GPyLMC.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span>
         <span class="n">lenls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">Xs</span><span class="p">))</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">)),</span> <span class="n">lenls</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">mu</span><span class="p">,</span> <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpy_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">meta</span><span class="p">]),</span>
             <span class="n">Y_metadata</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;output_index&#39;</span><span class="p">:</span> <span class="n">meta</span><span class="p">})</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="n">mu</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tesselate</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">lenls</span><span class="p">),</span> <span class="n">tesselate</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">lenls</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GPyLMC.predict_quantiles"><a class="viewcode-back" href="../../../runlmc.models.gpy_lmc.html#runlmc.models.gpy_lmc.GPyLMC.predict_quantiles">[docs]</a>    <span class="k">def</span> <span class="nf">predict_quantiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">quantiles</span><span class="o">=</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">97.5</span><span class="p">)):</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">Xs</span><span class="p">)))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">Qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gpy_model</span><span class="o">.</span><span class="n">predict_quantiles</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">meta</span><span class="p">]),</span>
@@ -127,21 +139,24 @@
         <span class="k">return</span> <span class="n">tesselate</span><span class="p">(</span><span class="n">Qs</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">Xs</span><span class="p">))</span></div>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_construct_gpy</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">kernels</span><span class="p">,</span> <span class="n">ranks</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_construct_gpy</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">kernels</span><span class="p">,</span> <span class="n">ranks</span><span class="p">,</span> <span class="n">sparse</span><span class="p">):</span>
         <span class="n">kernels</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">to_gpy</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kernels</span><span class="p">]</span>
         <span class="n">input_dim</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">num_outputs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Ys</span><span class="p">)</span>
         <span class="n">Xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>
         <span class="n">Ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">Y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">Y</span> <span class="ow">in</span> <span class="n">Ys</span><span class="p">]</span>
 
-        <span class="kn">from</span> <span class="nn">GPy.util.multioutput</span> <span class="k">import</span> <span class="n">ICM</span>
-        <span class="kn">from</span> <span class="nn">GPy.models</span> <span class="k">import</span> <span class="n">GPCoregionalizedRegression</span>
+
         <span class="n">K</span> <span class="o">=</span> <span class="n">ICM</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="n">num_outputs</span><span class="p">,</span> <span class="n">kernels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ranks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ICM0&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">kernels</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">ranks</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">count</span><span class="p">(</span><span class="mi">1</span><span class="p">)):</span>
             <span class="n">K</span> <span class="o">+=</span> <span class="n">ICM</span><span class="p">(</span>
                 <span class="n">input_dim</span><span class="p">,</span> <span class="n">num_outputs</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ICM</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
         <span class="n">K</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;LCM&#39;</span>
-        <span class="k">return</span> <span class="n">GPCoregionalizedRegression</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="n">K</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">sparse</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">models</span><span class="o">.</span><span class="n">SparseGPCoregionalizedRegression</span><span class="p">(</span>
+                <span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">num_inducing</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">models</span><span class="o">.</span><span class="n">GPCoregionalizedRegression</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="n">K</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
@@ -187,7 +202,7 @@
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
     </div>

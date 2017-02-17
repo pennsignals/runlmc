@@ -1,0 +1,7 @@
+runlmc.lmc.stochastic_deriv module
+==================================
+
+.. automodule:: runlmc.lmc.stochastic_deriv
+    :members:
+    :undoc-members:
+    :show-inheritance:

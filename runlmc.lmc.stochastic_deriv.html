@@ -17,7 +17,8 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
-    <link rel="up" title="runlmc.lmc package" href="runlmc.lmc.html" />
     <link rel="next" title="runlmc.mean package" href="runlmc.mean.html" />
     <link rel="prev" title="runlmc.lmc.parameter_values module" href="runlmc.lmc.parameter_values.html" />
    
@@ -49,11 +48,11 @@
 <span id="runlmc-lmc-stochastic-deriv-module"></span><h1>runlmc.lmc.stochastic_deriv module<a class="headerlink" href="#module-runlmc.lmc.stochastic_deriv" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="runlmc.lmc.stochastic_deriv.StochasticDeriv">
-<em class="property">class </em><code class="descclassname">runlmc.lmc.stochastic_deriv.</code><code class="descname">StochasticDeriv</code><span class="sig-paren">(</span><em>K</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/lmc/stochastic_deriv.html#StochasticDeriv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.lmc.stochastic_deriv.StochasticDeriv" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">runlmc.lmc.stochastic_deriv.</code><code class="descname">StochasticDeriv</code><span class="sig-paren">(</span><em>K</em>, <em>y</em>, <em>metrics</em>, <em>pool=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/lmc/stochastic_deriv.html#StochasticDeriv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.lmc.stochastic_deriv.StochasticDeriv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="runlmc.lmc.derivative.html#runlmc.lmc.derivative.Derivative" title="runlmc.lmc.derivative.Derivative"><code class="xref py py-class docutils literal"><span class="pre">runlmc.lmc.derivative.Derivative</span></code></a></p>
 <dl class="attribute">
 <dt id="runlmc.lmc.stochastic_deriv.StochasticDeriv.N_IT">
-<code class="descname">N_IT</code><em class="property"> = 2</em><a class="headerlink" href="#runlmc.lmc.stochastic_deriv.StochasticDeriv.N_IT" title="Permalink to this definition">¶</a></dt>
+<code class="descname">N_IT</code><em class="property"> = 3</em><a class="headerlink" href="#runlmc.lmc.stochastic_deriv.StochasticDeriv.N_IT" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -87,6 +86,7 @@
 <li class="toctree-l3"><a class="reference internal" href="runlmc.lmc.exact_deriv.html">runlmc.lmc.exact_deriv module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.lmc.grid_kernel.html">runlmc.lmc.grid_kernel module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.lmc.kernel.html">runlmc.lmc.kernel module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="runlmc.lmc.metrics.html">runlmc.lmc.metrics module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="runlmc.lmc.parameter_values.html">runlmc.lmc.parameter_values module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">runlmc.lmc.stochastic_deriv module</a></li>
 </ul>
@@ -113,7 +113,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/runlmc.lmc.stochastic_deriv.txt"
+      <li><a href="_sources/runlmc.lmc.stochastic_deriv.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -135,11 +135,11 @@
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
-      <a href="_sources/runlmc.lmc.stochastic_deriv.txt"
+      <a href="_sources/runlmc.lmc.stochastic_deriv.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

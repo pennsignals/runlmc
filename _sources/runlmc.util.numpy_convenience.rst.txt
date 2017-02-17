@@ -1,0 +1,7 @@
+runlmc.util.numpy_convenience module
+====================================
+
+.. automodule:: runlmc.util.numpy_convenience
+    :members:
+    :undoc-members:
+    :show-inheritance:

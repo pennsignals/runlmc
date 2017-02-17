@@ -1,0 +1,7 @@
+runlmc.kern.stationary_kern module
+==================================
+
+.. automodule:: runlmc.kern.stationary_kern
+    :members:
+    :undoc-members:
+    :show-inheritance:

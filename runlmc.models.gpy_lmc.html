@@ -17,7 +17,8 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
-    <link rel="up" title="runlmc.models package" href="runlmc.models.html" />
     <link rel="next" title="runlmc.models.lmc module" href="runlmc.models.lmc.html" />
     <link rel="prev" title="runlmc.models package" href="runlmc.models.html" />
    
@@ -49,13 +48,16 @@
 <span id="runlmc-models-gpy-lmc-module"></span><h1>runlmc.models.gpy_lmc module<a class="headerlink" href="#module-runlmc.models.gpy_lmc" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="runlmc.models.gpy_lmc.GPyLMC">
-<em class="property">class </em><code class="descclassname">runlmc.models.gpy_lmc.</code><code class="descname">GPyLMC</code><span class="sig-paren">(</span><em>Xs</em>, <em>Ys</em>, <em>kernels</em>, <em>ranks</em>, <em>name='GPyLMC'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/gpy_lmc.html#GPyLMC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.gpy_lmc.GPyLMC" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">runlmc.models.gpy_lmc.</code><code class="descname">GPyLMC</code><span class="sig-paren">(</span><em>Xs</em>, <em>Ys</em>, <em>kernels</em>, <em>ranks</em>, <em>name='GPyLMC'</em>, <em>sparse=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/gpy_lmc.html#GPyLMC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.gpy_lmc.GPyLMC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP" title="runlmc.models.multigp.MultiGP"><code class="xref py py-class docutils literal"><span class="pre">runlmc.models.multigp.MultiGP</span></code></a></p>
 <p>This wraps GPy for the Gaussian Process model for multioutput regression
 under a Linear Model of Coregionalization.</p>
 <p>This performs the inversion-based cubic-time algorithm.</p>
 <p>Uses the Gaussian likelihood. See <a class="reference internal" href="runlmc.models.lmc.html#runlmc.models.lmc.LMC" title="runlmc.models.lmc.LMC"><code class="xref py py-class docutils literal"><span class="pre">runlmc.models.lmc.LMC</span></code></a> for the
 explicit LMC formula.</p>
+<p>The DTCVAR algorithm (the <cite>sparse</cite> parameter) is based on Efficient
+Multioutput Gaussian Processes through Variational Inducing Kernels
+by Álvarez et al. 2010.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -69,6 +71,12 @@ numpy arrays, matching up with the number of rows in <cite>Xs</cite>.</li>
 terms of the LMC sums prior to coregionalization.</li>
 <li><strong>ranks</strong> (<em>list of integer</em>) &#8211; list of ranks for coregionalization factors</li>
 <li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; model name</li>
+<li><strong>sparse</strong> &#8211; an integer. If 0, uses
+<code class="xref py py-class docutils literal"><span class="pre">GPy.models.GPCoregionalizedRegression</span></code>,
+the typical cholesky algorithm.
+If &gt;0, then this determines the number of inducing points
+used by the DTCVAR algorithm in
+use <code class="xref py py-class docutils literal"><span class="pre">GPy.models.SparseGPCoregionalizedRegression</span></code></li>
 </ul>
 </td>
 </tr>
@@ -202,7 +210,7 @@ input index and the second to the quantile index.</td>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/runlmc.models.gpy_lmc.txt"
+      <li><a href="_sources/runlmc.models.gpy_lmc.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -224,11 +232,11 @@ input index and the second to the quantile index.</td>
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
-      <a href="_sources/runlmc.models.gpy_lmc.txt"
+      <a href="_sources/runlmc.models.gpy_lmc.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

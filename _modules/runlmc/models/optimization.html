@@ -17,7 +17,8 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="top" title="runlmc 0.0 documentation" href="../../../runlmc.html" />
-    <link rel="up" title="Module code" href="../../index.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
   
@@ -51,44 +50,89 @@
 <span class="kn">from</span> <span class="nn">paramz.optimization</span> <span class="k">import</span> <span class="n">Optimizer</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
+<span class="kn">from</span> <span class="nn">.lmc</span> <span class="k">import</span> <span class="n">LMC</span>
+
+<span class="c1"># TODO(cleanup) move to numpy convenience</span>
+<span class="c1"># TODO(test)</span>
+<div class="viewcode-block" id="MovingAverage"><a class="viewcode-back" href="../../../runlmc.models.optimization.html#runlmc.models.optimization.MovingAverage">[docs]</a><span class="k">class</span> <span class="nc">MovingAverage</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">past</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="MovingAverage.push"><a class="viewcode-back" href="../../../runlmc.models.optimization.html#runlmc.models.optimization.MovingAverage.push">[docs]</a>    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">update_ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">past</span><span class="p">[</span><span class="n">update_ix</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">+=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">past</span><span class="p">[</span><span class="n">update_ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span></div></div>
+
+<span class="c1"># TODO(test)</span>
 <div class="viewcode-block" id="AdaDelta"><a class="viewcode-back" href="../../../runlmc.models.optimization.html#runlmc.models.optimization.AdaDelta">[docs]</a><span class="k">class</span> <span class="nc">AdaDelta</span><span class="p">(</span><span class="n">Optimizer</span><span class="p">):</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="AdaDelta.noop"><a class="viewcode-back" href="../../../runlmc.models.optimization.html#runlmc.models.optimization.AdaDelta.noop">[docs]</a>    <span class="k">def</span> <span class="nf">noop</span><span class="p">():</span>
+        <span class="k">pass</span></div>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="n">default</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;step_rate&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;decay&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;momentum&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;offset&#39;</span><span class="p">:</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span>
-            <span class="s1">&#39;max_it&#39;</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;verbosity&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;min_grad&#39;</span><span class="p">:</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">}</span>
+            <span class="s1">&#39;step_rate&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;decay&#39;</span><span class="p">:</span><span class="mf">0.9</span><span class="p">,</span> <span class="s1">&#39;momentum&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;offset&#39;</span><span class="p">:</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span>
+            <span class="s1">&#39;max_it&#39;</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;verbosity&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;min_grad_ratio&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;roll&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;permitted_drops&#39;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;callback&#39;</span><span class="p">:</span><span class="n">AdaDelta</span><span class="o">.</span><span class="n">noop</span><span class="p">}</span>
         <span class="n">default</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">default</span><span class="p">[</span><span class="s1">&#39;permitted_drops&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">default</span><span class="p">[</span><span class="s1">&#39;permitted_drops&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">default</span><span class="p">[</span><span class="s1">&#39;max_it&#39;</span><span class="p">]</span> <span class="o">//</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">default</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AdaDelta.opt"><a class="viewcode-back" href="../../../runlmc.models.optimization.html#runlmc.models.optimization.AdaDelta.opt">[docs]</a>    <span class="k">def</span> <span class="nf">opt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">f_fp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">exclude</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;verbosity&#39;</span><span class="p">,</span> <span class="s1">&#39;min_grad&#39;</span><span class="p">,</span> <span class="s1">&#39;max_it&#39;</span><span class="p">}</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;verbosity&#39;</span><span class="p">,</span> <span class="s1">&#39;min_grad_ratio&#39;</span><span class="p">,</span> <span class="s1">&#39;max_it&#39;</span><span class="p">,</span> <span class="s1">&#39;roll&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;permitted_drops&#39;</span><span class="p">,</span> <span class="s1">&#39;callback&#39;</span><span class="p">]</span>
         <span class="n">ada_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">}</span>
         <span class="n">ada</span> <span class="o">=</span> <span class="n">climin</span><span class="o">.</span><span class="n">Adadelta</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="o">**</span><span class="n">ada_kwargs</span><span class="p">)</span>
 
-        <span class="n">verbosity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;verbosity&#39;</span><span class="p">]</span>
-        <span class="n">max_it</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;max_it&#39;</span><span class="p">]</span>
-        <span class="n">delta</span> <span class="o">=</span> <span class="n">max_it</span> <span class="o">//</span> <span class="n">verbosity</span> <span class="k">if</span> <span class="n">verbosity</span> <span class="k">else</span> <span class="mi">0</span>
-        <span class="n">gn_cut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;min_grad&#39;</span><span class="p">]</span>
+        <span class="n">verbosity</span><span class="p">,</span> <span class="n">min_grad_ratio</span><span class="p">,</span> <span class="n">max_it</span><span class="p">,</span> <span class="n">roll</span><span class="p">,</span> <span class="n">permitted_drops</span><span class="p">,</span> <span class="n">callback</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">)</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_it</span> <span class="o">//</span> <span class="n">verbosity</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">verbosity</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">rolling_max</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">10</span>
+        <span class="n">rolling_ave</span> <span class="o">=</span> <span class="n">MovingAverage</span><span class="p">(</span><span class="n">roll</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;verbosity&#39;</span><span class="p">]:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;starting AdaDelta&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;starting adadelta&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">info</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">ada</span><span class="p">:</span>
-            <span class="n">gn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;gradient&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+            <span class="n">gn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;gradient&#39;</span><span class="p">],</span> <span class="n">LMC</span><span class="o">.</span><span class="n">EVAL_NORM</span><span class="p">)</span>
+            <span class="n">ave</span> <span class="o">=</span> <span class="n">rolling_ave</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">gn</span><span class="p">)</span>
+            <span class="n">rolling_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ave</span><span class="p">,</span> <span class="n">rolling_max</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="n">verbosity</span> <span class="ow">and</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;n_iter&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="n">delta</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;iteration </span><span class="si">{:8d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;n_iter&#39;</span><span class="p">]),</span>
-                      <span class="s1">&#39;grad inf-norm </span><span class="si">{:10.4e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gn</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;n_iter&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">max_it</span> <span class="ow">or</span> <span class="n">gn</span> <span class="o">&lt;</span> <span class="n">gn_cut</span><span class="p">:</span>
+                      <span class="s1">&#39;grad norm </span><span class="si">{:10.4e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gn</span><span class="p">))</span>
+
+            <span class="n">callback</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">ave</span> <span class="o">&lt;</span> <span class="n">min_grad_ratio</span> <span class="o">*</span> <span class="n">rolling_max</span><span class="p">:</span>
+                <span class="n">permitted_drops</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">permitted_drops</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;n_iter&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">max_it</span><span class="p">:</span>
                 <span class="k">break</span>
 
         <span class="k">if</span> <span class="n">verbosity</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;finished adadelta optimization </span><span class="si">{:6d}</span><span class="s1"> iterations &#39;</span>
-                  <span class="s1">&#39;</span><span class="si">{:10.4e}</span><span class="s1"> grad inf-norm&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                      <span class="n">info</span><span class="p">[</span><span class="s1">&#39;n_iter&#39;</span><span class="p">],</span>
-                      <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;gradient&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;finished adadelta optimization</span><span class="se">\n</span><span class="s1">&#39;</span>
+                  <span class="s1">&#39;    </span><span class="si">{:10d}</span><span class="s1"> iterations</span><span class="se">\n</span><span class="s1">&#39;</span>
+                  <span class="s1">&#39;    </span><span class="si">{:10.4e}</span><span class="s1"> final grad norm</span><span class="se">\n</span><span class="s1">&#39;</span>
+                  <span class="s1">&#39;    </span><span class="si">{:10.4e}</span><span class="s1"> final MA(</span><span class="si">{}</span><span class="s1">) grad norm</span><span class="se">\n</span><span class="s1">&#39;</span>
+                  <span class="s1">&#39;    </span><span class="si">{:10.4e}</span><span class="s1"> max MA(</span><span class="si">{}</span><span class="s1">) grad norm</span><span class="se">\n</span><span class="s1">&#39;</span>
+                  <span class="s1">&#39;    norm used </span><span class="si">{}</span><span class="s1">&#39;</span>
+                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;n_iter&#39;</span><span class="p">],</span> <span class="n">gn</span><span class="p">,</span> <span class="n">ave</span><span class="p">,</span> <span class="n">roll</span><span class="p">,</span>
+                          <span class="n">rolling_max</span><span class="p">,</span> <span class="n">roll</span><span class="p">,</span> <span class="n">LMC</span><span class="o">.</span><span class="n">EVAL_NORM</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x_opt</span> <span class="o">=</span> <span class="n">x</span></div></div>
 </pre></div>
 
@@ -135,7 +179,7 @@
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
     </div>

@@ -1,0 +1,7 @@
+runlmc.linalg.diag module
+=========================
+
+.. automodule:: runlmc.linalg.diag
+    :members:
+    :undoc-members:
+    :show-inheritance:

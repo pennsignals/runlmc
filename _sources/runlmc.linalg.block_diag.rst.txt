@@ -1,0 +1,7 @@
+runlmc.linalg.block_diag module
+===============================
+
+.. automodule:: runlmc.linalg.block_diag
+    :members:
+    :undoc-members:
+    :show-inheritance:

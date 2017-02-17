@@ -1,0 +1,7 @@
+runlmc.parameterization.param module
+====================================
+
+.. automodule:: runlmc.parameterization.param
+    :members:
+    :undoc-members:
+    :show-inheritance:

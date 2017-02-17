@@ -17,7 +17,8 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="top" title="runlmc 0.0 documentation" href="../../../runlmc.html" />
-    <link rel="up" title="Module code" href="../../index.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
   
@@ -47,7 +46,9 @@
 <span></span><span class="c1"># Copyright (c) 2016, Vladimir Feinberg</span>
 <span class="c1"># Licensed under the BSD 3-clause license (see LICENSE)</span>
 
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">closing</span><span class="p">,</span> <span class="n">contextmanager</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">cpu_count</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
@@ -56,13 +57,25 @@
 
 <span class="kn">from</span> <span class="nn">.multigp</span> <span class="k">import</span> <span class="n">MultiGP</span>
 <span class="kn">from</span> <span class="nn">..approx.interpolation</span> <span class="k">import</span> <span class="n">multi_interpolant</span>
+<span class="kn">from</span> <span class="nn">..approx.iterative</span> <span class="k">import</span> <span class="n">Iterative</span>
+<span class="kn">from</span> <span class="nn">..linalg.composition</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">..linalg.matrix</span> <span class="k">import</span> <span class="n">Matrix</span>
+<span class="kn">from</span> <span class="nn">..linalg.numpy_matrix</span> <span class="k">import</span> <span class="n">NumpyMatrix</span>
+<span class="kn">from</span> <span class="nn">..linalg.kronecker</span> <span class="k">import</span> <span class="n">Kronecker</span>
+<span class="kn">from</span> <span class="nn">..linalg.diag</span> <span class="k">import</span> <span class="n">Diag</span>
+<span class="kn">from</span> <span class="nn">..lmc.stochastic_deriv</span> <span class="k">import</span> <span class="n">StochasticDeriv</span>
 <span class="kn">from</span> <span class="nn">..lmc.parameter_values</span> <span class="k">import</span> <span class="n">ParameterValues</span>
 <span class="kn">from</span> <span class="nn">..lmc.grid_kernel</span> <span class="k">import</span> <span class="n">gen_grid_kernel</span>
+<span class="kn">from</span> <span class="nn">..lmc.metrics</span> <span class="k">import</span> <span class="n">Metrics</span>
 <span class="kn">from</span> <span class="nn">..lmc.kernel</span> <span class="k">import</span> <span class="n">ExactLMCKernel</span><span class="p">,</span> <span class="n">ApproxLMCKernel</span>
 <span class="kn">from</span> <span class="nn">..parameterization.param</span> <span class="k">import</span> <span class="n">Param</span>
 <span class="kn">from</span> <span class="nn">..util.docs</span> <span class="k">import</span> <span class="n">inherit_doc</span>
 
 <span class="n">_LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">_ignored</span><span class="p">(</span><span class="n">thing</span><span class="p">):</span>
+    <span class="k">yield</span> <span class="n">thing</span>
 
 <span class="nd">@inherit_doc</span>
 <div class="viewcode-block" id="LMC"><a class="viewcode-back" href="../../../runlmc.models.lmc.html#runlmc.models.lmc.LMC">[docs]</a><span class="k">class</span> <span class="nc">LMC</span><span class="p">(</span><span class="n">MultiGP</span><span class="p">):</span>
@@ -125,6 +138,22 @@
 <span class="sd">    this model, with name `a&lt;q&gt;`, where `&lt;q&gt;` is replaced with a specific</span>
 <span class="sd">    number.</span>
 
+<span class="sd">    The functionality for the various prediction modes is summarized below.</span>
+<span class="sd">    Note `&#39;matrix-free&#39;` is the default.</span>
+
+<span class="sd">    * `&#39;matrix-free&#39;` - If the number of test points is smaller than the</span>
+<span class="sd">                        number of grid points, use `&#39;on-the-fly&#39;`. If the</span>
+<span class="sd">                        number of points is greater than the number of grid</span>
+<span class="sd">                        points, use `&#39;precompute&#39;`, and use that from then</span>
+<span class="sd">                        onwards.</span>
+<span class="sd">    * `&#39;on-the-fly&#39;` - Use matrix-free inversion to compute the covariance</span>
+<span class="sd">                       for the entire set of points on which we&#39;re predicting.</span>
+<span class="sd">    * `&#39;precompute&#39;` - Compute an auxiliary predictive variance matrix for the</span>
+<span class="sd">                       grid points, but then cheaply re-use that work for</span>
+<span class="sd">                       prediction.</span>
+<span class="sd">    * `&#39;exact&#39;` - Use the exact cholesky-based algorithm (not matrix free)</span>
+<span class="sd">    * `&#39;sample&#39;` - Use the sampling algorithm from Wilson 2015.</span>
+
 <span class="sd">    TODO(new parameters)</span>
 <span class="sd">    mean-function - zero-mean for now</span>
 
@@ -147,20 +176,56 @@
 <span class="sd">    :param m: number of inducing points to use (by default, the total number</span>
 <span class="sd">              of input points)</span>
 <span class="sd">    :param str name:</span>
+<span class="sd">    :param metrics: whether to record optimization metrics during optimization</span>
+<span class="sd">                    (runs exact solution alongside this one, may be slow).</span>
+<span class="sd">    :param prediction: one of `&#39;matrix-free&#39;`, `&#39;on-the-fly&#39;`,</span>
+<span class="sd">                              `&#39;precompute&#39;`, `&#39;exact&#39;`, `&#39;sample&#39;`.</span>
+<span class="sd">    :param variance_samples: only used if `prediction` is set to `&#39;sample&#39;`.</span>
+<span class="sd">                             number of variance samples used for predictive</span>
+<span class="sd">                             variance.</span>
+<span class="sd">    :param max_procs: maximum number of processes to use for parallelism,</span>
+<span class="sd">                      defaults to cpu count.</span>
+<span class="sd">    :param extrapool: temporary pool for re-use in benchmarks - this is an ugly</span>
+<span class="sd">                      interface option that will be soon removed.</span>
+<span class="sd">    :param slfm_kerns: add kernel terms with kernel :math:`k_q` given by this list</span>
+<span class="sd">                       using the SLFM model, which means the corresponding rank</span>
+<span class="sd">                       is 1 and terms :math:`\\boldsymbol\\kappa_q=\\textbf{0}`</span>
+<span class="sd">    :param indep_gp: add in a term for independent GPs for each output,</span>
+<span class="sd">                     this must be a list of :math:`D` kernels if specified</span>
+<span class="sd">                     at all, corresponding to terms with</span>
+<span class="sd">                     :math:`A_q=0,\\boldsymbol\\kappa_q=\\boldsymbol\\kron_d`</span>
+<span class="sd">                     for the :math:`d`-th element of this list</span>
+<span class="sd">                     :math:`k_d`.</span>
 <span class="sd">    :raises: :class:`ValueError` if `Xs` and `Ys` lengths do not match.</span>
 <span class="sd">    :raises: :class:`ValueError` if normalization if any `Ys` have no variance</span>
 <span class="sd">                                 or values in `Xs` have multiple identical</span>
 <span class="sd">                                 values.</span>
 <span class="sd">    :raises: :class:`ValueError` if no kernels</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kernels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">ranks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lo</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;lmc&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kernels</span><span class="o">=</span><span class="p">[],</span>
+                 <span class="n">ranks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lo</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;lmc&#39;</span><span class="p">,</span>
+                 <span class="n">metrics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">prediction</span><span class="o">=</span><span class="s1">&#39;matrix-free&#39;</span><span class="p">,</span>
+                 <span class="n">variance_samples</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">max_procs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extrapool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">slfm_kerns</span><span class="o">=</span><span class="p">[],</span> <span class="n">indep_gp</span><span class="o">=</span><span class="p">[]):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">Ys</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="n">normalize</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_model</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">kernels</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">kernels</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">slfm_kerns</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">indep_gp</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Number of kernels should be &gt;0&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">=</span> <span class="n">kernels</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indep_gp</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">)]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Independent GP kernels should be one-per-output&#39;</span>
+                             <span class="s1">&#39; or not specified at all&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">variance_samples</span> <span class="o">=</span> <span class="n">variance_samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span>
+        <span class="k">if</span> <span class="n">prediction</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prediction_methods</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Variance prediction method </span><span class="si">{}</span><span class="s1"> unrecognized&#39;</span>
+                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prediction</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">=</span> <span class="n">kernels</span> <span class="o">+</span> <span class="n">slfm_kerns</span> <span class="o">+</span> <span class="n">indep_gp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nkernels</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;lmc&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">kernels</span><span class="p">),</span> <span class="s1">&#39;slfm&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">slfm_kerns</span><span class="p">),</span> <span class="s1">&#39;indep&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">indep_gp</span><span class="p">)}</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
 
@@ -180,19 +245,36 @@
         <span class="n">_LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;LMC </span><span class="si">%s</span><span class="s1"> grid (n = </span><span class="si">%d</span><span class="s1">, m = </span><span class="si">%d</span><span class="s1">) complete, &#39;</span><span class="p">,</span>
                   <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">ranks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ranks</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">kernels</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coreg_vecs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">)):</span>
-            <span class="n">rank</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">ranks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ranks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">coreg_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">)</span>
+        <span class="n">initial_vecs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">initial_vecs</span> <span class="o">+=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="n">ranks</span><span class="p">]</span>
+        <span class="n">initial_vecs</span> <span class="o">+=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">))</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span>
+                         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">slfm_kerns</span><span class="p">]</span>
+        <span class="n">initial_vecs</span> <span class="o">+=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">indep_gp</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">coreg_vec</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">initial_vecs</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Param</span><span class="p">(</span><span class="s1">&#39;a</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">coreg_vec</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nkernels</span><span class="p">[</span><span class="s1">&#39;lmc&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nkernels</span><span class="p">[</span><span class="s1">&#39;slfm&#39;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nkernels</span><span class="p">[</span><span class="s1">&#39;lmc&#39;</span><span class="p">]):</span>
             <span class="n">coreg_diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">Param</span><span class="p">(</span><span class="s1">&#39;kappa</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">coreg_diag</span><span class="p">,</span> <span class="n">Logexp</span><span class="p">()))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">link_parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nkernels</span><span class="p">[</span><span class="s1">&#39;slfm&#39;</span><span class="p">]):</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="p">)</span>
+            <span class="n">coreg_diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Param</span><span class="p">(</span><span class="s1">&#39;kappa</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">coreg_diag</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">constrain_fixed</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nkernels</span><span class="p">[</span><span class="s1">&#39;indep&#39;</span><span class="p">]):</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="p">)</span>
+            <span class="n">coreg_diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">)</span>
+            <span class="n">coreg_diag</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Param</span><span class="p">(</span><span class="s1">&#39;kappa</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">coreg_diag</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">constrain_fixed</span><span class="p">()</span>
 
         <span class="c1"># Corresponds to epsilon</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">noise</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="s1">&#39;noise&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">),</span> <span class="n">Logexp</span><span class="p">())</span>
@@ -201,10 +283,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ys</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span>
-                       <span class="p">(</span><span class="s1">&#39;exact_kernel&#39;</span><span class="p">,</span> <span class="s1">&#39;grid_alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;nu&#39;</span><span class="p">,</span> <span class="s1">&#39;native_var&#39;</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span> <span class="k">if</span> <span class="n">metrics</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_procs</span> <span class="o">=</span> <span class="n">cpu_count</span><span class="p">()</span> <span class="k">if</span> <span class="n">max_procs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">max_procs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extrapool</span> <span class="o">=</span> <span class="n">extrapool</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_model</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">_LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;LMC </span><span class="si">%s</span><span class="s1"> fully initialized&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="n">EVAL_NORM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
 
     <span class="c1"># TODO(cleanup): move to interpolation as its own method; test it.</span>
     <span class="nd">@staticmethod</span>
@@ -225,19 +313,43 @@
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="n">m</span>
 
-    <span class="k">def</span> <span class="nf">_clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<div class="viewcode-block" id="LMC.optimize"><a class="viewcode-back" href="../../../runlmc.models.lmc.html#runlmc.models.lmc.LMC.optimize">[docs]</a>    <span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_procs</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">:</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Optimization (</span><span class="si">%d</span><span class="s1"> hyperparams) starting in serial mode&#39;</span><span class="p">,</span>
+                      <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_array</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">par</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">StochasticDeriv</span><span class="o">.</span><span class="n">N_IT</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_procs</span><span class="p">)</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Optimization (</span><span class="si">%d</span><span class="s1"> hyperparams) starting with </span><span class="si">%s</span><span class="s1"> workers&#39;</span><span class="p">,</span>
+                      <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_array</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parstr</span><span class="p">(</span><span class="n">par</span><span class="p">))</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_pool</span><span class="p">(</span><span class="n">par</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="n">pool</span>
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+    <span class="k">def</span> <span class="nf">_parstr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">par</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrapool</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">par</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;user-set num&#39;</span>
+
+    <span class="k">def</span> <span class="nf">_make_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">par</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrapool</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">closing</span><span class="p">(</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">par</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_ignored</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extrapool</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LMC.parameters_changed"><a class="viewcode-back" href="../../../runlmc.models.lmc.html#runlmc.models.lmc.LMC.parameters_changed">[docs]</a>    <span class="k">def</span> <span class="nf">parameters_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;exact_kernel&#39;</span><span class="p">,</span> <span class="s1">&#39;grid_alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;nu&#39;</span><span class="p">,</span> <span class="s1">&#39;native_var&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_clear_cache</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
 
+        <span class="n">params</span> <span class="o">=</span> <span class="n">ParameterValues</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">grid_kernel</span> <span class="o">=</span> <span class="n">gen_grid_kernel</span><span class="p">(</span>
+            <span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dists</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolant</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolantT</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">ApproxLMCKernel</span><span class="p">(</span>
-            <span class="n">gen_grid_kernel</span><span class="p">(</span>
-                <span class="n">ParameterValues</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dists</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">interpolant</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">interpolantT</span><span class="p">))</span>
+            <span class="n">params</span><span class="p">,</span> <span class="n">grid_kernel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dists</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">_LOG</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
             <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:7.6e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span>
@@ -261,10 +373,32 @@
             <span class="n">x</span><span class="o">.</span><span class="n">gradient</span> <span class="o">=</span> <span class="n">dx</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">dk</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">kernel_gradients</span><span class="p">()):</span>
             <span class="n">k</span><span class="o">.</span><span class="n">update_gradient</span><span class="p">(</span><span class="n">dk</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="o">.</span><span class="n">gradient</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">noise_gradient</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="o">.</span><span class="n">gradient</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">noise_gradient</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">grad_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gradient</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">EVAL_NORM</span><span class="p">)</span>
+            <span class="n">ordered_grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">gradient</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">gradient</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="p">]),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">gradient</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">]),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="o">.</span><span class="n">gradient</span><span class="p">))</span>
+            <span class="n">exact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dense</span><span class="p">()</span>
+            <span class="n">exact_grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                    <span class="n">exact</span><span class="o">.</span><span class="n">coreg_vec_gradients</span><span class="p">())</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">exact</span><span class="o">.</span><span class="n">coreg_diag_gradients</span><span class="p">()),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">exact</span><span class="o">.</span><span class="n">kernel_gradients</span><span class="p">()),</span>
+                <span class="n">exact</span><span class="o">.</span><span class="n">noise_gradient</span><span class="p">()))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">grad_norms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grad_norm</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">grad_error</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ordered_grad</span> <span class="o">-</span> <span class="n">exact_grad</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">EVAL_NORM</span><span class="p">)</span>
+                <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">exact_grad</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">EVAL_NORM</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">log_likely</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_likelihood</span><span class="p">())</span></div>
 
     <span class="k">def</span> <span class="nf">_dense</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;exact_kernel&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;exact_kernel&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
             <span class="n">pdists</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Xs</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
             <span class="n">pdists</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="n">pdists</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;exact_kernel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ExactLMCKernel</span><span class="p">(</span>
@@ -311,56 +445,212 @@
         <span class="n">nll</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
         <span class="k">return</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">nll</span></div>
 
+    <span class="c1"># Predictive mean for grid points U</span>
+    <span class="k">def</span> <span class="nf">_grid_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;grid_alpha&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;grid_alpha&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">grid_K</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">interpolantT</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">alpha</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;grid_alpha&#39;</span><span class="p">]</span>
+
+    <span class="c1"># The native covariance diag(K) for each output, i.e.,</span>
+    <span class="c1"># the a priori variance of a single point for each output.</span>
+    <span class="k">def</span> <span class="nf">_native_variance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;native_var&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+            <span class="n">coregs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">per_output</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                                     <span class="k">for</span> <span class="n">per_output</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="p">)</span>
+            <span class="n">coregs</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="p">)</span>
+            <span class="n">kerns</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">from_dist</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">]</span>
+            <span class="n">native_output_var</span> <span class="o">=</span> <span class="n">coregs</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">kerns</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">native_var</span> <span class="o">=</span> <span class="n">native_output_var</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;native_var&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">native_var</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;native_var&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_prediction_methods</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;matrix-free&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_var_predict_matrix_free</span><span class="p">,</span>
+            <span class="s1">&#39;on-the-fly&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_var_predict_on_the_fly</span><span class="p">,</span>
+            <span class="s1">&#39;precompute&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_var_predict_precompute</span><span class="p">,</span>
+            <span class="s1">&#39;exact&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_var_predict_exact</span><span class="p">,</span>
+            <span class="s1">&#39;sample&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_var_predict_sample</span>
+        <span class="p">}</span>
+
     <span class="k">def</span> <span class="nf">_raw_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_predict_apprx</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_precompute_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">nongrid_alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">alpha</span><span class="p">()</span>
-        <span class="n">WT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolantT</span>
-        <span class="n">K_UU</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">grid_only</span><span class="p">()</span>
-        <span class="n">grid_alpha</span> <span class="o">=</span> <span class="n">K_UU</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">WT</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">nongrid_alpha</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters_changed</span><span class="p">()</span>
 
-        <span class="c1"># Not optimized for speed - this performs dense linear algebra</span>
-        <span class="c1"># corresponding to Sections 5.1.1 and 5.1.2 from the MSGP paper.</span>
-        <span class="c1"># This can probably be sped up (even by e.g., using the approximations</span>
-        <span class="c1"># offered in those sections, or perhaps some less coarse ones).</span>
-        <span class="c1"># However, it&#39;s the training that&#39;s the bottleneck, not prediction.</span>
-        <span class="c1"># TODO(fast-prediction)</span>
-        <span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dense</span><span class="p">()</span><span class="o">.</span><span class="n">L</span>
-        <span class="n">K_XU</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolant</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">K_UU</span><span class="o">.</span><span class="n">as_numpy</span><span class="p">())</span>
-        <span class="n">Ainv_KXU</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">cho_solve</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">K_XU</span><span class="p">,</span> <span class="n">overwrite_b</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">nu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">K_XU</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Ainv_KXU</span><span class="p">))</span>
-
-        <span class="c1"># A bit obscure; the native covariance K_** for each output</span>
-        <span class="c1"># is given by diag(K(0, 0)). This happens to be efficiently computed</span>
-        <span class="c1"># here.</span>
-        <span class="n">coregs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">per_output</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-                                 <span class="k">for</span> <span class="n">per_output</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="p">)</span>
-        <span class="n">coregs</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_diags</span><span class="p">)</span>
-        <span class="n">kerns</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">from_dist</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">]</span>
-        <span class="n">native_output_var</span> <span class="o">=</span> <span class="n">coregs</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">kerns</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">native_var</span> <span class="o">=</span> <span class="n">native_output_var</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;grid_alpha&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">grid_alpha</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nu</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;native_var&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">native_var</span>
-
-    <span class="k">def</span> <span class="nf">_raw_predict_apprx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_precompute_predict</span><span class="p">()</span>
+        <span class="n">grid_alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid_alpha</span><span class="p">()</span>
+        <span class="n">native_variance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_native_variance</span><span class="p">()</span>
 
         <span class="n">W</span> <span class="o">=</span> <span class="n">multi_interpolant</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inducing_grid</span><span class="p">)</span>
+
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">W</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">grid_alpha</span><span class="p">)</span>
         <span class="n">lens</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>
+        <span class="n">native_variance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">native_variance</span><span class="p">,</span> <span class="n">lens</span><span class="p">)</span>
 
-        <span class="n">mean</span> <span class="o">=</span> <span class="n">W</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">])</span>
-
-        <span class="n">native_var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;native_var&#39;</span><span class="p">],</span> <span class="n">lens</span><span class="p">)</span>
-
-        <span class="n">var</span> <span class="o">=</span> <span class="n">native_var</span> <span class="o">-</span> <span class="n">W</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">])</span>
+        <span class="n">explained_variance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prediction_methods</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">prediction</span><span class="p">](</span>
+            <span class="n">W</span><span class="p">,</span> <span class="n">Xs</span><span class="p">)</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">native_variance</span> <span class="o">-</span> <span class="n">explained_variance</span>
         <span class="n">var</span><span class="p">[</span><span class="n">var</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="n">endpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">lens</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">)</span>
+
+    <span class="c1"># TODO(cleanup) all of the below variance prediction methods should</span>
+    <span class="c1"># be cleaned up and moved to a separate module.</span>
+
+    <span class="k">def</span> <span class="nf">_var_predict_matrix_free</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;precomputed_nu&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_var_predict_precompute</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">Xs</span><span class="p">)</span>
+
+        <span class="n">tot_pred_size</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">Xs</span><span class="p">))</span>
+        <span class="n">tot_grid_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_grid</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tot_pred_size</span> <span class="o">&gt;</span> <span class="n">tot_grid_size</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_var_predict_precompute</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">Xs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_var_predict_on_the_fly</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">Xs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_var_predict_exact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
+        <span class="c1"># TODO(cleanup) refactor ExactLMCKernel so that we can reuse code</span>
+        <span class="c1"># without the ugly construction and params.lens_x stuff used here.</span>
+        <span class="n">exact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dense</span><span class="p">()</span>
+
+        <span class="n">test_Xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">train_Xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Xs</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">ParameterValues</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">lens_x</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>
+        <span class="n">K_test_X</span> <span class="o">=</span> <span class="n">ExactLMCKernel</span><span class="p">(</span><span class="n">params</span><span class="p">,</span>
+                                  <span class="n">dist</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">test_Xs</span><span class="p">,</span> <span class="n">train_Xs</span><span class="p">),</span>
+                                  <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">K</span>
+        <span class="n">var_explained</span> <span class="o">=</span> <span class="n">K_test_X</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">cho_solve</span><span class="p">(</span><span class="n">exact</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">K_test_X</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">var_explained</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_chol_sample</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">randn_samps</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+        <span class="n">LB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+        <span class="c1"># bareiss and cholesky both work very poorly since we&#39;re</span>
+        <span class="c1"># numerically rank deficient</span>
+        <span class="c1"># from runlmc.linalg.shur import shur</span>
+        <span class="c1"># Lt = shur(t).T</span>
+        <span class="c1"># Lt = np.linalg.cholesky(la.toeplitz(t))</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">toeplitz</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+        <span class="n">w</span><span class="p">[</span><span class="n">w</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">nnz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nnz</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;encountered incomplete rank </span><span class="si">%d</span><span class="s1"> of </span><span class="si">%d</span><span class="s1"> order kernel </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span>
+                      <span class="n">nnz</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">),</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">Lt</span> <span class="o">=</span> <span class="n">v</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="n">Kronecker</span><span class="p">(</span><span class="n">NumpyMatrix</span><span class="p">(</span><span class="n">LB</span><span class="p">),</span> <span class="n">NumpyMatrix</span><span class="p">(</span><span class="n">Lt</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">W</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">L</span><span class="o">.</span><span class="n">matmat</span><span class="p">(</span><span class="n">randn_samps</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_sampled_nu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;sampled_nu&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;sampled_nu&#39;</span><span class="p">]</span>
+
+        <span class="c1"># This performs linear algebra</span>
+        <span class="c1"># corresponding to Sections 5.1.1 and 5.1.2 from the MSGP paper.</span>
+        <span class="c1">#</span>
+        <span class="c1"># The MSGP sampling-based variance technique here requires</span>
+        <span class="c1"># a cholesky decomposition, done in a parallalized manner.</span>
+        <span class="c1"># Thus, we&#39;re not matrix-free in the predictions.</span>
+
+        <span class="n">Ns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variance_samples</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">)</span>
+        <span class="n">par</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_procs</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Q</span><span class="p">))</span>
+        <span class="n">W</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolant</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="p">[(</span><span class="n">W</span><span class="p">,</span> <span class="n">coreg_mat</span><span class="p">,</span> <span class="n">toep</span><span class="o">.</span><span class="n">top</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">W</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">Ns</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span>
+              <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">coreg_mat</span><span class="p">,</span> <span class="n">toep</span><span class="p">)</span> <span class="ow">in</span>
+              <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">coreg_mats</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">materialized_kernels</span><span class="p">))]</span>
+        <span class="n">_LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using </span><span class="si">%s</span><span class="s1"> processors to &#39;</span>
+                  <span class="s1">&#39;precompute </span><span class="si">%d</span><span class="s1"> kernel factors&#39;</span><span class="p">,</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">_parstr</span><span class="p">(</span><span class="n">par</span><span class="p">),</span> <span class="n">Q</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_pool</span><span class="p">(</span><span class="n">par</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">LMC</span><span class="o">.</span><span class="n">_chol_sample</span><span class="p">,</span> <span class="n">ls</span><span class="p">)</span>
+            <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">noise</span><span class="o">.</span><span class="n">v</span><span class="p">))</span><span class="o">.</span><span class="n">matmat</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="n">Ns</span><span class="p">)))</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+            <span class="c1"># Re-use same pool</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using </span><span class="si">%s</span><span class="s1"> processors to precompute </span><span class="si">%d</span><span class="s1"> &#39;</span>
+                      <span class="s1">&#39;variance samples&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parstr</span><span class="p">(</span><span class="n">par</span><span class="p">),</span> <span class="n">Ns</span><span class="p">)</span>
+            <span class="n">ls</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">sample</span><span class="p">)</span> <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">]</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">Iterative</span><span class="o">.</span><span class="n">solve</span><span class="p">,</span> <span class="n">ls</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="n">nu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">grid_K</span><span class="o">.</span><span class="n">matmat</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interpolantT</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">samples</span><span class="p">)))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">Ns</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;sampled_nu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nu</span>
+        <span class="k">return</span> <span class="n">nu</span>
+
+    <span class="k">def</span> <span class="nf">_var_predict_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction_interpolant</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampled_nu</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">prediction_interpolant</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_var_solve</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">K_XU</span><span class="p">,</span> <span class="n">K_UX</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">K_XU</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">K_XU</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">Iterative</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">K_UX</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_precomputed_nu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;precomputed_nu&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;precomputed_nu&#39;</span><span class="p">]</span>
+
+        <span class="n">W</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolant</span>
+        <span class="n">WT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolantT</span>
+        <span class="n">K_UU</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">grid_K</span>
+        <span class="c1"># SKI should have a half_matrix() method returning these two,</span>
+        <span class="c1"># in which case we&#39;d just ask self.kernel.K.ski for them.</span>
+        <span class="n">K_XU</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">([</span><span class="n">Matrix</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">W</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">dot</span><span class="p">),</span> <span class="n">K_UU</span><span class="p">])</span>
+        <span class="n">K_UX</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">([</span><span class="n">K_UU</span><span class="p">,</span> <span class="n">Matrix</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">WT</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">WT</span><span class="o">.</span><span class="n">dot</span><span class="p">)])</span>
+
+        <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_grid</span><span class="p">)</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="p">)</span>
+        <span class="n">Dm</span> <span class="o">=</span> <span class="n">D</span> <span class="o">*</span> <span class="n">m</span>
+        <span class="k">assert</span> <span class="n">Dm</span> <span class="o">==</span> <span class="n">K_XU</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">Dm</span> <span class="o">==</span> <span class="n">K_UX</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">par</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_procs</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">Dm</span><span class="p">)</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">K_XU</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="n">par</span> <span class="o">//</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">K_XU</span><span class="p">,</span> <span class="n">K_UX</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Dm</span><span class="p">)]</span>
+        <span class="n">_LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using </span><span class="si">%s</span><span class="s1"> processors to precompute </span><span class="si">%d</span><span class="s1"> &#39;</span>
+                  <span class="s1">&#39;variance terms exactly&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parstr</span><span class="p">(</span><span class="n">par</span><span class="p">),</span> <span class="n">Dm</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_pool</span><span class="p">(</span><span class="n">par</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+            <span class="n">nu</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">LMC</span><span class="o">.</span><span class="n">_var_solve</span><span class="p">,</span> <span class="n">ls</span><span class="p">,</span> <span class="n">chunks</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;precomputed_nu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nu</span>
+        <span class="k">return</span> <span class="n">nu</span>
+
+    <span class="k">def</span> <span class="nf">_var_predict_precompute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction_interpolant</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precomputed_nu</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">prediction_interpolant</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_var_predict_on_the_fly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
+        <span class="c1"># TODO(cleanup) refactor ExactLMCKernel so that we can reuse code</span>
+        <span class="c1"># without the ugly construction and params.lens_x stuff used here.</span>
+
+        <span class="n">test_Xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">train_Xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Xs</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">ParameterValues</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">lens_x</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>
+        <span class="n">K_test_X</span> <span class="o">=</span> <span class="n">ExactLMCKernel</span><span class="p">(</span><span class="n">params</span><span class="p">,</span>
+                                  <span class="n">dist</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">test_Xs</span><span class="p">,</span> <span class="n">train_Xs</span><span class="p">),</span>
+                                  <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">K</span>
+        <span class="n">n_test</span> <span class="o">=</span> <span class="n">test_Xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">par</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_procs</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">n_test</span><span class="p">)</span>
+        <span class="n">_LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using </span><span class="si">%s</span><span class="s1"> processors for </span><span class="si">%d</span><span class="s1"> on-the-fly variance&#39;</span>
+                  <span class="s1">&#39; predictions&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parstr</span><span class="p">(</span><span class="n">par</span><span class="p">),</span> <span class="n">n_test</span><span class="p">)</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">k_star</span><span class="p">)</span> <span class="k">for</span> <span class="n">k_star</span> <span class="ow">in</span> <span class="n">K_test_X</span><span class="p">]</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_pool</span><span class="p">(</span><span class="n">par</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+            <span class="n">inverted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">Iterative</span><span class="o">.</span><span class="n">solve</span><span class="p">,</span> <span class="n">ls</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">K_test_X</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">inverted</span><span class="p">))</span></div>
 </pre></div>
 
           </div>
@@ -406,7 +696,7 @@
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
     </div>

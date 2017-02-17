@@ -1,0 +1,7 @@
+runlmc.kern.std_periodic module
+===============================
+
+.. automodule:: runlmc.kern.std_periodic
+    :members:
+    :undoc-members:
+    :show-inheritance:

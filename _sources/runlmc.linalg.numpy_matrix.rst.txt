@@ -1,0 +1,7 @@
+runlmc.linalg.numpy_matrix module
+=================================
+
+.. automodule:: runlmc.linalg.numpy_matrix
+    :members:
+    :undoc-members:
+    :show-inheritance:

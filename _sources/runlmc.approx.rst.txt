@@ -1,0 +1,20 @@
+runlmc.approx package
+=====================
+
+Submodules
+----------
+
+.. toctree::
+
+   runlmc.approx.interpolation
+   runlmc.approx.iterative
+   runlmc.approx.ski
+   runlmc.approx.test_interpolation
+
+Module contents
+---------------
+
+.. automodule:: runlmc.approx
+    :members:
+    :undoc-members:
+    :show-inheritance:

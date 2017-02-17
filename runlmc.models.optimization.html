@@ -17,7 +17,8 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
-    <link rel="up" title="runlmc.models package" href="runlmc.models.html" />
     <link rel="next" title="runlmc.parameterization package" href="runlmc.parameterization.html" />
     <link rel="prev" title="runlmc.models.multigp module" href="runlmc.models.multigp.html" />
    
@@ -51,9 +50,25 @@
 <dt id="runlmc.models.optimization.AdaDelta">
 <em class="property">class </em><code class="descclassname">runlmc.models.optimization.</code><code class="descname">AdaDelta</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/optimization.html#AdaDelta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.optimization.AdaDelta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="http://pythonhosted.org/paramz/paramz.optimization.html#paramz.optimization.optimization.Optimizer" title="(in paramz v0.7.3)"><code class="xref py py-class docutils literal"><span class="pre">paramz.optimization.optimization.Optimizer</span></code></a></p>
+<dl class="staticmethod">
+<dt id="runlmc.models.optimization.AdaDelta.noop">
+<em class="property">static </em><code class="descname">noop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/optimization.html#AdaDelta.noop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.optimization.AdaDelta.noop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="runlmc.models.optimization.AdaDelta.opt">
 <code class="descname">opt</code><span class="sig-paren">(</span><em>x</em>, <em>f_fp=None</em>, <em>f=None</em>, <em>fp=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/optimization.html#AdaDelta.opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.optimization.AdaDelta.opt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="runlmc.models.optimization.MovingAverage">
+<em class="property">class </em><code class="descclassname">runlmc.models.optimization.</code><code class="descname">MovingAverage</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/optimization.html#MovingAverage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.optimization.MovingAverage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="runlmc.models.optimization.MovingAverage.push">
+<code class="descname">push</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/optimization.html#MovingAverage.push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.optimization.MovingAverage.push" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -101,7 +116,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/runlmc.models.optimization.txt"
+      <li><a href="_sources/runlmc.models.optimization.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -123,11 +138,11 @@
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
-      <a href="_sources/runlmc.models.optimization.txt"
+      <a href="_sources/runlmc.models.optimization.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -17,7 +17,8 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
-    <link rel="up" title="runlmc.parameterization package" href="runlmc.parameterization.html" />
     <link rel="next" title="runlmc.parameterization.priorizable module" href="runlmc.parameterization.priorizable.html" />
     <link rel="prev" title="runlmc.parameterization.param module" href="runlmc.parameterization.param.html" />
    
@@ -64,19 +63,15 @@ that.</p>
 <p>Say <cite>m</cite> is a handle to a parameterized class.</p>
 <p>Printing parameters:</p>
 <blockquote>
-<div><ul>
-<li><p class="first"><cite>print(m)</cite>:           prints a nice summary over all parameters</p>
-</li>
-<li><p class="first"><cite>print(name)</cite>:      prints details for param with name &#8216;name&#8217;</p>
-</li>
+<div><ul class="simple">
+<li><cite>print(m)</cite>:           prints a nice summary over all parameters</li>
+<li><cite>print(name)</cite>:      prints details for param with name &#8216;name&#8217;</li>
 <li><dl class="first docutils">
 <dt><cite>print m[regexp]</cite>:   prints details for all the parameters</dt>
-<dd><p class="first last">which match (!) regexp</p>
-</dd>
+<dd>which match (!) regexp</dd>
 </dl>
 </li>
-<li><p class="first"><cite>print `m[&#8216;&#8217;]</cite>:       prints details for all parameters</p>
-</li>
+<li><cite>print `m[&#8216;&#8217;]</cite>:       prints details for all parameters</li>
 </ul>
 </div></blockquote>
 <p>Printed fields:</p>
@@ -121,7 +116,7 @@ parameter, and therefore should include it in gradient computations.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>param</strong> &#8211; the parameter to add.</li>
-<li><strong>[index]</strong> &#8211; index of where to put parameters</li>
+<li><strong></strong><strong>[</strong><strong>index</strong><strong>]</strong><strong></strong> &#8211; index of where to put parameters</li>
 </ul>
 </td>
 </tr>
@@ -179,7 +174,7 @@ parameter.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/runlmc.parameterization.parameterized.txt"
+      <li><a href="_sources/runlmc.parameterization.parameterized.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -201,11 +196,11 @@ parameter.</p>
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
-      <a href="_sources/runlmc.parameterization.parameterized.txt"
+      <a href="_sources/runlmc.parameterization.parameterized.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

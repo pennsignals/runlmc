@@ -1,0 +1,7 @@
+runlmc.models.optimization module
+=================================
+
+.. automodule:: runlmc.models.optimization
+    :members:
+    :undoc-members:
+    :show-inheritance:

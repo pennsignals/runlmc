@@ -1,0 +1,7 @@
+runlmc.linalg.shur module
+=========================
+
+.. automodule:: runlmc.linalg.shur
+    :members:
+    :undoc-members:
+    :show-inheritance:
