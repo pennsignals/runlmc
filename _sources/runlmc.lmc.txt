@@ -10,6 +10,7 @@ Submodules
    runlmc.lmc.exact_deriv
    runlmc.lmc.grid_kernel
    runlmc.lmc.kernel
+   runlmc.lmc.metrics
    runlmc.lmc.parameter_values
    runlmc.lmc.stochastic_deriv
 

@@ -17,8 +17,7 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -27,6 +26,8 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="../../../runlmc.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
   
@@ -114,9 +115,6 @@
 
     <span class="n">grid_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
     <span class="n">n_samples</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">size</span>
-
-    <span class="k">if</span> <span class="n">n_samples</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">grid_size</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">grid</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;grid dim </span><span class="si">{}</span><span class="s1"> should be 1&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
@@ -240,7 +238,7 @@
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
     </div>

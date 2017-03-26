@@ -17,8 +17,7 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -27,6 +26,8 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="../../../runlmc.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
   
@@ -82,11 +83,9 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="n">default</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;step_rate&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;decay&#39;</span><span class="p">:</span><span class="mf">0.9</span><span class="p">,</span> <span class="s1">&#39;momentum&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;offset&#39;</span><span class="p">:</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span>
-            <span class="s1">&#39;max_it&#39;</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;verbosity&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;min_grad_ratio&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;roll&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
-            <span class="s1">&#39;permitted_drops&#39;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;callback&#39;</span><span class="p">:</span><span class="n">AdaDelta</span><span class="o">.</span><span class="n">noop</span><span class="p">}</span>
+            <span class="s1">&#39;max_it&#39;</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;verbosity&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;min_grad_ratio&#39;</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;roll&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;permitted_drops&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;callback&#39;</span><span class="p">:</span><span class="n">AdaDelta</span><span class="o">.</span><span class="n">noop</span><span class="p">}</span>
         <span class="n">default</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">default</span><span class="p">[</span><span class="s1">&#39;permitted_drops&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">default</span><span class="p">[</span><span class="s1">&#39;permitted_drops&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">default</span><span class="p">[</span><span class="s1">&#39;max_it&#39;</span><span class="p">]</span> <span class="o">//</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">default</span>
 
 <div class="viewcode-block" id="AdaDelta.opt"><a class="viewcode-back" href="../../../runlmc.models.optimization.html#runlmc.models.optimization.AdaDelta.opt">[docs]</a>    <span class="k">def</span> <span class="nf">opt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">f_fp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -179,7 +178,7 @@
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
     </div>

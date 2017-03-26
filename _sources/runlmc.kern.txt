@@ -9,6 +9,7 @@ Submodules
    runlmc.kern.identity
    runlmc.kern.matern32
    runlmc.kern.rbf
+   runlmc.kern.scaled
    runlmc.kern.stationary_kern
    runlmc.kern.std_periodic
    runlmc.kern.test_identity

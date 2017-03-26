@@ -14,6 +14,7 @@ Submodules
    runlmc.linalg.kronecker
    runlmc.linalg.matrix
    runlmc.linalg.numpy_matrix
+   runlmc.linalg.shur
    runlmc.linalg.sum_matrix
    runlmc.linalg.test_block_diag
    runlmc.linalg.test_block_matrix

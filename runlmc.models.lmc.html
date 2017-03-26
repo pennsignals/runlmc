@@ -17,8 +17,7 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -27,6 +26,8 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="runlmc.html" />
+    <link rel="up" title="runlmc.models package" href="runlmc.models.html" />
     <link rel="next" title="runlmc.models.multigp module" href="runlmc.models.multigp.html" />
     <link rel="prev" title="runlmc.models.gpy_lmc module" href="runlmc.models.gpy_lmc.html" />
    
@@ -94,28 +95,33 @@ this model, with name <cite>a&lt;q&gt;</cite>, where <cite>&lt;q&gt;</cite> is r
 number.</p>
 <p>The functionality for the various prediction modes is summarized below.
 Note <cite>&#8216;matrix-free&#8217;</cite> is the default.</p>
-<ul class="simple">
+<ul>
 <li><dl class="first docutils">
 <dt><cite>&#8216;matrix-free&#8217;</cite> - If the number of test points is smaller than the</dt>
-<dd>number of grid points, use <cite>&#8216;on-the-fly&#8217;</cite>. If the
+<dd><p class="first last">number of grid points, use <cite>&#8216;on-the-fly&#8217;</cite>. If the
 number of points is greater than the number of grid
 points, use <cite>&#8216;precompute&#8217;</cite>, and use that from then
-onwards.</dd>
+onwards.</p>
+</dd>
 </dl>
 </li>
 <li><dl class="first docutils">
 <dt><cite>&#8216;on-the-fly&#8217;</cite> - Use matrix-free inversion to compute the covariance</dt>
-<dd>for the entire set of points on which we&#8217;re predicting.</dd>
+<dd><p class="first last">for the entire set of points on which we&#8217;re predicting.</p>
+</dd>
 </dl>
 </li>
 <li><dl class="first docutils">
 <dt><cite>&#8216;precompute&#8217;</cite> - Compute an auxiliary predictive variance matrix for the</dt>
-<dd>grid points, but then cheaply re-use that work for
-prediction.</dd>
+<dd><p class="first last">grid points, but then cheaply re-use that work for
+prediction.</p>
+</dd>
 </dl>
 </li>
-<li><cite>&#8216;exact&#8217;</cite> - Use the exact cholesky-based algorithm (not matrix free)</li>
-<li><cite>&#8216;sample&#8217;</cite> - Use the sampling algorithm from Wilson 2015.</li>
+<li><p class="first"><cite>&#8216;exact&#8217;</cite> - Use the exact cholesky-based algorithm (not matrix free)</p>
+</li>
+<li><p class="first"><cite>&#8216;sample&#8217;</cite> - Use the sampling algorithm from Wilson 2015.</p>
+</li>
 </ul>
 <p>TODO(new parameters)
 mean-function - zero-mean for now</p>
@@ -316,7 +322,7 @@ are consistent with the new parameters.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/runlmc.models.lmc.rst.txt"
+      <li><a href="_sources/runlmc.models.lmc.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -338,11 +344,11 @@ are consistent with the new parameters.</p>
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
-      <a href="_sources/runlmc.models.lmc.rst.txt"
+      <a href="_sources/runlmc.models.lmc.txt"
           rel="nofollow">Page source</a>
     </div>
 

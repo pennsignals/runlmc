@@ -17,8 +17,7 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -27,6 +26,8 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="../../../runlmc.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
   
@@ -132,23 +133,24 @@
         <span class="k">return</span> <span class="n">grad</span></div></div>
 
 <div class="viewcode-block" id="ApproxLMCKernel"><a class="viewcode-back" href="../../../runlmc.lmc.kernel.html#runlmc.lmc.kernel.ApproxLMCKernel">[docs]</a><span class="k">class</span> <span class="nc">ApproxLMCKernel</span><span class="p">(</span><span class="n">LMCKernel</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">grid_kern</span><span class="p">,</span> <span class="n">grid_dists</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">pool</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">materialized_kernels</span> <span class="o">=</span> <span class="p">[</span><span class="n">Toeplitz</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">from_dist</span><span class="p">(</span><span class="n">grid_dists</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_kern</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">grid_kern</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">materialized_kernels</span> <span class="o">=</span> <span class="p">[</span><span class="n">Toeplitz</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">from_dist</span><span class="p">(</span><span class="n">grid_kern</span><span class="o">.</span><span class="n">dists</span><span class="p">))</span>
                                      <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">kernels</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolant</span> <span class="o">=</span> <span class="n">grid_kern</span><span class="o">.</span><span class="n">interpolant</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolantT</span> <span class="o">=</span> <span class="n">grid_kern</span><span class="o">.</span><span class="n">interpolantT</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="n">grid_kern</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dists</span> <span class="o">=</span> <span class="n">grid_dists</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">deriv</span> <span class="o">=</span> <span class="n">StochasticDeriv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">pool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deriv</span> <span class="o">=</span> <span class="n">StochasticDeriv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_ski</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">SKI</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">interpolants</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">SKI</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolant</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolantT</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_dKdt_from_dAdt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dAdt</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ski</span><span class="p">(</span><span class="n">Kronecker</span><span class="p">(</span>
             <span class="n">NumpyMatrix</span><span class="p">(</span><span class="n">dAdt</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">materialized_kernels</span><span class="p">[</span><span class="n">q</span><span class="p">]))</span>
 
     <span class="k">def</span> <span class="nf">_dKdts_from_dKqdts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">dKqdt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">kernels</span><span class="p">[</span><span class="n">q</span><span class="p">]</span><span class="o">.</span><span class="n">kernel_gradient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dists</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">dKqdt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">kernels</span><span class="p">[</span><span class="n">q</span><span class="p">]</span><span class="o">.</span><span class="n">kernel_gradient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">dists</span><span class="p">):</span>
             <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ski</span><span class="p">(</span><span class="n">Kronecker</span><span class="p">(</span>
                 <span class="n">NumpyMatrix</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="n">Toeplitz</span><span class="p">(</span><span class="n">dKqdt</span><span class="p">)))</span>
 
@@ -163,28 +165,24 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deriv</span><span class="o">.</span><span class="n">alpha</span></div></div>
 
 <div class="viewcode-block" id="ExactLMCKernel"><a class="viewcode-back" href="../../../runlmc.lmc.kernel.html#runlmc.lmc.kernel.ExactLMCKernel">[docs]</a><span class="k">class</span> <span class="nc">ExactLMCKernel</span><span class="p">(</span><span class="n">LMCKernel</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">pair_dists</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">pair_dists</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">materialized_kernels</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">from_dist</span><span class="p">(</span><span class="n">pair_dists</span><span class="p">)</span>
                                      <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">kernels</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pair_dists</span> <span class="o">=</span> <span class="n">pair_dists</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreg_scale</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">Kq</span><span class="p">)</span> <span class="k">for</span> <span class="n">A</span><span class="p">,</span> <span class="n">Kq</span> <span class="ow">in</span>
                      <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">coreg_mats</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">materialized_kernels</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">noise</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">noise</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">lens</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">invert</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">cho_factor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">deriv</span> <span class="o">=</span> <span class="n">ExactDeriv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">noise</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">lens</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">cho_factor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deriv</span> <span class="o">=</span> <span class="n">ExactDeriv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ExactLMCKernel.coreg_scale"><a class="viewcode-back" href="../../../runlmc.lmc.kernel.html#runlmc.lmc.kernel.ExactLMCKernel.coreg_scale">[docs]</a>    <span class="k">def</span> <span class="nf">coreg_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">K</span><span class="p">):</span>
-        <span class="n">rbegins</span><span class="p">,</span> <span class="n">rends</span> <span class="o">=</span> <span class="n">begin_end_indices</span><span class="p">(</span>
-            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="s1">&#39;lens_x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lens</span><span class="p">))</span>
-        <span class="n">cbegins</span><span class="p">,</span> <span class="n">cends</span> <span class="o">=</span> <span class="n">begin_end_indices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lens</span><span class="p">)</span>
+        <span class="n">begins</span><span class="p">,</span> <span class="n">ends</span> <span class="o">=</span> <span class="n">begin_end_indices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lens</span><span class="p">)</span>
         <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
         <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">D</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">D</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">D</span><span class="p">)):</span>
-            <span class="n">rbegin</span><span class="p">,</span> <span class="n">rend</span> <span class="o">=</span> <span class="n">rbegins</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">rends</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">cbegin</span><span class="p">,</span> <span class="n">cend</span> <span class="o">=</span> <span class="n">cbegins</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">cends</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">rbegin</span><span class="p">,</span> <span class="n">rend</span> <span class="o">=</span> <span class="n">begins</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ends</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">cbegin</span><span class="p">,</span> <span class="n">cend</span> <span class="o">=</span> <span class="n">begins</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">ends</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
             <span class="n">K</span><span class="p">[</span><span class="n">rbegin</span><span class="p">:</span><span class="n">rend</span><span class="p">,</span> <span class="n">cbegin</span><span class="p">:</span><span class="n">cend</span><span class="p">]</span> <span class="o">*=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">K</span></div>
 
@@ -248,7 +246,7 @@
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
     </div>

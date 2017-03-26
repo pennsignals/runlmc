@@ -1,0 +1,7 @@
+runlmc.kern.scaled module
+=========================
+
+.. automodule:: runlmc.kern.scaled
+    :members:
+    :undoc-members:
+    :show-inheritance:

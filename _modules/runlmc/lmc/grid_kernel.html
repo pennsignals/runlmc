@@ -17,8 +17,7 @@
         VERSION:     '0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -27,6 +26,8 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="runlmc 0.0 documentation" href="../../../runlmc.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
   
@@ -49,7 +50,6 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">..approx.ski</span> <span class="k">import</span> <span class="n">SKI</span>
-<span class="kn">from</span> <span class="nn">..linalg.diag</span> <span class="k">import</span> <span class="n">Diag</span>
 <span class="kn">from</span> <span class="nn">..linalg.block_diag</span> <span class="k">import</span> <span class="n">BlockDiag</span>
 <span class="kn">from</span> <span class="nn">..linalg.block_matrix</span> <span class="k">import</span> <span class="n">SymmSquareBlockMatrix</span>
 <span class="kn">from</span> <span class="nn">..linalg.matrix</span> <span class="k">import</span> <span class="n">Matrix</span>
@@ -63,91 +63,110 @@
 <span class="kn">from</span> <span class="nn">..util.numpy_convenience</span> <span class="k">import</span> <span class="n">symm_2d_list_map</span>
 
 <span class="c1"># TODO(test)</span>
-<span class="c1"># notably for parallelism, this is paramz.Param-free.</span>
 <div class="viewcode-block" id="GridKernel"><a class="viewcode-back" href="../../../runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridKernel">[docs]</a><span class="k">class</span> <span class="nc">GridKernel</span><span class="p">(</span><span class="n">Matrix</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">grid_dists</span><span class="p">,</span> <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">,</span> <span class="n">ktype</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">grid_dists</span><span class="p">,</span> <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dists</span> <span class="o">=</span> <span class="n">grid_dists</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolant</span> <span class="o">=</span> <span class="n">interpolant</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolantT</span> <span class="o">=</span> <span class="n">interpolantT</span>
 
-        <span class="n">tops</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">k</span><span class="o">.</span><span class="n">from_dist</span><span class="p">(</span><span class="n">grid_dists</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">kernels</span><span class="p">])</span>
+<div class="viewcode-block" id="GridKernel.grid_only"><a class="viewcode-back" href="../../../runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridKernel.grid_only">[docs]</a>    <span class="k">def</span> <span class="nf">grid_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
-        <span class="k">if</span> <span class="n">ktype</span> <span class="o">==</span> <span class="s1">&#39;sum&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">grid_K</span> <span class="o">=</span> <span class="n">_gen_sum_grid</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tops</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">ktype</span> <span class="o">==</span> <span class="s1">&#39;bt&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">grid_K</span> <span class="o">=</span> <span class="n">_gen_bt_grid</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tops</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">ktype</span> <span class="o">==</span> <span class="s1">&#39;slfm&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">grid_K</span> <span class="o">=</span> <span class="n">_gen_slfm_grid</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tops</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="n">ktype</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">ski</span> <span class="o">=</span> <span class="n">SKI</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_K</span><span class="p">,</span> <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">noise</span> <span class="o">=</span> <span class="n">Diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">noise</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">lens</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="n">SumMatrix</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">ski</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="p">])</span>
-
-<div class="viewcode-block" id="GridKernel.matvec"><a class="viewcode-back" href="../../../runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridKernel.matvec">[docs]</a>    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="GridKernel.interpolants"><a class="viewcode-back" href="../../../runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridKernel.interpolants">[docs]</a>    <span class="k">def</span> <span class="nf">interpolants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ski</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">Ks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">ski</span><span class="o">.</span><span class="n">W</span><span class="p">,</span> <span class="n">ski</span><span class="o">.</span><span class="n">WT</span></div></div>
+<span class="c1"># TODO(cleanup) can definately refactor below replication: they&#39;re</span>
+<span class="c1"># all just summatrix of diag</span>
 
 <span class="c1"># TODO(test)</span>
 <div class="viewcode-block" id="gen_grid_kernel"><a class="viewcode-back" href="../../../runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.gen_grid_kernel">[docs]</a><span class="k">def</span> <span class="nf">gen_grid_kernel</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">grid_dists</span><span class="p">,</span> <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Q</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">ktype</span> <span class="o">=</span> <span class="s1">&#39;sum&#39;</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Q</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">D</span><span class="p">:</span>
+        <span class="n">ktype</span> <span class="o">=</span> <span class="n">BlockToeplitz</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">tot_rank</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coreg</span><span class="p">)</span> <span class="k">for</span> <span class="n">coreg</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="p">)</span>
-        <span class="n">no_diag_correction</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">D</span> <span class="k">if</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">nkernels</span><span class="p">[</span><span class="s1">&#39;lmc&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">nkernels</span><span class="p">[</span><span class="s1">&#39;indep&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span>
-            <span class="mi">0</span><span class="p">)</span>
-        <span class="n">dsq</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">D</span> <span class="o">**</span> <span class="mi">2</span>
-        <span class="k">if</span> <span class="n">tot_rank</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">D</span> <span class="o">-</span> <span class="n">no_diag_correction</span> <span class="o">&lt;</span> <span class="n">dsq</span><span class="p">:</span>
-            <span class="n">ktype</span> <span class="o">=</span> <span class="s1">&#39;slfm&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">ktype</span> <span class="o">=</span> <span class="s1">&#39;bt&#39;</span>
-    <span class="k">return</span> <span class="n">GridKernel</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">grid_dists</span><span class="p">,</span> <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">,</span> <span class="n">ktype</span><span class="p">)</span></div>
+        <span class="n">ktype</span> <span class="o">=</span> <span class="n">SumGrid</span>
+    <span class="k">return</span> <span class="n">ktype</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">grid_dists</span><span class="p">,</span> <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">)</span></div>
 
-<span class="k">def</span> <span class="nf">_gen_slfm_grid</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tops</span><span class="p">):</span>
-    <span class="n">coreg_Ks</span> <span class="o">=</span> <span class="n">_gen_coreg_Ks</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tops</span><span class="p">)</span>
-    <span class="n">diag_Ks</span> <span class="o">=</span> <span class="n">_gen_diag_Ks</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tops</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">SumMatrix</span><span class="p">([</span><span class="n">coreg_Ks</span><span class="p">,</span> <span class="n">diag_Ks</span><span class="p">])</span>
+<span class="c1"># TODO(test)</span>
+<div class="viewcode-block" id="GridSLFM"><a class="viewcode-back" href="../../../runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridSLFM">[docs]</a><span class="k">class</span> <span class="nc">GridSLFM</span><span class="p">(</span><span class="n">GridKernel</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">grid_dists</span><span class="p">,</span> <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">grid_dists</span><span class="p">,</span> <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">_gen_coreg_Ks</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tops</span><span class="p">):</span>
-    <span class="n">all_coreg</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="p">[:</span><span class="o">-</span><span class="n">params</span><span class="o">.</span><span class="n">nkernels</span><span class="p">[</span><span class="s1">&#39;indep&#39;</span><span class="p">]]</span>
-    <span class="n">ranks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">coreg</span><span class="p">)</span> <span class="k">for</span> <span class="n">coreg</span> <span class="ow">in</span> <span class="n">all_coreg</span><span class="p">])</span>
-    <span class="n">A_star</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">all_coreg</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
-    <span class="n">I_m</span> <span class="o">=</span> <span class="n">Identity</span><span class="p">(</span><span class="n">tops</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">left</span> <span class="o">=</span> <span class="n">Kronecker</span><span class="p">(</span><span class="n">NumpyMatrix</span><span class="p">(</span><span class="n">A_star</span><span class="p">),</span> <span class="n">I_m</span><span class="p">)</span>
-    <span class="n">right</span> <span class="o">=</span> <span class="n">Kronecker</span><span class="p">(</span><span class="n">NumpyMatrix</span><span class="p">(</span><span class="n">A_star</span><span class="o">.</span><span class="n">T</span><span class="p">),</span> <span class="n">I_m</span><span class="p">)</span>
-    <span class="n">deduped_toeps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">Toeplitz</span><span class="p">(</span><span class="n">top</span><span class="p">)</span> <span class="k">for</span> <span class="n">top</span> <span class="ow">in</span> <span class="n">tops</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">all_coreg</span><span class="p">)]])</span>
-    <span class="n">toeps</span> <span class="o">=</span> <span class="n">BlockDiag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">deduped_toeps</span><span class="p">,</span> <span class="n">ranks</span><span class="p">))</span>
-    <span class="n">coreg_Ks</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">([</span><span class="n">left</span><span class="p">,</span> <span class="n">toeps</span><span class="p">,</span> <span class="n">right</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">coreg_Ks</span>
+        <span class="n">tops</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">k</span><span class="o">.</span><span class="n">from_dist</span><span class="p">(</span><span class="n">grid_dists</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">kernels</span><span class="p">])</span>
+        <span class="n">coreg_Ks</span> <span class="o">=</span> <span class="n">GridSLFM</span><span class="o">.</span><span class="n">_gen_coreg_Ks</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tops</span><span class="p">)</span>
+        <span class="n">diag_Ks</span> <span class="o">=</span> <span class="n">GridSLFM</span><span class="o">.</span><span class="n">_gen_diag_Ks</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tops</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">_gen_diag_Ks</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tops</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">nkernels</span><span class="p">[</span><span class="s1">&#39;lmc&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">nkernels</span><span class="p">[</span><span class="s1">&#39;indep&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">Identity</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
-    <span class="n">diags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">coreg_diag</span><span class="p">)</span>
-    <span class="n">diag_tops</span> <span class="o">=</span> <span class="n">diags</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">tops</span><span class="p">)</span>
-    <span class="n">diag_Ks</span> <span class="o">=</span> <span class="n">BlockDiag</span><span class="p">([</span><span class="n">Toeplitz</span><span class="p">(</span><span class="n">top</span><span class="p">)</span> <span class="k">for</span> <span class="n">top</span> <span class="ow">in</span> <span class="n">diag_tops</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">diag_Ks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ski</span> <span class="o">=</span> <span class="n">SKI</span><span class="p">(</span><span class="n">SumMatrix</span><span class="p">([</span><span class="n">coreg_Ks</span><span class="p">,</span> <span class="n">diag_Ks</span><span class="p">]),</span>
+                       <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">noise</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">lens</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">_gen_bt_grid</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tops</span><span class="p">):</span>
-    <span class="n">Bs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">coreg_mats</span><span class="p">)</span>
-    <span class="n">bt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">Bs</span><span class="p">,</span> <span class="n">tops</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-    <span class="n">blocked</span> <span class="o">=</span> <span class="n">symm_2d_list_map</span><span class="p">(</span><span class="n">Toeplitz</span><span class="p">,</span> <span class="n">bt</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">D</span><span class="p">)</span>
-    <span class="n">blocked</span> <span class="o">=</span> <span class="n">SymmSquareBlockMatrix</span><span class="p">(</span><span class="n">blocked</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">blocked</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_gen_coreg_Ks</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tops</span><span class="p">):</span>
+        <span class="n">ranks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">coreg</span><span class="p">)</span> <span class="k">for</span> <span class="n">coreg</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="p">])</span>
+        <span class="n">A_star</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">coreg_vecs</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">I_m</span> <span class="o">=</span> <span class="n">Identity</span><span class="p">(</span><span class="n">tops</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="n">Kronecker</span><span class="p">(</span><span class="n">NumpyMatrix</span><span class="p">(</span><span class="n">A_star</span><span class="p">),</span> <span class="n">I_m</span><span class="p">)</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="n">Kronecker</span><span class="p">(</span><span class="n">NumpyMatrix</span><span class="p">(</span><span class="n">A_star</span><span class="o">.</span><span class="n">T</span><span class="p">),</span> <span class="n">I_m</span><span class="p">)</span>
+        <span class="n">deduped_toeps</span> <span class="o">=</span> <span class="p">[</span><span class="n">Toeplitz</span><span class="p">(</span><span class="n">top</span><span class="p">)</span> <span class="k">for</span> <span class="n">top</span> <span class="ow">in</span> <span class="n">tops</span><span class="p">]</span>
+        <span class="n">toeps</span> <span class="o">=</span> <span class="n">BlockDiag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">deduped_toeps</span><span class="p">,</span> <span class="n">ranks</span><span class="p">))</span>
+        <span class="n">coreg_Ks</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">([</span><span class="n">left</span><span class="p">,</span> <span class="n">toeps</span><span class="p">,</span> <span class="n">right</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">coreg_Ks</span>
 
-<span class="k">def</span> <span class="nf">_gen_sum_grid</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tops</span><span class="p">):</span>
-    <span class="n">kerns_on_grid</span> <span class="o">=</span> <span class="p">[</span><span class="n">Toeplitz</span><span class="p">(</span><span class="n">top</span><span class="p">)</span> <span class="k">for</span> <span class="n">top</span> <span class="ow">in</span> <span class="n">tops</span><span class="p">]</span>
-    <span class="c1"># TODO(sum-fast)</span>
-    <span class="c1"># Coreg_mats can be in decomposed representation to be a bit faster.</span>
-    <span class="n">products</span> <span class="o">=</span> <span class="p">[</span><span class="n">Kronecker</span><span class="p">(</span><span class="n">NumpyMatrix</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="n">K</span><span class="p">)</span> <span class="k">for</span> <span class="n">A</span><span class="p">,</span> <span class="n">K</span> <span class="ow">in</span>
-                <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">coreg_mats</span><span class="p">,</span> <span class="n">kerns_on_grid</span><span class="p">)]</span>
-    <span class="n">ksum</span> <span class="o">=</span> <span class="n">SumMatrix</span><span class="p">(</span><span class="n">products</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ksum</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_gen_diag_Ks</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tops</span><span class="p">):</span>
+        <span class="n">diags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">coreg_diag</span><span class="p">)</span>
+        <span class="n">diag_tops</span> <span class="o">=</span> <span class="n">diags</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">tops</span><span class="p">)</span>
+        <span class="n">diag_Ks</span> <span class="o">=</span> <span class="n">BlockDiag</span><span class="p">([</span><span class="n">Toeplitz</span><span class="p">(</span><span class="n">top</span><span class="p">)</span> <span class="k">for</span> <span class="n">top</span> <span class="ow">in</span> <span class="n">diag_tops</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">diag_Ks</span>
+
+<div class="viewcode-block" id="GridSLFM.matvec"><a class="viewcode-back" href="../../../runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridSLFM.matvec">[docs]</a>    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ski</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise</span> <span class="o">*</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="GridSLFM.grid_only"><a class="viewcode-back" href="../../../runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.GridSLFM.grid_only">[docs]</a>    <span class="k">def</span> <span class="nf">grid_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+<span class="c1"># Note in theory we can save on computation of D^2 Toeplitz</span>
+<span class="c1"># circ_ffts in BlockToeplitz below by taking the Q FFTs first then</span>
+<span class="c1"># adding them by linearity, but this only helps if Q &lt; D^2 and also</span>
+<span class="c1"># we have to make D^2 FFTs during matvec anyway.</span>
+
+<span class="c1"># TODO(test)</span>
+<span class="nd">@inherit_doc</span>
+<div class="viewcode-block" id="BlockToeplitz"><a class="viewcode-back" href="../../../runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.BlockToeplitz">[docs]</a><span class="k">class</span> <span class="nc">BlockToeplitz</span><span class="p">(</span><span class="n">GridKernel</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">grid_dists</span><span class="p">,</span> <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">grid_dists</span><span class="p">,</span> <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">)</span>
+
+        <span class="n">tops</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">k</span><span class="o">.</span><span class="n">from_dist</span><span class="p">(</span><span class="n">grid_dists</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">kernels</span><span class="p">])</span>
+        <span class="n">Bs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">coreg_mats</span><span class="p">)</span>
+        <span class="n">bt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">Bs</span><span class="p">,</span> <span class="n">tops</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">blocked</span> <span class="o">=</span> <span class="n">symm_2d_list_map</span><span class="p">(</span><span class="n">Toeplitz</span><span class="p">,</span> <span class="n">bt</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">D</span><span class="p">)</span>
+        <span class="n">blocked</span> <span class="o">=</span> <span class="n">SymmSquareBlockMatrix</span><span class="p">(</span><span class="n">blocked</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ski</span> <span class="o">=</span> <span class="n">SKI</span><span class="p">(</span><span class="n">blocked</span><span class="p">,</span> <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">noise</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">lens</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BlockToeplitz.matvec"><a class="viewcode-back" href="../../../runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.BlockToeplitz.matvec">[docs]</a>    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ski</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise</span> <span class="o">*</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="BlockToeplitz.grid_only"><a class="viewcode-back" href="../../../runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.BlockToeplitz.grid_only">[docs]</a>    <span class="k">def</span> <span class="nf">grid_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ski</span><span class="o">.</span><span class="n">K</span></div></div>
+
+<span class="c1"># TODO(test)</span>
+<span class="nd">@inherit_doc</span>
+<div class="viewcode-block" id="SumGrid"><a class="viewcode-back" href="../../../runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.SumGrid">[docs]</a><span class="k">class</span> <span class="nc">SumGrid</span><span class="p">(</span><span class="n">GridKernel</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">grid_dists</span><span class="p">,</span> <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">grid_dists</span><span class="p">,</span> <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">)</span>
+        <span class="n">kerns_on_grid</span> <span class="o">=</span> <span class="p">[</span><span class="n">Toeplitz</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">from_dist</span><span class="p">(</span><span class="n">grid_dists</span><span class="p">))</span>
+                         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">kernels</span><span class="p">]</span>
+        <span class="c1"># Coreg_mats can be in decomposed representation to be a bit faster.</span>
+        <span class="n">products</span> <span class="o">=</span> <span class="p">[</span><span class="n">Kronecker</span><span class="p">(</span><span class="n">NumpyMatrix</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="n">K</span><span class="p">)</span> <span class="k">for</span> <span class="n">A</span><span class="p">,</span> <span class="n">K</span> <span class="ow">in</span>
+                    <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">coreg_mats</span><span class="p">,</span> <span class="n">kerns_on_grid</span><span class="p">)]</span>
+        <span class="n">ksum</span> <span class="o">=</span> <span class="n">SumMatrix</span><span class="p">(</span><span class="n">products</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ski</span> <span class="o">=</span> <span class="n">SKI</span><span class="p">(</span><span class="n">ksum</span><span class="p">,</span> <span class="n">interpolant</span><span class="p">,</span> <span class="n">interpolantT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">noise</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">lens</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SumGrid.matvec"><a class="viewcode-back" href="../../../runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.SumGrid.matvec">[docs]</a>    <span class="k">def</span> <span class="nf">matvec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ski</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise</span> <span class="o">*</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="SumGrid.grid_only"><a class="viewcode-back" href="../../../runlmc.lmc.grid_kernel.html#runlmc.lmc.grid_kernel.SumGrid.grid_only">[docs]</a>    <span class="k">def</span> <span class="nf">grid_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ski</span><span class="o">.</span><span class="n">K</span></div></div>
 </pre></div>
 
           </div>
@@ -193,7 +212,7 @@
       &copy;2016, Vlad Feinberg.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
     </div>
