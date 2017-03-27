@@ -49,7 +49,7 @@
 <span id="runlmc-models-lmc-module"></span><h1>runlmc.models.lmc module<a class="headerlink" href="#module-runlmc.models.lmc" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="runlmc.models.lmc.LMC">
-<em class="property">class </em><code class="descclassname">runlmc.models.lmc.</code><code class="descname">LMC</code><span class="sig-paren">(</span><em>Xs</em>, <em>Ys</em>, <em>normalize=True</em>, <em>kernels=[]</em>, <em>ranks=None</em>, <em>lo=None</em>, <em>hi=None</em>, <em>m=None</em>, <em>name='lmc'</em>, <em>metrics=False</em>, <em>prediction='matrix-free'</em>, <em>variance_samples=20</em>, <em>max_procs=None</em>, <em>extrapool=None</em>, <em>slfm_kerns=[]</em>, <em>indep_gp=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">runlmc.models.lmc.</code><code class="descname">LMC</code><span class="sig-paren">(</span><em>Xs</em>, <em>Ys</em>, <em>normalize=True</em>, <em>kernels=[]</em>, <em>ranks=None</em>, <em>lo=None</em>, <em>hi=None</em>, <em>m=None</em>, <em>name='lmc'</em>, <em>metrics=False</em>, <em>prediction='matrix-free'</em>, <em>variance_samples=20</em>, <em>max_procs=None</em>, <em>slfm_kerns=[]</em>, <em>indep_gp=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/runlmc/models/lmc.html#LMC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#runlmc.models.lmc.LMC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="runlmc.models.multigp.html#runlmc.models.multigp.MultiGP" title="runlmc.models.multigp.MultiGP"><code class="xref py py-class docutils literal"><span class="pre">runlmc.models.multigp.MultiGP</span></code></a></p>
 <p>The main class of this package, <cite>LMC</cite> implements linearithmic
 Gaussian Process learning in the multi-output case. [TODO(PAPER)].</p>
@@ -158,8 +158,6 @@ number of variance samples used for predictive
 variance.</li>
 <li><strong>max_procs</strong> &#8211; maximum number of processes to use for parallelism,
 defaults to cpu count.</li>
-<li><strong>extrapool</strong> &#8211; temporary pool for re-use in benchmarks - this is an ugly
-interface option that will be soon removed.</li>
 <li><strong>slfm_kerns</strong> &#8211; add kernel terms with kernel <span class="math">\(k_q\)</span> given by this list
 using the SLFM model, which means the corresponding rank
 is 1 and terms <span class="math">\(\boldsymbol\kappa_q=\textbf{0}\)</span></li>

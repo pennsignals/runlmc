@@ -55,10 +55,15 @@
 
 <span class="n">_LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
+<span class="k">class</span> <span class="nc">_EarlyTerm</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+
 <span class="c1"># TODO(test) + classdoc</span>
 <div class="viewcode-block" id="Iterative"><a class="viewcode-back" href="../../../runlmc.approx.iterative.html#runlmc.approx.iterative.Iterative">[docs]</a><span class="k">class</span> <span class="nc">Iterative</span><span class="p">:</span>
-    <span class="n">TOL</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">10</span>
-    <span class="sd">&quot;&quot;&quot;Target solve() tolerance. Only errors &gt; sqrt(TOL) reported.&quot;&quot;&quot;</span>
+    <span class="n">TOL</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">4</span>
+    <span class="sd">&quot;&quot;&quot;Target solve() tolerance. Only errors &gt; TOL reported.&quot;&quot;&quot;</span>
 
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="Iterative.solve"><a class="viewcode-back" href="../../../runlmc.approx.iterative.html#runlmc.approx.iterative.Iterative.solve">[docs]</a>    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">minres</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -69,29 +74,35 @@
 <span class="sd">        :param y: :math:`\\textbf{y}`</span>
 <span class="sd">        :param verbose: whether to return number of iterations</span>
 <span class="sd">        :param minres: uses minres if true, else lcg</span>
-<span class="sd">        :return: :math:`\\textbf{x}`, number of iterations if verbose</span>
+<span class="sd">        :return: :math:`\\textbf{x}`, number of iterations and error if verbose</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ctr</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">def</span> <span class="nf">cb</span><span class="p">(</span><span class="n">_</span><span class="p">):</span>
-            <span class="k">nonlocal</span> <span class="n">ctr</span>
+        <span class="k">def</span> <span class="nf">cb</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">nonlocal</span> <span class="n">ctr</span><span class="p">,</span> <span class="n">y</span>
             <span class="n">ctr</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">ctr</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># early termination</span>
+                <span class="n">reconstruction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">op</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">reconstruction</span> <span class="o">&lt;</span> <span class="n">Iterative</span><span class="o">.</span><span class="n">TOL</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">_EarlyTerm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
         <span class="n">method</span> <span class="o">=</span> <span class="n">sla</span><span class="o">.</span><span class="n">minres</span> <span class="k">if</span> <span class="n">minres</span> <span class="k">else</span> <span class="n">sla</span><span class="o">.</span><span class="n">cg</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">op</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">as_linear_operator</span><span class="p">()</span>
         <span class="n">M</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="s1">&#39;preconditioner&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-        <span class="n">Kinv_y</span><span class="p">,</span> <span class="n">succ</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span>
-            <span class="n">op</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">Iterative</span><span class="o">.</span><span class="n">TOL</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">cb</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">Kinv_y</span><span class="p">,</span> <span class="n">succ</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span>
+                <span class="n">op</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">cb</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">_EarlyTerm</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">Kinv_y</span><span class="p">,</span> <span class="n">succ</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span>
         <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">op</span><span class="o">.</span><span class="n">matvec</span><span class="p">(</span><span class="n">Kinv_y</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">error</span> <span class="o">&gt;</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Iterative</span><span class="o">.</span><span class="n">TOL</span><span class="p">)</span> <span class="ow">or</span> <span class="n">succ</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">_LOG</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;MINRES (n = </span><span class="si">%d</span><span class="s1">) did not converge.</span><span class="se">\n</span><span class="s1">&#39;</span>
-                          <span class="s1">&#39;iterations = n</span><span class="se">\n</span><span class="s1">&#39;</span>
-                          <span class="s1">&#39;error code </span><span class="si">%d</span><span class="se">\n</span><span class="s1">Reconstruction Error </span><span class="si">%e</span><span class="s1">&#39;</span><span class="p">,</span>
-                          <span class="n">n</span><span class="p">,</span> <span class="n">succ</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">error</span> <span class="o">&gt;</span> <span class="n">Iterative</span><span class="o">.</span><span class="n">TOL</span> <span class="ow">or</span> <span class="n">succ</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">_LOG</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;MINRES (n = </span><span class="si">%d</span><span class="s1">) did not converge in n iterations.&#39;</span>
+                          <span class="s1">&#39; Reconstruction error </span><span class="si">%e</span><span class="s1">&#39;</span><span class="p">,</span>
+                          <span class="n">n</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Kinv_y</span><span class="p">,</span> <span class="n">ctr</span>
+            <span class="k">return</span> <span class="n">Kinv_y</span><span class="p">,</span> <span class="n">ctr</span><span class="p">,</span> <span class="n">error</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Kinv_y</span></div></div>
 </pre></div>
