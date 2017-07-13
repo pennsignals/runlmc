@@ -1,7 +1,6 @@
 FROM continuumio/anaconda3
 MAINTAINER Corey Chivers <corey.chivers@uphs.upenn.edu>
 RUN apt-get update && apt-get install -y \
-	freetds-dev \
 	g++ \
 && rm -rf /var/lib/apt/lists/*
 
